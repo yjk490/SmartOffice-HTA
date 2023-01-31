@@ -1,0 +1,29 @@
+# \uc6f9\uc11c\ubc84 \ud3ec\ud2b8 \uc9c0\uc815
+server:
+  port: 80
+  
+# mybatis\uc758 SQL \uc2e4\ud589 \ub85c\uadf8 \ucd9c\ub825\uc744 \uc704\ud55c \uc124\uc815
+logging:
+  level:
+    '[com.example.mapper]': trace
+    
+spring:
+  # \ub370\uc774\ud130\ubca0\uc774\uc2a4\uc640 \uc5f0\uacb0\ub41c Connection Pool \uc124\uc815
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@localhost:1521:xe
+    username: smart_office
+    password: zxcv1234
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+    
+# mybatis \ud658\uacbd\uc124\uc815
+mybatis:
+  mapper-locations:
+  - mybatis/mappers/*.xml
+  type-aliases-package: com.example.vo, com.example.dto
+  configuration:
+    jdbc-type-for-null: null
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
