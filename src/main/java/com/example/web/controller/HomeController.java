@@ -12,4 +12,9 @@ public class HomeController {
 		return "home";
 	}
 	
+	//일정 화면 요청
+	@GetMapping("/schedule")
+	public String schedule() {
+		return "schedule";
+	}
 }
