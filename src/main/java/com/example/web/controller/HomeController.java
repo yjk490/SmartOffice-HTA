@@ -11,5 +11,17 @@ public class HomeController {
 	public String home() {
 		return "home";
 	}
-	
+  
+	// 연락처
+	@GetMapping("/contact")
+	public String contact() {
+		return "contact";
+	}	
+
+	//일정 화면 요청
+	@GetMapping("/schedule")
+	public String schedule() {
+		return "schedule";
+	}
+
 }
