@@ -12,4 +12,10 @@ public class HomeController {
 		return "home";
 	}
 	
+	// 연락처
+	@GetMapping("/contact")
+	public String contact() {
+		return "contact";
+	}
+	
 }
