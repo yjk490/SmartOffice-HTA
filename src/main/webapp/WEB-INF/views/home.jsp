@@ -14,12 +14,13 @@
 <%@ include file="common/navbar.jsp" %>
 <div class="container">
 	<div class="row mb-4">
-		<div class="col-3 border p-3 bg-light">
-			<div class="w3-container w3-center">
+		<div class="col-3">
+			<div class=" border p-3 bg-light text-center">
 				<img src="https://mblogthumb-phinf.pstatic.net/MjAyMDA2MTBfMTY1/MDAxNTkxNzQ2ODcyOTI2.Yw5WjjU3IuItPtqbegrIBJr3TSDMd_OPhQ2Nw-0-0ksg.8WgVjtB0fy0RCv0XhhUOOWt90Kz_394Zzb6xPjG6I8gg.PNG.lamute/user.png?type=w800" 
-				alt="Alps" class="w3-circle" style="width:75%">
+				alt="Alps" class="w3-circle" style="width: 75%;">
 					<h5>홍길동</h5>
 					<p>영업부</p>
+			
 			</div>
 		</div>
 		<div class="col-9">

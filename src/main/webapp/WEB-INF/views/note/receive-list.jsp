@@ -53,9 +53,9 @@
 			<input type="hidden" name="page" value="" />
 			<div>
 				<select class="form-select form-select-xs" name="rows">
-					<option>10</option>
-					<option>15</option>
-					<option>20</option>
+					<option>10개씩</option>
+					<option>15개씩</option>
+					<option>20개씩</option>
 				</select>
 			</div>
 			<div>
@@ -70,7 +70,7 @@
 		</div>
 		<table class="table table-sm">
 				<colgroup>
-					<col width="7%">
+					<col width="5%">
 					<col width="7%">
 					<col width="10%">
 					<col width="*">
@@ -84,7 +84,7 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</th>
-						<th><i class="fas fa-star"></i></th>
+						<th class="text-center">중요</th>
 						<th class="text-center">보낸사람</th>
 						<th class="text-center">제목</th>
 						<th class="text-center">보낸일자</th>
@@ -98,7 +98,7 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td><i class="fas fa-star"></i></td>
+						<td class="text-center"><i class="fas fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
 						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 중요쪽지 테스트입니다.</a></td>
 						<td class="text-center">2023-01-31</td>
@@ -110,7 +110,7 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td><i class="far fa-star"></i></td>
+						<td class="text-center"><i class="far fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
 						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 테스트입니다.</a></td>
 						<td class="text-center">2023-01-31</td>
