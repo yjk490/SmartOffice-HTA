@@ -5,7 +5,7 @@
 			<li class="nav-item"><a class="nav-link ${top eq 'home' ? 'active' : '' }" href="/">SMART OFFICE</a></li>
 			<li class="nav-item"><a class="nav-link ${top eq 'note' ? 'active' : '' }" href="/note">쪽지</a></li>
 			<li class="nav-item"><a class="nav-link ${top eq 'schedule' ? 'active' : '' }" href="/schedule/schedule">일정</a></li>
-			<li class="nav-item"><a class="nav-link" href="">주소록</a></li>
+			<li class="nav-item"><a class="nav-link ${top eq 'contact' ? 'active' : '' }" href="/contact/list">주소록</a></li>
 			<li class="nav-item"><a class="nav-link" href="">메모(일단)</a></li>
 			<li class="nav-item"><a class="nav-link" href="">메신저</a></li>
 			<li class="nav-item"><a class="nav-link" href="">게시판</a></li>
