@@ -2,9 +2,11 @@
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark mb-3">
 	<div class="container">
 		<ul class="navbar-nav me-auto">
-			<li class="nav-item"><a class="nav-link" href="/">샘플 애플리케이션</a></li>
-			<li class="nav-item"><a class="nav-link" href="">쪽지</a></li>
-			<li class="nav-item"><a class="nav-link" href="/schedule/schedule">일정</a></li>
+
+			<li class="nav-item"><a class="nav-link ${top eq 'home' ? 'active' : '' }" href="/">SMART OFFICE</a></li>
+			<li class="nav-item"><a class="nav-link ${top eq 'note' ? 'active' : '' }" href="/note">쪽지</a></li>
+			<li class="nav-item"><a class="nav-link ${top eq 'schedule' ? 'active' : '' }" href="/schedule/schedule">일정</a></li>
+
 			<li class="nav-item"><a class="nav-link" href="">주소록</a></li>
 			<li class="nav-item"><a class="nav-link" href="">메모(일단)</a></li>
 			<li class="nav-item"><a class="nav-link" href="">메신저</a></li>
