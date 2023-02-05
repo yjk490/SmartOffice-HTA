@@ -5,10 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<style>
-a:link { text-decoration:none;
-		text-decoration-color:black; }
-</style>
 <title>애플리케이션</title>
 </head>
 <body>
@@ -18,14 +14,14 @@ a:link { text-decoration:none;
 	<div class="row pt-4 mx-2">
 		<div class="col-3"> <!-- 사이드 바 시작 -->
 			<%@ include file="../common/left/post.jsp" %>
-		</div> <!-- 사이드 바 끝 -->
+		</div> <!-- 사이드 바 끝 -->	
 		<div class="col-9">
 			<div class="row border m-1 mb-2">
-				<p class="fs-1 my-2">자유 게시판</p>
-				<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
+				<p class="fs-1 my-2">게시판 활동내역</p>
+				<p class="fs-5 my-3">OOO님이 쓴 게시글</p>
 			</div>
-			<div class="m-1 mb-3 py-4 d-flex justify-content-between border-bottom">
-				<div>
+			<div class="m-1 mb-3 py-4 d-flex justify-content-end border-bottom">
+				<div class="mx-3">
 					<select class="form-select form-select-xs" name="rows">
 						<option value="10">10개씩</option>
 						<option value="15">15개씩</option>
@@ -38,125 +34,83 @@ a:link { text-decoration:none;
 	  					<input type="text" class="form-control border-secondary" name="keyword" value="" placeholder="검색어를 입력하세요." />
 					</div>
 				</div>
-				<div>
-					<select class="form-select form-select-xs" name="opt">
-						<option>최신순</option>
-						<option>추천순</option>
-						<option>댓글순</option>
-						<option>스크랩순</option>
-						<option>조회순</option>
-					</select>
-				</div>
 			</div>
 			<div class="mb-3 p-2 border-bottom">
-				<div class="row mb-1">
+				<div class="row mb-2">
 					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
+						<a href="/post/detail" class="link-dark">내가 쓴 게시글 제목</a>
 					</div>
 					<div class="col-6 text-end">
-						<span>1시간 전</span>
+						<span>2023. 2. 6.(글 작성 날짜)</span>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="fs-5 link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
+					<div>
+						<span>게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입...</span>
 					</div>
 				</div>
-			</div>
+			</div>						
 			<div class="mb-3 p-2 border-bottom">
 				<div class="row mb-1">
 					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
+						<a href="/post/detail" class="link-dark">내가 쓴 게시글 제목</a>
 					</div>
 					<div class="col-6 text-end">
-						<span>1시간 전</span>
+						<span>2023. 2. 6.(글 작성 날짜)</span>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="fs-5 link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
+					<div>
+						<span>게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입...</span>
 					</div>
 				</div>
-			</div>
+			</div>						
 			<div class="mb-3 p-2 border-bottom">
 				<div class="row mb-1">
 					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
+						<a href="/post/detail" class="link-dark">내가 쓴 게시글 제목</a>
 					</div>
 					<div class="col-6 text-end">
-						<span>1시간 전</span>
+						<span>2023. 2. 6.(글 작성 날짜)</span>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="fs-5 link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
+					<div>
+						<span>게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입...</span>
 					</div>
 				</div>
-			</div>
+			</div>						
 			<div class="mb-3 p-2 border-bottom">
 				<div class="row mb-1">
 					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
+						<a href="/post/detail" class="link-dark">내가 쓴 게시글 제목</a>
 					</div>
 					<div class="col-6 text-end">
-						<span>1시간 전</span>
+						<span>2023. 2. 6.(글 작성 날짜)</span>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="fs-5 link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
+					<div>
+						<span>게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입...</span>
 					</div>
 				</div>
-			</div>
+			</div>						
 			<div class="mb-3 p-2 border-bottom">
 				<div class="row mb-1">
 					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
+						<a href="/post/detail" class="link-dark">내가 쓴 게시글 제목</a>
 					</div>
 					<div class="col-6 text-end">
-						<span>1시간 전</span>
+						<span>2023. 2. 6.(글 작성 날짜)</span>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="fs-5 link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
+					<div>
+						<span>게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입니다. 게시글 내용 입...</span>
 					</div>
 				</div>
 			</div>
 			<div class="row">
-				<div class="col m-2">
-					<button type="button" class="btn btn-outline-danger">삭제</button>
-				</div>
 				<nav>
 					<ul class="pagination pagination justify-content-center pt-5">
 						<li class="page-item">
@@ -182,9 +136,9 @@ a:link { text-decoration:none;
 						</li>
 					</ul>
 				</nav>
-			</div>			
+			</div>										
 		</div>
-	</div>
+	</div>   
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>

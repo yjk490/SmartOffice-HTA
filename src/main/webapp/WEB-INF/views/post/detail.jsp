@@ -5,9 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<style>
-a:link { text-decoration:none; }
-</style>
 <title>애플리케이션</title>
 </head>
 <body>
@@ -32,7 +29,7 @@ a:link { text-decoration:none; }
 						<div class="row mb-3">
 							<div class="col-6">
 								<div>
-									<span class="fs-4">작성자</span>
+									<span class="fs-5">작성자</span>
 								</div>
 								<div>
 									<span>약 1시간 전</span>
@@ -73,11 +70,11 @@ a:link { text-decoration:none; }
 						<div class="mb-3 text-end">
 							<button type="button" class="btn btn-outline-primary">댓글 쓰기</button>
 						</div>
-					</div>
+					</div>					
 					<div class="my-3 border-bottom">
 						<div class="row mb-3">
 							<div>
-								<span class="fs-5">댓글 작성자</span>
+								<span>댓글 작성자</span>
 							</div>
 							<div>
 								<span>약 1시간 전</span>
@@ -103,7 +100,7 @@ a:link { text-decoration:none; }
 					<div class="my-3 border-bottom">
 						<div class="row mb-3">
 							<div>
-								<span class="fs-5">댓글 작성자</span>
+								<span>댓글 작성자</span>
 							</div>
 							<div>
 								<span>약 1시간 전</span>
@@ -129,7 +126,7 @@ a:link { text-decoration:none; }
 					<div class="my-3 border-bottom">
 						<div class="row mb-3">
 							<div>
-								<span class="fs-5">댓글 작성자</span>
+								<span>댓글 작성자</span>
 							</div>
 							<div>
 								<span>약 1시간 전</span>

@@ -8,8 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 <script src="https://kit.fontawesome.com/b910aa4676.js" crossorigin="anonymous"></script>
 <style>
-a:link { text-decoration:none;
-		text-decoration-color:black; }
+a:link { text-decoration:none; }
 </style>
 <title>애플리케이션</title>
 </head>
@@ -17,21 +16,19 @@ a:link { text-decoration:none;
 <div class="container">
 	<div class="row border me-5">
 		<div class="border-bottom text-center py-3">
-			<a href="/post" class="link-dark fs-3">게시판</a>
+			<a href="/post/list" class="link-dark fs-3">게시판</a>
 		</div>
 		<div class="border-bottom text-center py-3">
-			<a class="btn btn-dark btn-lg" href="/post/registerform">작성하기</a>
+			<a class="btn btn-dark btn-lg" href="/post/register-form">작성하기</a>
 		</div>
 		<div class="list-group p-3">
-		  <a href="#" class="list-group-item list-group-item-action">알림
-		   <span class="badge bg-secondary rounded-pill float-end">3</span>
+		  <a href="/post/notice" class="list-group-item list-group-item-action">알림
+		   <span class="badge bg-primary rounded-pill float-end">3</span>
 		  </a>
-		  <a href="#" class="list-group-item list-group-item-action">내가 쓴 글
-		  </a>
-		  <a href="#" class="list-group-item list-group-item-action">내가 쓴 댓글
-		  </a>
-		  <a href="#"class="list-group-item list-group-item-action">스크랩
-		  </a>
+		  <a href="/post/mypost" class="list-group-item list-group-item-action">내가 쓴 글</a>
+		  <a href="/post/mycomment" class="list-group-item list-group-item-action">내가 쓴 댓글</a>
+		  <a href="/post/myscrap"class="list-group-item list-group-item-action">스크랩</a>
+		  <a href="/post/myfile"class="list-group-item list-group-item-action">다운로드 파일</a>
 		</div>
 	</div>
 </div>
