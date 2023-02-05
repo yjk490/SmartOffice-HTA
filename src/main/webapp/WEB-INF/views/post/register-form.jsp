@@ -19,37 +19,70 @@
 			<div class="row border m-1 mb-3">
 				<p class="fs-1 my-2">글 작성하기</p>
 			</div>
-			<div class="row p-2 auto">
-			<form>
+			<form id="form-post" class="row p-2 auto" method="post" action="register">
 				<div class="mb-4">
 				  	<label class="form-label lead">제목</label>
-				  	<input type="text" class="form-control" placeholder="제목을 입력해주세요.">
+				  	<input type="text" class="form-control" name="title" placeholder="제목을 입력해주세요.">
+				  	<div class="invalid-feedback">
+        				<span class="ps-2">제목은 필수 입력입니다.</span>
+      				</div>
 				</div>
 				<div class="mb-4">
 				  	<label class="form-label lead">태그</label>
-				  	<input type="text" class="form-control" placeholder="태그를 입력해주세요.">
+				  	<input type="text" class="form-control"  name="tag" placeholder="태그를 입력해주세요.">
 				</div>
 				<div class="mb-4">
 				  	<label class="form-label lead">내용</label>
-				  	<textarea class="form-control" rows="10" placeholder="내용을 입력해주세요."></textarea>
+				  	<textarea class="form-control" name="content" rows="10" placeholder="내용을 입력해주세요."></textarea>
+				  	<div class="invalid-feedback">
+        				<span class="ps-2">내용은 필수 입력입니다.</span>
+      				</div>
 				</div>
 				<div class="mb-4">
-  					<label class="form-label"></label>
-  					<input class="form-control" type="file" multiple>
-  					<small class="form-text text-muted p-2">최대 ~MB까지 첨부할 수 있습니다.</small>
+			  		<label class="form-label"></label>
+			  		<input class="form-control"  name="file" type="file" multiple>
+			  		<small class="form-text text-muted p-2">최대 ~MB까지 첨부할 수 있습니다.</small>
 				</div>
-			</div>
-			<div class="row p-2">
 				<div class="text-end">
 					<button class="btn btn-outline-secondary" type="submit">취소</button>
 					<button class="btn btn-outline-primary" type="submit">완료</button>
 				</div>
-			</div>
 			</form>
 		</div>
 	</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	
+	// 게시글 등록 폼 유효성 검사
+	$title = $("#form-post :input[name=title]")
+	$content = $("#form-post :input[name=content]")
+	
+	$("#form-post").keyup(function() {
+		if (!$title.val() == "") {
+			$title.removeClass("is-invalid")
+		}
+		
+		if (!$content.val() == "") {
+			$content.removeClass("is-invalid")
+		}
+	})
+	
+	$("#form-post").submit(function() {
+		if ($title.val() == "") {
+			$title.addClass("is-invalid")
+			return false
+		}
+		if ($content.val() == "") {
+			$content.addClass("is-invalid")
+			return false
+		}
+		
+		return true
+	})
+})
+</script>
 </body>
 </html>
