@@ -11,7 +11,7 @@
 <c:set var="top" value="post" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
-	<div class="row pt-4 mx-2">
+	<div class="row">
 		<div class="col-3"> <!-- 사이드 바 시작 -->
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->
@@ -19,7 +19,7 @@
 			<div class="row border m-1 mb-3">
 				<p class="fs-1 my-2">글 작성하기</p>
 			</div>
-			<form id="form-post" class="row p-2 auto" method="post" action="register">
+			<form id="form-post" class="row p-2 auto" method="post" action="register" enctype="mutipart/form-data">
 				<div class="mb-4">
 				  	<label class="form-label lead">제목</label>
 				  	<input type="text" class="form-control" name="title" placeholder="제목을 입력해주세요.">
@@ -28,24 +28,26 @@
       				</div>
 				</div>
 				<div class="mb-4">
-				  	<label class="form-label lead">태그</label>
-				  	<input type="text" class="form-control"  name="tag" placeholder="태그를 입력해주세요.">
-				</div>
-				<div class="mb-4">
 				  	<label class="form-label lead">내용</label>
 				  	<textarea class="form-control" name="content" rows="10" placeholder="내용을 입력해주세요."></textarea>
 				  	<div class="invalid-feedback">
         				<span class="ps-2">내용은 필수 입력입니다.</span>
       				</div>
 				</div>
+				<div class="mb-2">
+				  	<label class="form-label lead">태그</label>
+				  	<input id="tag-input" type="text" class="form-control"  name="tag" placeholder="태그를 입력해주세요.">
+					<div id="tag-btn-box" class="p-3"></div>
+					<div id="tag-box" class=""></div>					
+				</div>
 				<div class="mb-4">
-			  		<label class="form-label"></label>
-			  		<input class="form-control"  name="file" type="file" multiple>
+			  		<label class="form-label lead">파일 첨부</label>
+			  		<input type="file" class="form-control" name="upfile" multiple>
 			  		<small class="form-text text-muted p-2">최대 ~MB까지 첨부할 수 있습니다.</small>
 				</div>
 				<div class="text-end">
 					<button class="btn btn-outline-secondary" type="submit">취소</button>
-					<button class="btn btn-outline-primary" type="submit">완료</button>
+					<button class="btn btn-outline-primary" type="submit">등록</button>
 				</div>
 			</form>
 		</div>
@@ -57,8 +59,8 @@
 $(function() {
 	
 	// 게시글 등록 폼 유효성 검사
-	$title = $("#form-post :input[name=title]")
-	$content = $("#form-post :input[name=content]")
+	let $title = $("#form-post :input[name=title]")
+	let $content = $("#form-post :input[name=content]")
 	
 	$("#form-post").keyup(function() {
 		if (!$title.val() == "") {
@@ -82,6 +84,34 @@ $(function() {
 		
 		return true
 	})
+	
+	// 게시글 등록 태그 입력
+	let $tagInput = $("#tag-input");
+	let $tagBtnBox = $("#tag-btn-box");
+	let $tagBox = $("#tag-box");
+	
+	$("#tag-input").keydown(function(event) {
+		
+		if (event.which == 13) {
+			let value = $tagInput.val();
+			if (value == "") {
+				return false;
+			}
+			let tagBtn = `
+				<small class="border rounded bg-secondary p-1 text-white">#\${value} <a href="" class="text-white text-decoration-none"><i class="bi bi-x"></i></a></small>
+			`;
+			let tag = `
+				<input type="hidden" name="tags" value="\${value}">
+			`
+			$tagBtnBox.append(tagBtn);
+			$tagBox.append(tag);
+			$tagInput.val("");
+			
+			return false;
+		}
+		return true;
+	})
+	
 })
 </script>
 </body>
