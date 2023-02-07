@@ -11,7 +11,7 @@
 <c:set var="top" value="post" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
-	<div class="row pt-4 mx-2">
+	<div class="row">
 		<div class="col-3"> <!-- 사이드 바 시작 -->
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->
@@ -156,7 +156,9 @@
 				<nav>
 					<ul class="pagination pagination justify-content-center pt-5">
 						<li class="page-item">
-							<a class="page-link link-dark" href=""><<</a>
+							<a class="page-link link-dark" href="" aria-label="Previous">
+								<span aria-hidden="true">&laquo;</span>
+							</a>
 						</li>
 						<li class="page-item">
 							<a class="page-link link-dark" href="">1</a>
@@ -174,7 +176,9 @@
 							<a class="page-link link-dark" href="">5</a>
 						</li>
 						<li class="page-item">
-							<a class="page-link link-dark" href="">>></a>
+							<a class="page-link link-dark" href="" aria-label="Previous">
+								<span aria-hidden="true">&raquo;</span>
+							</a>
 						</li>
 					</ul>
 				</nav>

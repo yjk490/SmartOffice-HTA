@@ -11,7 +11,7 @@
 <c:set var="top" value="post" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
-	<div class="row pt-4 mx-2">
+	<div class="row">
 		<div class="col-3"> <!-- 사이드 바 시작 -->
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->
