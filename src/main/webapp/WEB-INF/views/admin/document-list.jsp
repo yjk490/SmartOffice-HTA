@@ -37,17 +37,17 @@
 <title>SMART OFFICE</title>
 </head>
 <body>
-<c:set var="top" value="note" />
+<c:set var="top" value="admin" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row g-3">
 		<div class="col-3">
-			<c:set var="left" value="receive" />
-			<%@ include file="../common/left/note.jsp" %>
+			<c:set var="left" value="document" />
+			<%@ include file="../common/left/admin.jsp" %>
 		</div>
 		<div class="col-9">
 		<div class="col-12 mb-3">
-			<h1 class="fs-4 border p-2">받은 쪽지함</h1>
+			<h1 class="fs-4 border p-2">문서양식 관리</h1>
 		</div>
 		<div class="mb-3 d-flex justify-content-between">
 			<input type="hidden" name="page" value="" />
@@ -60,9 +60,8 @@
 			</div>
 			<div>
 				<select class="form-select form-select-xs" name="opt">
-					<option>보낸사람</option>
-					<option>제목</option>
-					<option>내용</option>
+					<option>등록자</option>
+					<option>파일명</option>
 				</select>
 				<input type="text" class="form-control form-control-xs" name="keyword" value="" />
 				<button type="button" class="btn btn-outline-secondary btn-xs" id="btn-search"><i class="fa fa-search"></i></button>
@@ -71,11 +70,10 @@
 		<table class="table table-sm">
 				<colgroup>
 					<col width="5%">
-					<col width="7%">
 					<col width="10%">
 					<col width="*">
-					<col width="15%">
-					<col width="10%">
+					<col width="17%">
+					<col width="17%">
 				</colgroup>
 				<thead>
 					<tr>
@@ -84,11 +82,10 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</th>
-						<th class="text-center">중요</th>
-						<th class="text-center">보낸사람</th>
-						<th class="text-center">제목</th>
-						<th class="text-center">보낸일자</th>
-						<th class="text-center">읽음</th>
+						<th class="text-center">등록자</th>
+						<th class="text-center">파일명</th>
+						<th class="text-center">등록일</th>
+						<th class="text-center">수정일</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -98,11 +95,10 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td class="text-center"><i class="fas fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="/note/detail" class="text-decoration-none">보낸쪽지함 페이지 중요쪽지 테스트입니다.</a></td>
+						<td class="text-center"><a href="" class="text-decoration-none">대용량 주소록 업로드.xml</a></td>
 						<td class="text-center">2023-01-31</td>
-						<td class="text-center">안읽음</td>
+						<td class="text-center">2023-01-31</td>
 					</tr>
 					<tr>
 						<td>
@@ -110,16 +106,16 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td class="text-center"><i class="far fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 테스트입니다.</a></td>
+						<td class="text-center"><a href="" class="text-decoration-none">대용량 주소록 업로드.xml</a></td>
 						<td class="text-center">2023-01-31</td>
-						<td class="text-center">안읽음</td>
+						<td class="text-center">2023-01-31</td>
 					</tr>
 			</table>
 			<div class="w3-bar">
 			  <button class="w3-button w3-padding-small w3-round-large w3-black">삭제</button>
 			  <button class="w3-button w3-padding-small w3-round-large w3-light-gray">보관</button>
+			  <button class="w3-button w3-padding-small w3-right w3-round-large w3-black"><a class="text-decoration-none" href="">추가</a></button>
 			</div>
 			<div class="w3-center">
 				<div class="w3-bar">

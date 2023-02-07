@@ -42,7 +42,7 @@
 <div class="container">
 	<div class="row g-3">
 		<div class="col-3">
-			<c:set var="left" value="receive" />
+			<c:set var="left" value="send" />
 			<%@ include file="../common/left/note.jsp" %>
 		</div>
 		<div class="col-9">
@@ -60,7 +60,7 @@
 			</div>
 			<div>
 				<select class="form-select form-select-xs" name="opt">
-					<option>보낸사람</option>
+					<option>받는사람</option>
 					<option>제목</option>
 					<option>내용</option>
 				</select>
@@ -71,7 +71,6 @@
 		<table class="table table-sm">
 				<colgroup>
 					<col width="5%">
-					<col width="7%">
 					<col width="10%">
 					<col width="*">
 					<col width="15%">
@@ -84,8 +83,7 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</th>
-						<th class="text-center">중요</th>
-						<th class="text-center">보낸사람</th>
+						<th class="text-center">받는사람</th>
 						<th class="text-center">제목</th>
 						<th class="text-center">보낸일자</th>
 						<th class="text-center">읽음</th>
@@ -98,9 +96,8 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td class="text-center"><i class="fas fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="/note/detail" class="text-decoration-none">보낸쪽지함 페이지 중요쪽지 테스트입니다.</a></td>
+						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 테스트입니다.</a></td>
 						<td class="text-center">2023-01-31</td>
 						<td class="text-center">안읽음</td>
 					</tr>
@@ -110,16 +107,14 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td class="text-center"><i class="far fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 테스트입니다.</a></td>
+						<td class="text-center"><a href="" class="text-decoration-none">테스트입니다.</a></td>
 						<td class="text-center">2023-01-31</td>
 						<td class="text-center">안읽음</td>
 					</tr>
 			</table>
 			<div class="w3-bar">
 			  <button class="w3-button w3-padding-small w3-round-large w3-black">삭제</button>
-			  <button class="w3-button w3-padding-small w3-round-large w3-light-gray">보관</button>
 			</div>
 			<div class="w3-center">
 				<div class="w3-bar">

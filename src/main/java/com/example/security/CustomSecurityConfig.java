@@ -1,12 +1,20 @@
 package com.example.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
 public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	@Autowired
+	private CustomEmployeeDetailsService customEmployeeDetailsService;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	
 	@Override
@@ -14,7 +22,18 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			
 		.authorizeHttpRequests()		// 모든 요청에 대해서 인가정책을 적용하도록 한다. AuthorizeHttpRequestsConfigurer 객체를 반환한다.
-		.antMatchers("/", "/note").permitAll();
+		.antMatchers("/", "/note", "/login").permitAll()
+		
+	.and()
+		
+		// 로그인 설정
+		.formLogin()
+		.loginPage("/login")
+		.loginProcessingUrl("/login")
+		.usernameParameter("no")
+		.passwordParameter("password")
+		.defaultSuccessUrl("/")				// 로그인이 성공하면 홈화면으로 돌아가는 url 설정
+		.failureUrl("/login?error=fail");	// 로그인 실패시 돌아가도록 하는 url인데 아직 구현 전..
 		
 	}
 	
@@ -22,6 +41,11 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/resources/**", "/favicon.ico");
+	}
+	
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.userDetailsService(customEmployeeDetailsService).passwordEncoder(passwordEncoder);
 	}
 
 }

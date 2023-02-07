@@ -42,12 +42,12 @@
 <div class="container">
 	<div class="row g-3">
 		<div class="col-3">
-			<c:set var="left" value="receive" />
+			<c:set var="left" value="important" />
 			<%@ include file="../common/left/note.jsp" %>
 		</div>
 		<div class="col-9">
 		<div class="col-12 mb-3">
-			<h1 class="fs-4 border p-2">받은 쪽지함</h1>
+			<h1 class="fs-4 border p-2">중요 쪽지함</h1>
 		</div>
 		<div class="mb-3 d-flex justify-content-between">
 			<input type="hidden" name="page" value="" />
@@ -100,7 +100,7 @@
 						</td>
 						<td class="text-center"><i class="fas fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="/note/detail" class="text-decoration-none">보낸쪽지함 페이지 중요쪽지 테스트입니다.</a></td>
+						<td class="text-center"><a href="" class="text-decoration-none">중요쪽지함 페이지 테스트입니다.</a></td>
 						<td class="text-center">2023-01-31</td>
 						<td class="text-center">안읽음</td>
 					</tr>
@@ -110,9 +110,9 @@
  								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
 							</div>
 						</td>
-						<td class="text-center"><i class="far fa-star w3-text-amber"></i></td>
+						<td class="text-center"><i class="fas fa-star w3-text-amber"></i></td>
 						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 테스트입니다.</a></td>
+						<td class="text-center"><a href="" class="text-decoration-none">중요쪽지함 페이지 테스트입니다.</a></td>
 						<td class="text-center">2023-01-31</td>
 						<td class="text-center">안읽음</td>
 					</tr>

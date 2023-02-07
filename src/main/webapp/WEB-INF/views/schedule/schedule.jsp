@@ -9,7 +9,7 @@
 <title>애플리케이션</title>
 </head>
 <body>
-<c:set var="menu" value="schedule" />
+<c:set var="top" value="schedule" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row">
