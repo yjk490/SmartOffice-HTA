@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.EmployeeRoleMapper">
+
+	<insert id="insertEmpRole" parameterType="employeeRole">
+		insert into employee_roles
+			(employee_no, employee_role_name)
+		values
+			(#{empNo}, #{roleName})
+	</insert>
+	
+	<delete id="deleteEmpRole" parameterType="EmployeeRole">
+		delete from
+			employee_roles
+		where
+			employee_no = #{empNo}
+			and employee_role_name = #{roleName}
+	</delete>
+
+	<select id="getEmpRolesByEmployeeNo" parameterType="int" resultType="EmployeeRole">
+		select
+			employee_no				as empNo,
+			employee_role_name		as roleName
+		from
+			employee_roles
+		where
+			employee_no = #{value}
+	</select>
+
+</mapper>
