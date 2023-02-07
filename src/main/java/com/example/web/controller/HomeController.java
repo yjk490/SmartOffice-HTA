@@ -16,13 +16,13 @@ public class HomeController {
 	public String home() {
 		return "home";
 	}
+
 	
 	// 로그인 화면 요청
 	@GetMapping("/login")
 	public String loginform() {
 		return "/employee/login-form";
 	}
-	
 	
 
 }
