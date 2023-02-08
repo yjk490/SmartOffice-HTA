@@ -21,29 +21,36 @@
 				<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
 			</div>
 			<div class="m-1 mb-3 py-4 d-flex justify-content-between border-bottom">
-				<div>
-					<select class="form-select form-select-xs" name="rows">
-						<option value="10">10개씩</option>
-						<option value="15">15개씩</option>
-						<option value="20">20개씩</option>
-					</select>
-				</div>
-				<div>
-					<div class="input-group">
-	  					<button class="btn btn-outline-secondary" type="button" ><i class="fa fa-search""></i></button>
-	  					<input type="text" class="form-control border-secondary" name="keyword" value="" placeholder="검색어를 입력하세요." />
+					<div class="d-inline-block">
+						<select class="form-select form-select-xs" name="rows">
+							<option value="10">10개씩</option>
+							<option value="15">15개씩</option>
+							<option value="20">20개씩</option>
+						</select>
+					</div>
+					<div class="d-inline-block">
+						<select class="form-select form-select-xs" name="sort">
+							<option>최신순</option>
+							<option>추천순</option>
+							<option>댓글순</option>
+							<option>스크랩순</option>
+							<option>조회순</option>
+						</select>
+					</div>
+					<div class="d-inline-block">
+						<div class="input-group">
+			  				<button class="btn btn-outline-secondary" type="button" ><i class="fa fa-search""></i></button>
+			  				<input type="text" class="form-control border-secondary" name="keyword" value="" placeholder="검색어를 입력하세요." />
+						</div>
+					</div>
+					<div class="d-inline-block">
+						<select class="form-select form-select-xs" name="opt">
+							<option>제목</option>
+							<option>제목+내용</option>
+							<option>이름</option>
+						</select>
 					</div>
 				</div>
-				<div>
-					<select class="form-select form-select-xs" name="opt">
-						<option>최신순</option>
-						<option>추천순</option>
-						<option>댓글순</option>
-						<option>스크랩순</option>
-						<option>조회순</option>
-					</select>
-				</div>
-			</div>
 			<div class="mb-3 p-2 border-bottom">
 				<div class="row mb-1">
 					<div class="col-6">
@@ -183,6 +190,7 @@
 					</ul>
 				</nav>
 			</div>			
+			</div>
 		</div>
 	</div>
 </div>

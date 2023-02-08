@@ -18,6 +18,11 @@ spring:
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+          
     
 # mybatis \ud658\uacbd\uc124\uc815
 mybatis:
@@ -27,3 +32,7 @@ mybatis:
   configuration:
     jdbc-type-for-null: null
     log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+
+# 업로드 파일 저장 경로
+file:
+  directory: C:\\app\\eGovFrameDev-4.0.0-64bit\\uploadfiles
