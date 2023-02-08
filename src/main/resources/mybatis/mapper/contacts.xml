@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ContactMapper">
+	
+	<insert id="insertContact" parameterType="Contact">
+	<selectKey keyProperty="contactNo" resultType="int" order="BEFORE">
+		select contact_no_seq.nextval from dual
+	</selectKey>
+		insert into contacts
+			(contact_no, contact_name, contact_share, contact_email, contact_birth, contact_company, contact_dept, contact_position, contact_address, contact_photo, contact_url, contact_memo)
+		values
+			(#{contactNo}, #{name}, #{share}, #{email}, #{birth}, #{company}, #{dept}, #{position}, #{address}, #{photo}, #{url}, #{memo})
+	</insert>
+	
+	<insert id="insertContactTel" parameterType="ContactTel">
+		insert into contact_tels
+			(contact_no, contact_tel)
+		values
+			(#{contactNo}, #{tel})
+	</insert>
+	
+	<insert id="insertContactTag" parameterType="ContactTag">
+		insert into contact_tags
+			(addressbook_no, contact_no)
+		values
+			(#{addressbookNo}, #{contactNo})
+	</insert>
+	
+	<update id="updateContact" parameterType="Contact">
+		update
+			contacts
+		set
+			contact_name = #{name},
+			contact_share = #{share},
+			contact_email = #{email},
+			contact_birth = #{birth},
+			contact_company = #{company},
+			contact_dept = #{dept},
+			contact_position = #{position},
+			contact_address = #{address},
+			contact_photo = #{photo},
+			contact_url = #{url},
+			contact_memo = #{memo},
+			contact_updated_date = sysdate
+		where
+			contact_no = #{contactNo}
+	</update>
+	
+	<delete id="deleteContact" parameterType="Contact">
+		delete from
+			contacts
+		where
+			contact_no = #{contactNo}
+	</delete>
+	
+	<select id="getPublicRows" resultType="int">
+		select
+			count(*)
+		from
+			contacts
+		where
+			contact_share = 'Y'
+	</select>
+	
+	<select id="getPrivateRows" resultType="int">
+		select
+			count(*)
+		from
+			contacts
+		where
+			contact_share = 'N'
+	</select>
+	
+	<select id="getContactTelsByNo" parameterType="int" resultType="ContactTel">
+		select
+			contact_no as contactNo,
+			contact_tel as contactTel
+		from
+			contact_tels
+		where
+			contact_no = #{value}
+	</select>
+	
+	<select id="getContactTagsByNo" parameterType="int" resultType="ContactTag">
+		select
+			addressbook_no as addressbookNo
+		from
+			contact_tags
+		where
+			contact_no = #{value}
+	</select>
+	
+	<select id="getContactByNo" parameterType="int" resultType="Contact">
+		select
+			contact_name as name,
+			contact_share as share,
+			contact_email as email
+		from
+			contacts
+		where
+			contact_no = #{value}
+	</select>
+	
+	<select id="getContactByEmail" parameterType="string" resultType="Contact">
+		select
+			contact_no as contactNo,
+			contact_name as name,
+			contact_share as share,
+		from
+			contacts
+		where
+			contact_email = #{value}
+	</select>
+	
+	<select id="getContactByName" parameterType="string" resultType="Contact">
+		select
+			contact_no as contactNo,
+			contact_share as share,
+			contact_email as email
+		from
+			contacts
+		where
+			contact_name = #{value}
+	</select>
+	
+	<select id="getContactDetailDtoByNo" parameterType="int" resultType="ContactDetailDto">
+		select
+			A.contact_name as name,
+			A.contact_email as email,
+			A.contact_birth as birth,
+			A.contact_company as company,
+			A.contact_dept as dept,
+			A.contact_position as position,
+			A.contact_address as address,
+			A.contact_photo as photo,
+			A.contact_url as url,
+			A.contact_memo as memo,
+			A.contact_created_date as createdDate,
+			A.contact_updated_date as updatedDate,
+			C.addressbook_no as addressbookNo,
+			C.addressbook_name as addressbookName,
+			B.contact_tel as contactTel
+		from
+			contacts A, contact_tels B, addressbooks C, contact_tags D
+		where
+			A.contact_no = D.contact_no
+			and C.addressbook_no = D.addressbook_no
+			and A.contact_no = B.contact_no
+			and A.contact_no = #{value}
+	</select>
+	
+	
+	
+</mapper>

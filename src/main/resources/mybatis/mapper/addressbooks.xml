@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.AddressbookMapper">
+	
+	<insert id="insertAddressbook" parameterType="Addressbook">
+		<selectKey>
+			select addressbook_no.seq.nextval from dual
+		</selectKey>
+		insert into addressbooks
+			(addressbook_no, addressbook_type, addressbook_name)
+		values
+			(#{addressbookNo}, #{type}, #{name})
+	</insert>
+	
+	<update id="updateAddressbook" parameterType="Addressbook">
+		update
+			addressbooks
+		set
+			addressbook_type = #{type},
+			addressbook_name = #{name},
+			addressbook_deleted = #{deleted},
+			addressbook_updated_date = sysdate
+		where
+			addressbook_no = #{addressbookNo}
+	</update>
+	
+	<select id="getPublicRows">
+		select
+			count(*)
+		from
+			addressbooks
+		where
+			addressbook_type = 'public'
+			and addressbook_deleted = 'N'		
+	</select>
+	
+	<select id="getPrivateRows">
+		select
+			count(*)
+		from
+			addressbooks
+		where
+			addressbook_type = 'private'
+			and addressbook_deleted = 'N'		
+	</select>
+	
+	<select id="getAddressbookByNo">
+		select
+			addressbook_type as type,
+			addressbook_name as name
+		from
+			addressbooks
+		where
+			addressbook_no = #{value}
+	</select>
+	
+	<select id="getAddressbookByName">
+		select
+			addressbook_type as type,
+			addressbook_no as no
+		from
+			addressbooks
+		where
+			addressbook_name = #{value}
+	</select>
+	
+</mapper>
