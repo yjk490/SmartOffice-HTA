@@ -22,7 +22,7 @@ public class Employee {
 	private String status;
 	private Date createdDate;
 	private Date updatedDate;
-	private int deptNo;
+	private int departmentNo;
 	private int positionNo;
 
 }
