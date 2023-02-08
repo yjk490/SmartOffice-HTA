@@ -10,8 +10,6 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <title>주소록 목록</title>
 <style>
-body {font-family: Dotum,'돋움', Helvetica,"Apple SD Gothic Neo",sans-serif;}
-
 /* Style the tab */
 .tab {
   width: auto;
@@ -56,42 +54,6 @@ body {font-family: Dotum,'돋움', Helvetica,"Apple SD Gothic Neo",sans-serif;}
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
-}
-
-/* 드롭다운 스타일*/
-.dropbtn {
-  font-size: 14px;    
-  border: none;
-  outline: none;
-  color: black;
-  padding: 6px 12px;
-  background-color: inherit;
-  font-family: inherit;
-  margin: 0;
-}
-
-.dropdown {
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #ffffff;
-  min-width: 160px;
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  text-align: left;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
 }
 
 .tagbtn {
@@ -141,7 +103,7 @@ body {font-family: Dotum,'돋움', Helvetica,"Apple SD Gothic Neo",sans-serif;}
 </style>
 </head>
 <body>
-<c:set var="menu" value="contact" />
+<c:set var="top" value="contact" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row">
@@ -165,14 +127,14 @@ body {font-family: Dotum,'돋움', Helvetica,"Apple SD Gothic Neo",sans-serif;}
 				    <input type="text" class="form-control" placeholder="연락처 검색..">
 				    <div class="input-group-btn">
 				      <button class="btn btn-default" type="submit">
-				        <i class="glyphicon glyphicon-search"></i>
+				        <i class="w3-text-grey bi bi-search"></i>
 				      </button>
 				    </div>
 				  </div>
 				</form>
 			</div>
 			
-			<div class="w3-container">
+			<div class="w3-container rest">
 				<div class="tab w-auto">
 					<button class="tablinks active">ALL</button>
 					<button class="tablinks">가</button>
@@ -192,16 +154,15 @@ body {font-family: Dotum,'돋움', Helvetica,"Apple SD Gothic Neo",sans-serif;}
 					<button class="tablinks">A-Z</button>
 					<button class="tablinks">0~9</button>					
 				</div>
-				<div class="dropdown" style="float:right;">
-						<div class="dropbtn">10개씩 정렬 ▼</div>
-						<div class="dropdown-content">
-						  <a href="#">10개씩 정렬</a>
-						  <a href="#">20개씩 정렬</a>
-						  <a href="#">50개씩 정렬</a>
-						</div>
-					</div>
+				<div class="w3-container w3-right rest">
+					<select class="form-select form-select-xs" name="rows">
+						<option>10개씩</option>
+						<option>20개씩</option>
+						<option>50개씩</option>
+					</select>
 				</div>
-				
+			</div>
+
 			<div class="w3-container" style="border-top: 1px solid gray;">
 				<table class="table table-small" id="table-contact">
 				<colgroup>
@@ -319,11 +280,28 @@ body {font-family: Dotum,'돋움', Helvetica,"Apple SD Gothic Neo",sans-serif;}
 				<div class="w3-bar">
 				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small littlemg">내보내기</a>
 				  <a href="../contact/form" class="w3-button w3-white w3-border w3-hover-light-grey w3-padding-small w3-border-green w3-round-large w3-left w3-small w3-right littlemg">등록</a>
-				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-red w3-round-large w3-left w3-small w3-right littlemg">삭제</a>
+				  <button href="" onclick="document.getElementById('delete01').style.display='block'" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-red w3-round-large w3-left w3-small w3-right littlemg">삭제</button>
 				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small w3-right littlemg">개인 주소록에 추가</a>
 				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small w3-right littlemg">쪽지</a>
 				</div>
-			</div>
+			</div>			
+
+  	<div id="delete01" class="w3-modal">
+    	<div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:500px">
+	<div class="w3-margin"><br>
+        <span onclick="document.getElementById('delete01').style.display='none'" class="w3-button w3-xlarge w3-hover-red w3-display-topright" title="Close Modal">&times;</span>
+        <h2>연락처 삭제</h2>
+	</div>
+        <div class="w3-margin w3-center w3-padding">
+          <h5><span class="w3-text-red"><b>"김진철"</b></span> 님을 삭제하시겠습니까?</h5>
+        </div>
+      <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+        <button onclick="document.getElementById('delete01').style.display='none'" type="button" class="w3-button w3-right w3-border-red w3-text-red">삭제</button>
+        <button onclick="document.getElementById('delete01').style.display='none'" type="button" class="w3-button w3-right w3-text-grey">취소</button>
+      </div>
+
+    </div>
+  </div>
 			
 		</div>
 	</div>

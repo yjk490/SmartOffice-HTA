@@ -41,13 +41,13 @@
 		      <th class="w3-light-grey w3-center tdcenter">이름</th>
 		      <td class="w3-center tdcenter"><input class="form-control" name="name" type="text" placeholder=""></td>
 		      <th class="w3-light-grey w3-center tdcenter">공유여부</th>
-		      <td class="w3-center tdcenter"><div class="tdcenter"><input class="w3-section tdcenter" type="radio" name="public" value="public" checked><label class="w3-margin tdcenter">공유</label> <input class="w3-section tdcenter" type="radio" name="private" value="private"><label class="w3-margin tdcenter">개인</label></div></td>
+		      <td class="w3-center tdcenter"><div class="tdcenter"><input class="w3-section tdcenter" type="radio" name="share" value="public"><label class="w3-margin tdcenter">공유</label> <input class="w3-section tdcenter" type="radio" name="share" value="private"><label class="w3-margin tdcenter">개인</label></div></td>
 		    </tr>
 		    <tr>
 		      <th class="w3-light-grey w3-center tdcenter">전화번호</th>
 		      <td>
 		      	  <div class="input-group">
-				    <input type="text" class="form-control" name="tel" placeholder="연락처를 입력하세요..">
+				    <input type="text" class="form-control" name="tel" placeholder="숫자만 입력해 주세요(- 제외)">
 				    <div class="input-group-btn">
 				      <button class="btn btn-default" type="submit">
 				        <i class="bi bi-plus-square"></i>
@@ -84,12 +84,12 @@
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">주소</td>
 		      <td colspan="3">
 		      	<div class="input-group">
-		      		<input class="form-control" type="text" id="sample6_postcode" placeholder="우편번호">
+		      		<input class="form-control" type="text" id="postcode" placeholder="우편번호">
 					<input class="w3-button w3-border" type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
 				</div>
-					<input class="form-control" type="text" id="sample6_address" placeholder="주소">
-					<input class="form-control" type="text" id="sample6_detailAddress" placeholder="상세주소">
-					<input class="form-control" type="text" id="sample6_extraAddress" placeholder="참고항목">
+					<input class="form-control" type="text" id="address" placeholder="주소">
+					<input class="form-control" type="text" id="detailAddress" placeholder="상세주소">
+					<input class="form-control" type="text" id="extraAddress" placeholder="참고항목">
 			</td>
 		    </tr>
 		    <tr>
@@ -112,14 +112,7 @@
 				  <a href="../contact/list" class="w3-button w3-white w3-border w3-padding w3-border-red w3-round-large w3-left w3-right littlemg">취소</a>
 				</div>
 			</div>
-	  	
-	  	
-	  	
-	  	
-	  	
-		</div>
-		
-		
+		</div>	
 </div>
 </body>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
