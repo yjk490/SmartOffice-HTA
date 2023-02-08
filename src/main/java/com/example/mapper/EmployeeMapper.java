@@ -15,8 +15,9 @@ public interface EmployeeMapper {
 	void updateEmployee(Employee employee);
 	// 직원번호로 직원 정보 얻을 때
 	Employee getEmployeeByNo(int empNo);
-	
 	// 관리자가 직원관리 할때
 	List<Employee> getAllEmployees();
+	// 관리자가 이메일 정보로 사용자를 찾을 때
+	Employee getEmployeeByEmail(String email);
 
 }

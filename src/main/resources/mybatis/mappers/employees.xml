@@ -2,6 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.EmployeeMapper">
 
+	<insert id="insertEmployee" parameterType="Employee">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select employees_seq.nextval from dual
+		</selectKey>
+		insert into employees
+			(employee_no, employee_password, employee_name, employee_tel, employee_email, employee_hire_date, dept_no, position_no)
+		values
+			(#{no}, #{encryptPassword}, #{name}, #{tel}, #{email}, #{hireDate}, #{departmentNo}, #{positionNo})
+	</insert>
+	
+	<update id="updateEmployee" parameterType="Employee">
+		update
+			employees
+		set
+			employee_password = #{encryptPassword},
+			employee_photo = #{photo},
+			employee_status = #{status},
+			employee_update_date = sysdate
+		where
+			employee_no = #{no}
+	</update>
+
 	<select id="getEmployeeByNo" parameterType="int" resultType="Employee">
 		select
 			e.employee_no				as no,
@@ -20,6 +42,28 @@
 			employees e, departments d, employee_positions p
 		where
 			e.employee_no = #{value}
+		and e.dept_no = d.dept_no
+		and e.position_no = p.position_no
+	</select>
+	
+	<select id="getEmployeeByEmail" parameterType="string" resultType="Employee">
+		select
+			e.employee_no				as no,
+			e.employee_password			as encryptPassword,
+			e.employee_name				as name,
+			e.employee_tel				as tel,
+			e.employee_email			as email,
+			e.employee_photo			as photo,
+			e.employee_hire_date		as hireDate,
+			e.employee_status			as status,
+			e.employee_created_date		as createdDate,
+			e.employee_updated_date		as updatedDate,
+			d.dept_no					as deptNo,
+			p.position_no				as positionNo
+		from
+			employees e, departments d, employee_positions p
+		where
+			e.employee_email = #{value}
 		and e.dept_no = d.dept_no
 		and e.position_no = p.position_no
 	</select>
