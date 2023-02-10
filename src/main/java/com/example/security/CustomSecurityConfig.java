@@ -24,6 +24,8 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		.antMatchers("/", "/note", "/login").permitAll()
 		
+		
+		
 	.and()
 		
 		// 로그인 설정

@@ -20,6 +20,7 @@
 				<p class="fs-1 my-2">글 작성하기</p>
 			</div>
 			<form id="form-post" class="row p-2 auto" method="post" action="register" enctype="multipart/form-data">
+			<sec:csrfInput />
 				<div class="mb-4">
 				  	<label class="form-label lead">제목</label>
 				  	<input type="text" class="form-control" name="title" placeholder="제목을 입력해주세요.">

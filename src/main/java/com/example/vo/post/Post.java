@@ -43,35 +43,35 @@ public class Post {
 	}
 	
 	public void increaseReadCount() {
-		this.readCount = this.readCount + 1;
+		this.readCount += 1;
 	}
 	
 	public void decreaseReadCount() {
-		this.readCount = this.readCount - 1;
+		this.readCount -= 1;
 	}
 	
 	public void increaseRecommendCount() {
-		this.recommendCount = this.recommendCount + 1;
+		this.recommendCount += 1;
 	}
 	
 	public void decreaseRecommendCount() {
-		this.recommendCount = this.recommendCount - 1;
+		this.recommendCount -= 1;
 	}
 	
 	public void increaseCommentCount() {
-		this.commentCount = this.commentCount + 1;
+		this.commentCount += 1;
 	}
 	
 	public void decreaseCommentCount() {
-		this.commentCount = this.commentCount - 1;
+		this.commentCount -= 1;
 	}
 	
 	public void increaseScrapCount() {
-		this.scrapCount = this.scrapCount + 1;
+		this.scrapCount += 1;
 	}
 	
 	public void decreaseScrapCount() {
-		this.scrapCount = this.scrapCount - 1;
+		this.scrapCount -= 1;
 	}
 	
 	public void deletePost() {
