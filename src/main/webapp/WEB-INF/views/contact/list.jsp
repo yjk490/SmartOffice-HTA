@@ -296,10 +296,9 @@
           <h5><span class="w3-text-red"><b>"김진철"</b></span> 님을 삭제하시겠습니까?</h5>
         </div>
       <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
-        <button onclick="document.getElementById('delete01').style.display='none'" type="button" class="w3-button w3-right w3-border-red w3-text-red">삭제</button>
+        <button onclick="document.getElementById('delete01').style.display='none'" type="submit" class="w3-button w3-right w3-border-red w3-text-red">삭제</button>
         <button onclick="document.getElementById('delete01').style.display='none'" type="button" class="w3-button w3-right w3-text-grey">취소</button>
       </div>
-
     </div>
   </div>
 			

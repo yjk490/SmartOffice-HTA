@@ -1,4 +1,4 @@
-package com.example.vo;
+package com.example.vo.contact;
 
 import org.apache.ibatis.type.Alias;
 
@@ -12,5 +12,9 @@ public class ContactTel {
 	
 	private int contactNo;
 	private String contactTel;
+	
+	public ContactTel(int contactNo, String contactTel) {
+		
+	}
 
 }

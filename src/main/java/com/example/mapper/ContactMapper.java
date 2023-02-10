@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.example.dto.ContactDetailDto;
-import com.example.vo.Contact;
-import com.example.vo.ContactTag;
-import com.example.vo.ContactTel;
+import com.example.dto.contact.ContactDetailDto;
+import com.example.vo.contact.Contact;
+import com.example.vo.contact.ContactTag;
+import com.example.vo.contact.ContactTel;
 
 @Mapper
 public interface ContactMapper {
