@@ -1,11 +1,8 @@
-package com.example.dto;
+package com.example.dto.contact;
 
 import java.util.Date;
 
 import org.apache.ibatis.type.Alias;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Alias("ContactDetailDto")
 public class ContactDetailDto {

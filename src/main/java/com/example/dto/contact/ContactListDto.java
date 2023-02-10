@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.contact;
 
 import org.apache.ibatis.type.Alias;
 

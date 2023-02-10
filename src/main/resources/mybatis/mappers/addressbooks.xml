@@ -3,13 +3,10 @@
 <mapper namespace="com.example.mapper.AddressbookMapper">
 	
 	<insert id="insertAddressbook" parameterType="Addressbook">
-		<selectKey>
-			select addressbook_no.seq.nextval from dual
-		</selectKey>
 		insert into addressbooks
 			(addressbook_no, addressbook_type, addressbook_name)
 		values
-			(#{addressbookNo}, #{type}, #{name})
+			(addressbook_no_seq.nextval, #{type}, #{addressbookName})
 	</insert>
 	
 	<update id="updateAddressbook" parameterType="Addressbook">
@@ -44,17 +41,17 @@
 			and addressbook_deleted = 'N'		
 	</select>
 	
-	<select id="getAddressbookByNo">
+	<select id="getAddressbookByNo" parameterType="int" resultType="Addressbook">
 		select
 			addressbook_type as type,
-			addressbook_name as name
+			addressbook_name as addressbookName
 		from
 			addressbooks
 		where
 			addressbook_no = #{value}
 	</select>
 	
-	<select id="getAddressbookByName">
+	<select id="getAddressbookByName" parameterType="string" resultType="Addressbook">
 		select
 			addressbook_type as type,
 			addressbook_no as no
@@ -62,6 +59,17 @@
 			addressbooks
 		where
 			addressbook_name = #{value}
+	</select>
+	
+	<select id="getAddressbooks" parameterType="string" resultType="Addressbook">
+		select
+			addressbook_no as no,
+			addressbook_name as addressbookName
+		from
+			addressbooks
+		where
+			addressbook_deleted = 'N'
+			and addressbook_type = #{value}			
 	</select>
 	
 </mapper>
