@@ -1,4 +1,7 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>    
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,7 +15,7 @@
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row">
-		<div class="col-3"> <!-- 사이드 바 시작 -->
+		<div class="col-3 "> <!-- 사이드 바 시작 -->
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->
 		<div class="col-9">
@@ -20,181 +23,140 @@
 				<p class="fs-1 my-2">자유 게시판</p>
 				<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
 			</div>
-			<div class="m-1 mb-3 py-4 d-flex justify-content-between border-bottom">
-					<div class="d-inline-block">
-						<select class="form-select form-select-xs" name="rows">
-							<option value="10">10개씩</option>
-							<option value="15">15개씩</option>
-							<option value="20">20개씩</option>
-						</select>
-					</div>
-					<div class="d-inline-block">
-						<select class="form-select form-select-xs" name="sort">
-							<option>최신순</option>
-							<option>추천순</option>
-							<option>댓글순</option>
-							<option>스크랩순</option>
-							<option>조회순</option>
-						</select>
-					</div>
-					<div class="d-inline-block">
-						<div class="input-group">
-			  				<button class="btn btn-outline-secondary" type="button" ><i class="fa fa-search""></i></button>
-			  				<input type="text" class="form-control border-secondary" name="keyword" value="" placeholder="검색어를 입력하세요." />
+			<form id="form-search" method="GET" action="list">
+				<input type="hidden" name="page" value="${pagination.page }" />
+				<div class="m-1 mb-3 py-4 d-flex justify-content-between border-bottom">
+					<div class="col-6 text-start">
+						<div class="d-inline-block">
+							<select id="dropdown-rows" class="form-select form-select-xs border-secondary" name="rows">
+								<option value="10" ${opt.rows eq 10 ? 'selected' : ''}>10개씩</option>
+								<option value="15" ${opt.rows eq 15 ? 'selected' : ''}>15개씩</option>
+								<option value="20" ${opt.rows eq 20 ? 'selected' : ''}>20개씩</option>
+							</select>
+						</div>
+						<div class="d-inline-block">
+							<select id="dropdown-sort" class="form-select form-select-xs border-secondary" name="sort">
+								<option value="date" ${opt.sort eq 'date' ? 'selected' : ''}>최신순</option>
+								<option value="recommend" ${opt.sort eq 'recommend' ? 'selected' : ''}>추천순</option>
+								<option value="read" ${opt.sort eq 'read' ? 'selected' : ''}>조회순</option>
+								<option value="comment" ${opt.sort eq 'comment' ? 'selected' : ''}>댓글순</option>
+								<option value="scrap" ${opt.sort eq 'scrap' ? 'selected' : ''}>스크랩순</option>
+							</select>
 						</div>
 					</div>
-					<div class="d-inline-block">
-						<select class="form-select form-select-xs" name="opt">
-							<option>제목</option>
-							<option>제목+내용</option>
-							<option>이름</option>
-						</select>
-					</div>
-				</div>
-			<div class="mb-3 p-2 border-bottom">
-				<div class="row mb-1">
-					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
-					</div>
 					<div class="col-6 text-end">
-						<span>1시간 전</span>
+						<div class="d-inline-block">
+							<select class="form-select form-select-xs border-secondary" name="type">
+								<option value="title">제목</option>
+								<option value="content">제목+내용</option>
+								<option value="name">이름</option>
+							</select>
+						</div>
+						<div class="d-inline-block">
+							<div class="input-group">
+				  				<button id="btn-keyword" class="btn btn-outline-secondary" type="button"><i class="fa fa-search""></i></button>
+				  				<input type="text" class="form-control border-secondary" name="keyword" value="${opt.keyword }" placeholder="검색어를 입력하세요." />
+							</div>
+						</div>
 					</div>
 				</div>
+			</form>
+			<c:choose>
+				<c:when test="${empty posts }">
+					<div class="row mb-1 text-center">
+						<span>게시글이 존재하지 않습니다.</span>
+					</div>
+				</c:when>
+				<c:otherwise>
+					<c:forEach var="post" items="${posts }">
+						<div class="mb-3 p-2 border-bottom">
+							<div class="row mb-1">
+								<div class="col-6">
+									<a href="#" class="link-dark">${post.name }</a>
+									<input class="form-check-input border-secondary mx-2" type="checkbox">
+								</div>
+								<div class="col-6 text-end">
+									<span>${post.createdDate }</span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-6">
+									<a href="/post/detail?postNo=${post.no }" class="link-dark">${post.title }</a>
+								</div>
+								<div class="col-6 text-end">
+									<i class="fa-regular fa-eye"></i><span> ${post.readCount }</span>
+									<i class="fa-regular fa-comment-dots"></i><span> ${post.commentCount }</span>
+									<i class="fa-regular fa-thumbs-up"></i><span> ${post.recommendCount }</span>
+								</div>
+							</div>
+						</div>
+					</c:forEach>
+				</c:otherwise>
+			</c:choose>
+			<c:if test="${not empty posts }">
 				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="link-dark">샘플 게시글 제목</a>
+					<div class="col m-2">
+						<button type="button" class="btn btn-outline-danger">삭제</button>
 					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
-					</div>
-				</div>
-			</div>
-			<div class="mb-3 p-2 border-bottom">
-				<div class="row mb-1">
-					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
-					</div>
-					<div class="col-6 text-end">
-						<span>1시간 전</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
-					</div>
-				</div>
-			</div>
-			<div class="mb-3 p-2 border-bottom">
-				<div class="row mb-1">
-					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
-					</div>
-					<div class="col-6 text-end">
-						<span>1시간 전</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
-					</div>
-				</div>
-			</div>
-			<div class="mb-3 p-2 border-bottom">
-				<div class="row mb-1">
-					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
-					</div>
-					<div class="col-6 text-end">
-						<span>1시간 전</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
-					</div>
-				</div>
-			</div>
-			<div class="mb-3 p-2 border-bottom">
-				<div class="row mb-1">
-					<div class="col-6">
-						<a href="#" class="link-dark">홍길동</a>
-						<input class="form-check-input border-secondary mx-2" type="checkbox">
-					</div>
-					<div class="col-6 text-end">
-						<span>1시간 전</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-6">
-						<a href="/post/detail" class="link-dark">샘플 게시글 제목</a>
-					</div>
-					<div class="col-6 text-end">
-						<i class="fa-regular fa-eye"></i><span> 10</span>
-						<i class="fa-regular fa-comment-dots"></i><span> 10</span>
-						<i class="fa-regular fa-thumbs-up"></i><span> 10</span>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col m-2">
-					<button type="button" class="btn btn-outline-danger">삭제</button>
-				</div>
-				<nav>
-					<ul class="pagination pagination justify-content-center pt-5">
-						<li class="page-item">
-							<a class="page-link link-dark" href="" aria-label="Previous">
-								<span aria-hidden="true">&laquo;</span>
-							</a>
-						</li>
-						<li class="page-item">
-							<a class="page-link link-dark" href="">1</a>
-						</li>
-						<li class="page-item">
-							<a class="page-link link-dark" href="">2</a>
-						</li>
-						<li class="page-item">
-							<a class="page-link link-dark" href="">3</a>
-						</li>
-						<li class="page-item">
-							<a class="page-link link-dark" href="">4</a>
-						</li>
-						<li class="page-item">
-							<a class="page-link link-dark" href="">5</a>
-						</li>
-						<li class="page-item">
-							<a class="page-link link-dark" href="" aria-label="Previous">
-								<span aria-hidden="true">&raquo;</span>
-							</a>
-						</li>
-					</ul>
-				</nav>
-			</div>			
-			</div>
+					<nav id="pagenation">
+						<ul class="pagination pagination justify-content-center pt-5">
+							<li class="page-item">
+								<a class="page-link link-dark ${pagination.first ? 'disabled' : '' }" href="${pagination.prevPage }" aria-label="Previous">
+									<span aria-hidden="true">&laquo;</span>
+								</a>
+							</li>
+							<c:forEach var="num" begin="${pagination.beginPage }" end="${pagination.endPage }">
+								<li class="page-item">
+									<a class="page-link ${pagination.page eq num ? 'active' : '' }" href="${num}">${num }</a>
+								</li>
+							</c:forEach>
+							<li class="page-item">
+								<a class="page-link link-dark ${pagination.last ? 'disabled' : '' }" href="${pagination.nextPage }" aria-label="Previous">
+									<span aria-hidden="true">&raquo;</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>			
+			</c:if>
 		</div>
 	</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function () {
+	
+	// 검색 옵션, 정렬 기준, 페이지번호가 쿼리스트링으로 있는 Form태그를 전송하는 함수
+	function submitForm(page) {
+		$(":input[name=page]").val(page)
+		$("#form-search").submit()
+	}
+	
+	// 한 페이지에 출력할 행 개수를 바꾸면 페이지 번호를 1로 초기화하고 전송
+	$("#dropdown-rows").change(function() {
+		submitForm(1)
+	})
+	
+	// 정렬 기준을 바뀌면 페이지는 그대로 유지하고 전송
+	$("#dropdown-sort").change(function() {
+		var page = $(":input[name=page]").val()
+		submitForm(page)
+	})
+	
+	// 페이지 번호를 클릭하면 해당 페이지번호를 입력해서 전송
+	$("#pagenation a").click(function(event) {
+		event.preventDefault();
+		var page = $(this).attr("href")
+		console.log(page)
+		submitForm(page)
+	})
+	
+	// 검색어를 입력하고 검색 버튼을 누르면 페이지 번호를 1로 초기화하고 전송
+	$("#btn-keyword").click(function() {
+		submitForm(1)
+	})
+})
+</script>
 </body>
 </html>
