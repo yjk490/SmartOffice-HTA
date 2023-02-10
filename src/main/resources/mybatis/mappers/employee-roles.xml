@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.EmployeeRoleMapper">
 
-	<insert id="insertEmpRole" parameterType="employeeRole">
+	<insert id="insertEmpRole" parameterType="EmployeeRole">
 		insert into employee_roles
 			(employee_no, employee_role_name)
 		values

@@ -6,8 +6,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class CustomEmployeeDetails extends LoginEmployee implements UserDetails {
-
-	// 문제는 여기에 있는 것 같음...!
 	
 	private static final long serialVersionUID = 5248469338625599498L;
 	

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.PostMapper">
+
+	
+	<insert id="insertPost" parameterType="com.example.vo.post.Post">
+		insert into posts
+			(post_no, employee_no, post_title, post_content)
+		values
+			(#{no}, #{employeeNo}, #{title}, #{content})
+	</insert>
+
+	<insert id="insertTag" parameterType="com.example.vo.post.Tag">
+		insert into post_tags
+			(post_no, tag_content)
+		values
+			(#{postNo}, #{content})
+	</insert>
+	
+	<insert id="insertAttachedFile" parameterType="com.example.vo.post.AttachedFile">
+		insert into post_attached_files
+			(file_no, post_no, post_filename)
+		values
+			(post_attached_files_seq.nextval, #{postNo}, #{filename})	
+	</insert>
+	
+	<select id="getPostSequence" resultType="int">
+		select posts_seq.nextval
+		from dual
+	</select>
+
+	<select id="getTotalRows" resultType="int">
+		select
+			count(*)
+		from
+			posts
+		<where>
+			<choose>
+				<when test="type == 'title'">
+					post_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="type == 'content'">
+					(post_content like '%' || #{keyword} || '%'
+					 or post_title like '%' || #{keyword} || '%')
+				</when>
+				<when test="type == 'name'">
+					employee_no in (select
+										employee_no
+									from
+										employees
+									where
+										employee_name = #{keyword})	
+				</when>
+			</choose>
+			and post_deleted = 'N'
+		</where>
+	</select>
+	
+	<select id="getPostListDto" resultType="com.example.dto.PostListDto">
+		select
+		    post_no 				as no,
+		    employee_name 			as name,
+		    post_title 				as title,
+		    post_read_count 		as readCount,
+		    post_comment_count		as commentCount,
+		    post_recommend_count 	as recommendCount,
+		    post_created_date 		as createdDate
+		from (
+		     select
+				 row_number() over (order by A.post_no desc) row_numbers,
+		         A.post_no,
+		         B.employee_name,
+		         A.post_title,
+		         A.post_recommend_count,
+		         A.post_read_count,
+		         A.post_comment_count,
+		         A.post_scrap_count,
+		         A.post_created_date
+		     from
+		         posts A, employees B
+		     <where>
+		     	<choose>
+		     		<when test="type == 'title'">
+		     			A.post_title like '%' || #{keyword} || '%'
+		     		</when>
+		     		<when test="type == 'content'">
+		     			(A.post_content like '%' || #{keyword} || '%'
+		     			 or A.post_title like '%' || #{keyword} || '%')
+		     		</when>
+		     		<when test="type == 'name'">
+		     			B.employee_name like '%' || #{keyword} || '%'
+		     		</when>
+		     	</choose>
+		         and A.post_deleted = 'N'
+		         and A.employee_no = B.employee_no
+		     </where>
+			 <choose>
+				<when test="sort == 'date'">
+					order by A.post_created_date desc
+				</when> 
+				<when test="sort == 'recommend'">
+					order by A.post_recommend_count desc
+				</when> 
+				<when test="sort == 'read'">
+					order by A.post_read_count desc
+				</when> 
+				<when test="sort == 'comment'">
+					order by A.post_comment_count desc
+				</when> 
+				<when test="sort == 'scrap'">
+					order by A.post_scrap_count desc
+				</when> 
+			 </choose>
+		     )
+		where
+		    row_numbers between #{begin} and #{end}
+	</select>
+
+	<update id="updatePost" parameterType="com.example.vo.post.Post">
+		update
+			posts
+		set
+			post_title = #{title},
+			post_content = #{content},
+			post_read_count = #{readCount},
+			post_recommend_count = #{recommendCount},
+			post_comment_count = #{commentCount},
+			post_deleted = #{deleted},
+			post_updated_date = sysdate
+		where
+			post_no = #{no}
+	</update>
+	
+	<update id="updateComment" parameterType="com.example.vo.post.Comment">
+		update
+			post_comments
+		set
+			comment_content = #{content},
+			comment_read_count = #{readCount},
+			comment_recommend_count = #{recommendCount},
+			post_deleted = #{deleted},
+			post_updated_date = sysdate
+		where
+			comment_no = #{no}
+	</update>
+	
+</mapper>

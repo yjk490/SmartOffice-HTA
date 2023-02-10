@@ -19,7 +19,8 @@
 			<div class="row border m-1 mb-3">
 				<p class="fs-1 my-2">글 작성하기</p>
 			</div>
-			<form id="form-post" class="row p-2 auto" method="post" action="register" enctype="mutipart/form-data">
+			<form id="form-post" class="row p-2 auto" method="post" action="register" enctype="multipart/form-data">
+			<sec:csrfInput />
 				<div class="mb-4">
 				  	<label class="form-label lead">제목</label>
 				  	<input type="text" class="form-control" name="title" placeholder="제목을 입력해주세요.">
@@ -36,14 +37,13 @@
 				</div>
 				<div class="mb-2">
 				  	<label class="form-label lead">태그</label>
-				  	<input id="tag-input" type="text" class="form-control"  name="tag" placeholder="태그를 입력해주세요.">
-					<div id="tag-btn-box" class="p-3"></div>
-					<div id="tag-box" class=""></div>					
+				  	<input id="tag-input" type="text" class="form-control" placeholder="태그를 입력해주세요.">
+					<div id="tag-btn-box" class="m-2"></div>
 				</div>
 				<div class="mb-4">
 			  		<label class="form-label lead">파일 첨부</label>
-			  		<input type="file" class="form-control" name="upfile" multiple>
-			  		<small class="form-text text-muted p-2">최대 ~MB까지 첨부할 수 있습니다.</small>
+			  		<input type="file" class="form-control" name="uploadFiles" multiple>
+			  		<small class="form-text text-muted p-2">파일 1개당 10MB, 전체용량 100MB까지 첨부할 수 있습니다.</small>
 				</div>
 				<div class="text-end">
 					<button class="btn btn-outline-secondary" type="submit">취소</button>
@@ -88,7 +88,6 @@ $(function() {
 	// 게시글 등록 태그 입력
 	let $tagInput = $("#tag-input");
 	let $tagBtnBox = $("#tag-btn-box");
-	let $tagBox = $("#tag-box");
 	
 	$("#tag-input").keydown(function(event) {
 		
@@ -98,18 +97,24 @@ $(function() {
 				return false;
 			}
 			let tagBtn = `
-				<small class="border rounded bg-secondary p-1 text-white">#\${value} <a href="" class="text-white text-decoration-none"><i class="bi bi-x"></i></a></small>
+				<a href="" class="text-white text-decoration-none pe-2" >
+					<small class="border rounded bg-success text-white">#\${value}<i class="bi bi-x"></i>
+					</small>
+					<input type="hidden" name="tags" value="\${value}">
+				</a>
 			`;
-			let tag = `
-				<input type="hidden" name="tags" value="\${value}">
-			`
+			
 			$tagBtnBox.append(tagBtn);
-			$tagBox.append(tag);
 			$tagInput.val("");
 			
 			return false;
 		}
 		return true;
+	})
+	
+	$tagBtnBox.on("click", 'a', function(event) {
+		event.preventDefault();
+		$(this).remove()
 	})
 	
 })
