@@ -1,4 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -23,32 +29,38 @@
 			<div class="row">
 				<div class="col">
 					<div class="my-3 border-bottom border-secondary">
-						<p class="fs-3 fw-bold">샘플 게시글 제목</p>
+						<p class="fs-3 fw-bold">${post.title }</p>
 					</div>
 					<div class="my-3 border-bottom border-secondary">
 						<div class="row mb-3">
 							<div class="col-6">
 								<div>
-									<span class="fs-5">작성자</span>
+									<span class="fs-5">${post.name }</span>
 								</div>
 								<div>
-									<span>약 1시간 전</span>
-									<span>조회수 10</span>
+									<span>${post.createdDate }</span>
+									<span>조회수 ${post.scrapCount }</span>
+									<c:forEach var="file" items="${post.attachedFiles }">
+										<a href="/post/download?filename=${file.savedName }" class="btn btn-outline-dark btn-sm">${file.originalName }</a>
+									</c:forEach>
 								</div>
 							</div>
 							<div class="col-6 text-end pe-5">
 								<i class="bi bi-pin-angle-fill fs-3"></i>
 								<i class="bi bi-pin-angle fs-3"></i>
-								<span> 10</span>
+								<span>${post.scrapCount }</span>
 							</div>
 						</div>
 						<div class="row mb-3">
-							<p>본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. 본문입니다. </p>
+							<p>${post.content }</p>
 						</div>
 						<div class="row mb-3">
 							<div class="col py-3">
-								<span class="badge text-bg-success">태그1</span>
-								<span class="badge text-bg-success">태그2</span>
+								<c:forEach var="tag" items="${post.tags }">
+									<a href="/post/list?type=content&keyword=${tag.content }" >
+									<span class="badge text-bg-success">${tag.content }</span>
+									</a>
+								</c:forEach>
 							</div>
 							<div class="col text-end pe-5">
 								<div class="d-inline me-4">
@@ -58,7 +70,7 @@
 								<div class="d-inline">
 									<i class="bi bi-hand-thumbs-up fs-3"></i>
 									<i class="bi bi-hand-thumbs-up-fill fs-3"></i>
-									<span> 10</span>
+									<span>${post.recommendCount }</span>
 								</div>
 							</div>
 						</div>
@@ -69,58 +81,6 @@
 						</div>
 						<div class="mb-3 text-end">
 							<button type="button" class="btn btn-outline-primary">댓글 쓰기</button>
-						</div>
-					</div>					
-					<div class="my-3 border-bottom">
-						<div class="row mb-3">
-							<div>
-								<span>댓글 작성자</span>
-							</div>
-							<div>
-								<span>약 1시간 전</span>
-							</div>
-						</div>
-						<div class="row">
-							<p>댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다.  </p>
-						</div>
-						<div class="row mb-3">
-							<div class="col text-end pe-5">
-								<div class="d-inline me-4">
-									<button type="button" class="btn btn-outline-primary btn-sm">수정</button>
-									<button type="button" class="btn btn-outline-danger btn-sm">삭제</button>
-								</div>
-								<div class="d-inline">
-									<i class="bi bi-hand-thumbs-up fs-5"></i>
-									<i class="bi bi-hand-thumbs-up-fill fs-5"></i>
-									<span> 10</span>
-								</div>
-							</div>						
-						</div>
-					</div>					
-					<div class="my-3 border-bottom">
-						<div class="row mb-3">
-							<div>
-								<span>댓글 작성자</span>
-							</div>
-							<div>
-								<span>약 1시간 전</span>
-							</div>
-						</div>
-						<div class="row">
-							<p>댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다.  </p>
-						</div>
-						<div class="row mb-3">
-							<div class="col text-end pe-5">
-								<div class="d-inline me-4">
-									<button type="button" class="btn btn-outline-primary btn-sm">수정</button>
-									<button type="button" class="btn btn-outline-danger btn-sm">삭제</button>
-								</div>
-								<div class="d-inline">
-									<i class="bi bi-hand-thumbs-up fs-5"></i>
-									<i class="bi bi-hand-thumbs-up-fill fs-5"></i>
-									<span> 10</span>
-								</div>
-							</div>						
 						</div>
 					</div>					
 					<div class="my-3 border-bottom">

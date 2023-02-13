@@ -4,8 +4,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.example.dto.PostListDto;
+import com.example.dto.post.CommentListDto;
+import com.example.dto.post.PostDetailDto;
+import com.example.dto.post.PostListDto;
+import com.example.exception.ApplicationException;
 import com.example.mapper.PostMapper;
 import com.example.utils.Pagination;
 import com.example.vo.post.AttachedFile;
@@ -39,15 +43,33 @@ public class PostService {
 		return result;
 	}
 	
+	public PostDetailDto getPostDetailDto(int postNo) {
+		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo);
+//		if (postDetailDto == null) {
+//			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
+//		}
+		
+		List<CommentListDto> comments = postMapper.getCommentsByPostNo(postNo);
+		postDetailDto.setComments(comments);
+		
+		List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
+		postDetailDto.setAttachedFiles(attachedFiles);
+		
+		List<Tag> tags = postMapper.getTagsByPostNo(postNo);
+		postDetailDto.setTags(tags);
+		
+		return postDetailDto;
+	}
 	
-	public void registerPost(PostRegisterForm form) { // 매개변수로 int empNo 추가되어야 함. 추후 수정 계획
+	
+	public void registerPost(int employeeNo, PostRegisterForm form) { 
 		int postNo = postMapper.getPostSequence();
 		
 		// POST 테이블에 게시글 정보 저장
 		// 빌더패턴으로 객체를 생성할 때, 입력값을 누락했을 경우 어떻게 예외처리 할 수 있는지?
 		Post post = Post.builder()
 					.no(postNo)
-					.employeeNo(10001)
+					.employeeNo(employeeNo)
 					.title(form.getTitle())
 					.content(form.getContent())
 					.build();
@@ -65,11 +87,12 @@ public class PostService {
 		}
 		
 		// POST_ATTACHED_FILES 테이블에 업로드파일 정보 저장
-		if (form.getUploadFiles() != null) {
-			List<String> filenames = form.getFilenames();
+		List<String> savedFilenames = form.getSavedFilenames();
+		
+		if (savedFilenames != null) {
 			
-			for (String filename : filenames) {
-				AttachedFile attachedFile = new AttachedFile(postNo, filename);
+			for (String savedName : savedFilenames) {
+				AttachedFile attachedFile = new AttachedFile(postNo, savedName, savedName.substring(36));
 				postMapper.insertAttachedFile(attachedFile);
 			}
 		}

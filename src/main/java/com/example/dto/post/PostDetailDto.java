@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.post;
 
 import java.util.Date;
 import java.util.List;
@@ -13,6 +13,8 @@ import lombok.Setter;
 @Setter
 public class PostDetailDto {
 
+	private int no;
+	private int employeeNo;
 	private String name;
 	private String title;
 	private String content;

@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class PostSearchOption {
 
-	private int rows;
-	private String sort;
-	private String type;
-	private String keyword;
+	private int rows = 10;
+	private String sort = "date";
+	private String type = "title";
+	private String keyword = "";
 }

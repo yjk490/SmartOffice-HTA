@@ -19,11 +19,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.example.dto.post.PostDetailDto;
+import com.example.exception.ApplicationException;
+import com.example.security.AuthenticatedUser;
+import com.example.security.LoginEmployee;
 import com.example.service.PostService;
+import com.example.vo.post.AttachedFile;
 import com.example.web.request.PostRegisterForm;
 import com.example.web.request.PostSearchOption;
 import com.example.web.response.PostSearchResult;
+import com.example.web.view.FileDownloadView;
 
 @Controller
 @RequestMapping("/post")
@@ -31,20 +38,13 @@ public class PostController {
 	
 	@Autowired
 	private PostService postService;
+	@Autowired
+	FileDownloadView fileDownloadView;
 	@Value("${file.directory}")
 	private String directory;
 	
 	@GetMapping("/list")
 	public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page, PostSearchOption opt, Model model) {
-		if (opt.getRows() == 0) {
-			opt.setRows(10);
-		}
-		if (opt.getSort() == null) {
-			opt.setSort("date");
-		}
-		System.out.println("### sort : " + opt.getSort());
-		System.out.println("### type : " + opt.getType());
-		System.out.println("### keyword : " + opt.getKeyword());
 		PostSearchResult result = postService.getPosts(page, opt);
 		
 		model.addAttribute("pagination", result.getPagination());
@@ -60,31 +60,47 @@ public class PostController {
 	}
 	
 	@PostMapping("/register")
-	public String register(PostRegisterForm form) throws IOException { // 매개변수로 loginUser객체 추가되어야 함. 추후 수정 계획 
-		
-		List<MultipartFile> uploadFiles = form.getUploadFiles();
-		List<String> filenames = new ArrayList<>();
+	public String register(@AuthenticatedUser LoginEmployee loginEmployee, List<MultipartFile> uploadFiles, PostRegisterForm form) throws IOException { // 매개변수로 loginUser객체 추가되어야 함. 추후 수정 계획 
+		List<String> savedFilenames = new ArrayList<>();
 		
 		// 웹 브라우저에서의 파일 업로드
-		for (MultipartFile uploadFile : uploadFiles) {
-			if (!uploadFile.isEmpty()) {
-				String uuid = UUID.randomUUID().toString();
-				String filename = uuid + uploadFile.getOriginalFilename();
-				filenames.add(filename);
+		for (MultipartFile file : uploadFiles) {
+			if (!file.isEmpty()) {
+				String savedFilename = UUID.randomUUID().toString() + file.getOriginalFilename();
 				
-				FileCopyUtils.copy(uploadFile.getInputStream(), new FileOutputStream(new File(directory, filename)));
+				savedFilenames.add(savedFilename);
+				
+				FileCopyUtils.copy(file.getInputStream(), new FileOutputStream(new File(directory, savedFilename)));
 			}
 		}
-		form.setFilenames(filenames);
+		form.setSavedFilenames(savedFilenames);
 
-		postService.registerPost(form);
+		postService.registerPost(loginEmployee.getNo(), form);
 		
 		return "redirect:list";
 	}
 	
 	@GetMapping("/detail")
-	public String detail() {
+	public String detail(@RequestParam("postNo") int postNo, Model model) {
+		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo);
+		
+		model.addAttribute("post", postDetailDto);
+		
 		return "post/detail";
+	}
+	
+	@GetMapping("/download")
+	public ModelAndView fileDownload(@RequestParam("filename") String filename) {
+		File file = new File(directory, filename);
+//		if (!file.exists()) {
+//			throw new ApplicationException("["+filename+"] 파일이 존재하지 않습니다.");
+//		}
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("file", file);
+		mav.setView(fileDownloadView);
+		
+		return mav;
 	}
 	
 	@GetMapping("/notice")

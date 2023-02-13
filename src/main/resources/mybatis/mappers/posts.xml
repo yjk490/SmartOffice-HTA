@@ -19,9 +19,9 @@
 	
 	<insert id="insertAttachedFile" parameterType="com.example.vo.post.AttachedFile">
 		insert into post_attached_files
-			(file_no, post_no, post_filename)
+			(file_no, post_no, post_original_filename, post_saved_filename)
 		values
-			(post_attached_files_seq.nextval, #{postNo}, #{filename})	
+			(post_attached_files_seq.nextval, #{postNo}, #{originalName}, #{savedName})	
 	</insert>
 	
 	<select id="getPostSequence" resultType="int">
@@ -56,7 +56,7 @@
 		</where>
 	</select>
 	
-	<select id="getPostListDto" resultType="com.example.dto.PostListDto">
+	<select id="getPostListDto" resultType="com.example.dto.post.PostListDto">
 		select
 		    post_no 				as no,
 		    employee_name 			as name,
@@ -114,6 +114,60 @@
 		     )
 		where
 		    row_numbers between #{begin} and #{end}
+	</select>
+
+	<select id="getPostDetailDto" parameterType="int" resultType="com.example.dto.post.PostDetailDto">
+		select
+			A.post_no				as no,
+			A.employee_no			as employeeNo,
+			B.employee_name			as name,
+			A.post_title 			as title,
+			A.post_content 			as content,
+			A.post_read_count 		as readCount,
+			A.post_recommend_count 	as recommendCount,
+			A.post_scrap_count 		as scrapCount,
+			A.post_created_date 	as createdDate
+		from
+			posts A, employees B
+		where
+			A.employee_no = B.employee_no
+			and A.post_no	= #{value} 				
+	</select>
+	
+	<select id="getCommentsByPostNo" parameterType="int" resultType="com.example.dto.post.CommentListDto">
+		select
+			A.comment_no				as no,
+			A.employee_no				as employeeNo,
+			B.employee_name				as name,
+			A.comment_content			as content,
+			A.comment_recommend_count	as recommendCount,
+			A.comment_created_date		as createdDate
+		from
+			post_comments A, employees B
+		where
+			A.employee_no = B.employee_no
+			and A.post_no	= #{value} 	
+	</select>
+	
+	<select id="getAttachedFilesByPostNo" parameterType="int" resultType="com.example.vo.post.AttachedFile">
+		select
+			POST_NO					as postNo,
+			POST_ORIGINAL_FILENAME	as originalName,
+			POST_SAVED_FILENAME 	as savedName
+		from
+			POST_ATTACHED_FILES
+		where
+			post_no = #{value}
+	</select>
+	
+	<select id="getTagsByPostNo" parameterType="int" resultType="com.example.vo.post.Tag">
+		select
+			post_no		as postNo,
+			tag_content	as content
+		from
+			post_tags
+		where
+			post_no = #{value}	
 	</select>
 
 	<update id="updatePost" parameterType="com.example.vo.post.Post">
