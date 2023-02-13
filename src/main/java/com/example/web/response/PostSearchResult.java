@@ -2,7 +2,7 @@ package com.example.web.response;
 
 import java.util.List;
 
-import com.example.dto.PostListDto;
+import com.example.dto.post.PostListDto;
 import com.example.utils.Pagination;
 
 import lombok.AllArgsConstructor;

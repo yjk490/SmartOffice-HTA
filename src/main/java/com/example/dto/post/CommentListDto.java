@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.post;
 
 import java.util.Date;
 
@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 public class CommentListDto {
 
+	private int no;
+	private int employeeNo;
 	private String name;
 	private String content;
 	private int recommendCount;

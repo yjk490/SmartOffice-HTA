@@ -14,6 +14,5 @@ public class PostRegisterForm {
 	private String title;
 	private String content;
 	private List<String> tags;
-	private List<MultipartFile> uploadFiles;
-	private List<String> filenames;
+	private List<String> savedFilenames;
 }

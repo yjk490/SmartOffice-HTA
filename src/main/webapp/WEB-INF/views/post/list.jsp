@@ -1,7 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>    
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -19,10 +23,18 @@
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->
 		<div class="col-9">
-			<div class="row border m-1 mb-2">
-				<p class="fs-1 my-2">자유 게시판</p>
-				<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
-			</div>
+			<sec:authorize access="hasRole('ADMIN')">
+				<div class="row border m-1 mb-2 text-danger">
+					<p class="fs-1 my-2">자유 게시판</p>
+					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글을 삭제할 수 있습니다.</p>
+				</div>
+			</sec:authorize>
+			<sec:authorize access="hasRole('EMP')">
+				<div class="row border m-1 mb-2">
+					<p class="fs-1 my-2">자유 게시판</p>
+					<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
+				</div>
+			</sec:authorize>
 			<form id="form-search" method="GET" action="list">
 				<input type="hidden" name="page" value="${pagination.page }" />
 				<div class="m-1 mb-3 py-4 d-flex justify-content-between border-bottom">
@@ -47,9 +59,9 @@
 					<div class="col-6 text-end">
 						<div class="d-inline-block">
 							<select class="form-select form-select-xs border-secondary" name="type">
-								<option value="title">제목</option>
-								<option value="content">제목+내용</option>
-								<option value="name">이름</option>
+								<option value="title" ${opt.type eq 'title' ? 'selected' : '' }>제목</option>
+								<option value="content" ${opt.type eq 'content' ? 'selected' : '' }>제목+내용</option>
+								<option value="name" ${opt.type eq 'name' ? 'selected' : '' }>이름</option>
 							</select>
 						</div>
 						<div class="d-inline-block">
@@ -72,8 +84,11 @@
 						<div class="mb-3 p-2 border-bottom">
 							<div class="row mb-1">
 								<div class="col-6">
-									<a href="#" class="link-dark">${post.name }</a>
-									<input class="form-check-input border-secondary mx-2" type="checkbox">
+									<a href="#" class="link-dark">${post.name }
+										<sec:authorize access="hasRole('ADMIN')">
+											<input class="form-check-input border-secondary mx-2" type="checkbox">
+										</sec:authorize>
+									</a>
 								</div>
 								<div class="col-6 text-end">
 									<span>${post.createdDate }</span>
@@ -95,9 +110,11 @@
 			</c:choose>
 			<c:if test="${not empty posts }">
 				<div class="row">
-					<div class="col m-2">
-						<button type="button" class="btn btn-outline-danger">삭제</button>
-					</div>
+					<sec:authorize access="hasRole('ADMIN')">
+						<div class="col m-2">
+							<button type="button" class="btn btn-outline-danger">삭제</button>
+						</div>
+					</sec:authorize>
 					<nav id="pagenation">
 						<ul class="pagination pagination justify-content-center pt-5">
 							<li class="page-item">
