@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.example.dto.emp.EmployeeDetailDto;
 import com.example.vo.Employee;
 
 @Mapper
@@ -19,5 +20,9 @@ public interface EmployeeMapper {
 	List<Employee> getAllEmployees();
 	// 관리자가 이메일 정보로 사용자를 찾을 때
 	Employee getEmployeeByEmail(String email);
+	// 관리자가 사용자를 등록하고 그 사용자 정보를 출력 받을 때 사용하기 위함
+	EmployeeDetailDto getInsertEmployeeByNo(int empno);
+	// 쪽지보내기에서 이름 모달창에 검색하고 이름으로 직원들 정보를 받을 때
+	List<EmployeeDetailDto> getEmployeeByName(String name);
 
 }

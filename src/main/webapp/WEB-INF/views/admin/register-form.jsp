@@ -26,7 +26,7 @@
 					<label class="form-label">접속 권한</label>
 					<div>
 						<div class="form-check form-check-inline">
- 							<form:checkbox class="form-check-input" path="roleName" value="ROLE_EMP" />
+ 							<form:checkbox class="form-check-input" path="roleName" value="ROLE_EMPLOYEE" />
 							<label class="form-check-label">사원</label>
 						</div>
 						<div class="form-check form-check-inline">
