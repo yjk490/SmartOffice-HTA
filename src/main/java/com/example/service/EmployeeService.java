@@ -10,8 +10,8 @@ import com.example.dto.EmployeeDetailDto;
 import com.example.exception.AlreadyRegisteredEmailException;
 import com.example.mapper.EmployeeMapper;
 import com.example.mapper.EmployeeRoleMapper;
-import com.example.vo.Employee;
-import com.example.vo.EmployeeRole;
+import com.example.vo.employee.Employee;
+import com.example.vo.employee.EmployeeRole;
 import com.example.web.request.EmployeeRegisterform;
 
 @Service

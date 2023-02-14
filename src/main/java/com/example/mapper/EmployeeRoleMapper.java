@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.example.vo.EmployeeRole;
+import com.example.vo.employee.EmployeeRole;
 
 @Mapper
 public interface EmployeeRoleMapper {

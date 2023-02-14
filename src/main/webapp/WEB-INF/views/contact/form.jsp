@@ -72,7 +72,7 @@
 				</datalist>
 				</td>
 		      <th class="w3-light-grey w3-center tdcenter">생일</th>
-		      <td class="tdcenter"><input class="form-control" type="date" id="birthday" name="birthday"></td>
+		      <td class="tdcenter"><input class="form-control" type="date" id="birth" name="birth"></td>
 		    </tr>
 		    <tr>
 		      <th class="w3-light-grey w3-center tdcenter">회사</th>
@@ -94,11 +94,11 @@
 		    </tr>
 		    <tr>
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">사진</td>
-		      <td colspan="3"><input class="form-control" name="email" type="text" placeholder=""></td>
+		      <td colspan="3"><input class="form-control" name="photo" type="file" placeholder=""></td>
 		    </tr>
 		    <tr>
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">URL</td>
-		      <td colspan="3"><textarea class="form-control" rows="2" id="memo"></textarea></td>
+		      <td colspan="3"><textarea class="form-control" rows="2" id="url"></textarea></td>
 		    </tr>
 		    <tr>
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">메모</td>

@@ -2,6 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mapper.ContactMapper">
 	
+	<!-- 
+		연락처 추가
+	 -->
 	<insert id="insertContact" parameterType="Contact">
 	<selectKey keyProperty="contactNo" resultType="int" order="BEFORE">
 		select contact_no_seq.nextval from dual
@@ -12,6 +15,9 @@
 			(#{contactNo}, #{name}, #{share}, #{email}, #{birth}, #{company}, #{dept}, #{position}, #{address}, #{photo}, #{url}, #{memo})
 	</insert>
 	
+	<!-- 
+		연락처 전화번호 추가
+	 -->
 	<insert id="insertContactTel" parameterType="ContactTel">
 		insert into contact_tels
 			(contact_no, contact_tel)
@@ -19,6 +25,9 @@
 			(#{contactNo}, #{tel})
 	</insert>
 	
+	<!-- 
+		연락처 - 주소록 태그 연결
+	 -->
 	<insert id="insertContactTag" parameterType="ContactTag">
 		insert into contact_tags
 			(addressbook_no, contact_no)
@@ -26,6 +35,9 @@
 			(#{addressbookNo}, #{contactNo})
 	</insert>
 	
+	<!-- 
+		연락처 수정
+	 -->
 	<update id="updateContact" parameterType="Contact">
 		update
 			contacts
@@ -46,6 +58,9 @@
 			contact_no = #{contactNo}
 	</update>
 	
+	<!-- 
+		연락처 삭제
+	 -->
 	<delete id="deleteContact" parameterType="Contact">
 		delete from
 			contacts
@@ -53,6 +68,9 @@
 			contact_no = #{contactNo}
 	</delete>
 	
+	<!-- 
+		공유 연락처 총 갯수 조회
+	 -->
 	<select id="getPublicRows" resultType="int">
 		select
 			count(*)
@@ -62,6 +80,9 @@
 			contact_share = 'Y'
 	</select>
 	
+	<!-- 
+		개인 연락처 총 갯수 조회
+	 -->
 	<select id="getPrivateRows" resultType="int">
 		select
 			count(*)
@@ -71,6 +92,9 @@
 			contact_share = 'N'
 	</select>
 	
+	<!-- 
+		연락처 번호로 연락처 찾기
+	 -->
 	<select id="getContactTelsByNo" parameterType="int" resultType="ContactTel">
 		select
 			contact_no as contactNo,
@@ -81,6 +105,9 @@
 			contact_no = #{value}
 	</select>
 	
+	<!-- 
+		연락처가 속한 주소록 태그 목록 찾기
+	 -->
 	<select id="getContactTagsByNo" parameterType="int" resultType="ContactTag">
 		select
 			addressbook_no as addressbookNo
@@ -90,6 +117,9 @@
 			contact_no = #{value}
 	</select>
 	
+	<!-- 
+		연락처 번호로 연락처 이름, 타입, 이메일 찾기
+	 -->
 	<select id="getContactByNo" parameterType="int" resultType="Contact">
 		select
 			contact_name as name,
@@ -101,6 +131,9 @@
 			contact_no = #{value}
 	</select>
 	
+	<!-- 
+		연락처 이메일 주소로 연락처 찾기
+	 -->
 	<select id="getContactByEmail" parameterType="string" resultType="Contact">
 		select
 			contact_no as contactNo,
@@ -112,6 +145,9 @@
 			contact_email = #{value}
 	</select>
 	
+	<!-- 
+		연락처 이름으로 연락처 찾기
+	 -->
 	<select id="getContactByName" parameterType="string" resultType="Contact">
 		select
 			contact_no as contactNo,
@@ -123,6 +159,9 @@
 			contact_name = #{value}
 	</select>
 	
+	<!-- 
+		연락처 번호로 연락처 Detail 정보 (DTO) 조회
+	 -->
 	<select id="getContactDetailDtoByNo" parameterType="int" resultType="ContactDetailDto">
 		select
 			A.contact_name as name,
@@ -147,8 +186,6 @@
 			and C.addressbook_no = D.addressbook_no
 			and A.contact_no = B.contact_no
 			and A.contact_no = #{value}
-	</select>
-	
-	
+	</select>	
 	
 </mapper>
