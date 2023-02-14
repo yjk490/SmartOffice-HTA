@@ -121,10 +121,11 @@
 			  <p></p>
 			</div>
 			
+			<!-- 검색창 -->
 			<div class="w3-container w3-section" style="width: 25%">
 				<form>
 				  <div class="input-group">
-				    <input type="text" class="form-control" placeholder="연락처 검색..">
+				    <input type="text" class="form-control" value="" placeholder="연락처 검색..">
 				    <div class="input-group-btn">
 				      <button class="btn btn-default" type="submit">
 				        <i class="w3-text-grey bi bi-search"></i>
@@ -134,6 +135,7 @@
 				</form>
 			</div>
 			
+			<!-- 가~9 이름으로 찾기 -->
 			<div class="w3-container rest">
 				<div class="tab w-auto">
 					<button class="tablinks active">ALL</button>
@@ -163,6 +165,7 @@
 				</div>
 			</div>
 
+			<!-- 연락처 목록 -->
 			<div class="w3-container" style="border-top: 1px solid gray;">
 				<table class="table table-small" id="table-contact">
 				<colgroup>
@@ -184,11 +187,11 @@
 					</tr>
 				</thead>
 				<tbody>
-					<!-- 등록된 게시글이 없으면 아래 내용을 출력한다. -->
+
 							<tr>
 								<td colspan="9" class="text-center" >등록된 연락처가 없습니다.</td>
 							</tr>
-								<!-- 등록된 게시글이 있으면 등록된 게시들의 갯수만큼 아래 내용을 출력한다. -->
+								
 								<tr>
 									<td class="w3-center tdcenter"><input type="checkbox"></td>
 									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
@@ -265,6 +268,7 @@
 			</table>
 			</div>
 			
+			<!-- 페이지네이션 -->
 			<div class="w3-center">
 				<div class="w3-bar">
 				  <a href="#" class="w3-button w3-hover-light-grey">«</a>
@@ -276,6 +280,7 @@
 				</div>
 			</div>
 			
+			<!-- 버튼 모음 -->
 			<div class="w3-container"   style="border-top: 1px solid gray; border-bottom: 1px solid gray;">
 				<div class="w3-bar">
 				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small littlemg">내보내기</a>
@@ -286,6 +291,7 @@
 				</div>
 			</div>			
 
+	<!-- 연락처 삭제 -->
   	<div id="delete01" class="w3-modal">
     	<div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:500px">
 	<div class="w3-margin"><br>

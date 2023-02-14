@@ -16,6 +16,7 @@ import com.example.vo.contact.Addressbook;
 import com.example.vo.contact.Contact;
 import com.example.vo.contact.ContactTag;
 import com.example.vo.contact.ContactTel;
+import com.example.web.request.AddressbookModifyForm;
 import com.example.web.request.ContactRegisterForm;
 
 @Service
@@ -28,8 +29,8 @@ public class ContactService {
 	private ContactMapper contactMapper;
 	
 	// 주소록(태그) 등록
-	public void insertAddressbook(String type, String addressbookName ) {
-		Addressbook addbook = addressbookMapper.getAddressbookByName(addressbookName);
+	public void insertAddressbook(String type, String addressbookName) {
+		Addressbook addbook = addressbookMapper.getAddressbookByName(type, addressbookName);
 		if(addbook != null) {
 			throw new ApplicationContextException("동일한 이름의 태그가 존재합니다.");
 		}
@@ -38,6 +39,21 @@ public class ContactService {
 		newBook.setType(type);
 		newBook.setAddressbookName(addressbookName);
 		addressbookMapper.insertAddressbook(newBook);
+	}
+	
+	// 주소록(태그) 조회
+	public Addressbook getAddressbookByNo(int addressbookNo) {
+		Addressbook adrbook = addressbookMapper.getAddressbookByNo(addressbookNo);
+		
+		return adrbook;
+	}
+	
+	// 주소록(태그) 수정
+	public void modifyAddressbook(AddressbookModifyForm addressbookModifyForm) {
+		Addressbook adrbook = addressbookMapper.getAddressbookByNo(addressbookModifyForm.getAddressbookNo());
+		BeanUtils.copyProperties(addressbookModifyForm, adrbook);
+		
+		addressbookMapper.updateAddressbook(adrbook);
 	}
 	
 	// 연락처 등록
@@ -64,30 +80,18 @@ public class ContactService {
 		}
 	}
 	
-	// 공유주소록 목록, 총 개체수 조회
-	public Map<String, Object> getPublicAddressbooks() {
-		int totalRows = contactMapper.getPublicRows();
-		
-		List<Addressbook> publicAddressbooks = addressbookMapper.getAddressbooks("public");
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("publicAddressbooks", publicAddressbooks);
-		result.put("publicTotalRows", totalRows);
-		
-		return result;
+	// 공유주소록 목록 조회
+	public List<Addressbook> getPublicAddressbooks() {
+		return addressbookMapper.getAddressbooks("public");
 	}
 	
-	// 개인주소록 목록, 총 개체수 조회
-		public Map<String, Object> getPrivateAddressbooks() {
-			int totalRows = contactMapper.getPrivateRows();
-			
-			List<Addressbook> privateAddressbooks = addressbookMapper.getAddressbooks("private");
-			
-			Map<String, Object> result = new HashMap<String, Object>();
-			result.put("privateAddressbooks", privateAddressbooks);
-			result.put("privateTotalRows", totalRows);
-			
-			return result;
-		}
+	// 개인주소록 목록 조회
+	public List<Addressbook> getPrivateAddressbooks() {	
+		return addressbookMapper.getAddressbooks("private");
+	}
+
+	
+
+
 
 }
