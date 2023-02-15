@@ -46,6 +46,29 @@
 		and e.position_no = p.position_no
 	</select>
 	
+	<select id="getInsertEmployeeByNo" parameterType="int" resultType="EmployeeDetailDto">
+		select
+			e.employee_no				as no,
+			e.employee_name				as name,
+			e.employee_tel				as tel,
+			e.employee_email			as email,
+			e.employee_photo			as photo,
+			e.employee_hire_date		as hireDate,
+			e.employee_status			as status,
+			e.employee_created_date		as createdDate,
+			e.employee_updated_date		as updatedDate,
+			d.dept_no					as deptNo,
+			d.dept_name					as deptName,
+			p.position_no				as positionNo,
+			p.position_name				as positionName
+		from
+			employees e, departments d, employee_positions p
+		where
+			e.employee_no = #{value}
+		and e.dept_no = d.dept_no
+		and e.position_no = p.position_no
+	</select>
+	
 	<select id="getEmployeeByEmail" parameterType="string" resultType="Employee">
 		select
 			e.employee_no				as no,
@@ -66,6 +89,29 @@
 			e.employee_email = #{value}
 		and e.dept_no = d.dept_no
 		and e.position_no = p.position_no
+	</select>
+	<select id="getEmployeeByName" parameterType="string" resultType="EmployeeDetailDto">
+		select
+			e.employee_no				as no,
+			e.employee_name				as name,
+			e.employee_tel				as tel,
+			e.employee_email			as email,
+			e.employee_photo			as photo,
+			e.employee_hire_date		as hireDate,
+			e.employee_status			as status,
+			e.employee_created_date		as createdDate,
+			e.employee_updated_date		as updatedDate,
+			d.dept_no					as deptNo,
+			d.dept_name					as deptName,
+			p.position_no				as positionNo,
+			p.position_name				as positionName
+		from
+			employees e, departments d, employee_positions p
+		where
+			e.employee_name = #{value}
+		and e.dept_no = d.dept_no
+		and e.position_no = p.position_no
+			
 	</select>
 	
 </mapper>

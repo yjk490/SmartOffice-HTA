@@ -48,75 +48,75 @@
 		<div class="col-12 mb-3">
 			<h1 class="fs-4 border p-2">쪽지 보내기</h1>
 		</div>
-		<form id="note-form" class="border p-3" method="post" action="register">
+		<form:form modelAttribute="noteRegisterForm" id="note-form" class="border p-3" method="post" action="form" enctype="multipart/form-data">
+			<sec:csrfInput />
 			<div class="mb-3 mt-3">
 				<div class="form-check mb-3">
- 					<input class="form-check-input" type="checkbox" path="important" value="Y">
+ 					<form:checkbox class="form-check-input" id="checkbox" name="checkbox" path="important" value="Y" />
 					<label class="form-check-label"><i class="fas fa-star w3-text-amber"></i> 중요</label>
 				</div>
 				<div class="w3-border-top mb-3">
 				</div>
 				<div class="mb-3">
-					<input type="text" class="form-control form-control-sm" name="title" path="title" placeholder="제목을 입력하세요." />
+					<form:input class="form-control form-control-sm" name="title" path="title" placeholder="제목을 입력하세요." />
 				</div>
 				<div class="mb-3 d-flex">
-					<input type="text" class="form-control form-control-sm" name="senderNo" path="senderNo" placeholder="수신자 직원번호를 입력하세요." />
-					<button id="btn-open" href="#modal" class="w3-button w3-black w3-margin-left w3-tiny" type="button">+</button>
+					<input type="text" class="form-control form-control-sm" id="receivers-input" placeholder="수신자 직원번호를 직접입력 또는 검색을 통해 등록하세요." />
+					<button id="btn-open" href="#modal" class="w3-button w3-black w3-margin-left w3-tiny" type="button"><i class="fa fa-search"></i></button>
+					
+					
 					<!-- 사원 검색 모달창 -->
-					<div id="modal" class="w3-modal w3-margin">
-					    <div class="w3-modal-content">
-					      <header class="w3-container mb-2 w3-black"> 
-					        <h4>수신자 검색</h4>
-					      </header>
-					      <div class="w3-container w3-margin d-flex justify-content-between">
-					      	<input type="hidden" name="page" value="" />
-					      	<div>
-								<select class="form-select form-select-xs" name="opt">
-									<option>주소록전체</option>
-									<option>개인주소록</option>
-									<option>공유주소록</option>
-								</select>
-								<input type="text" class="form-control form-control-xs" name="keyword" value="" />
-								<button type="button" class="btn btn-outline-secondary btn-xs" id="btn-search"><i class="fa fa-search"></i></button>
-							</div>
-					      </div>
-					      <div class="w3-container w3-margin">
-					       	<table class="table table-sm">
-					       		<colgroup>
-									<col width="33%">
-									<col width="*">
-									<col width="33%">
-								</colgroup>
-								<thead>
-									<tr>
-										<th class="text-center">사원번호</th>
-										<th class="text-center">사원이름</th>
-										<th class="text-center">부서명</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td class="text-center">10001</td>
-										<td class="text-center"><a class="text-decoration-none" id="modal-name" >강감찬</a></td>
-										<td class="text-center">영업부</td>
-									</tr>
-								</tbody>
-					       	</table>
-					       	<div>
-					       		<div id="name-btn-box" class="me-3 pt-1 ps-1 mt-1"></div>
-								<div id="name-box" class="me-3 pt-1 ps-1"></div>
-					       	</div>
-					      </div>
-					      <footer class="w3-container text-end w3-container w3-margin-bottom">
-							<button class="w3-button w3-padding-small w3-round-large w3-light-gray" id="btn-out" type="button"><a class="text-decoration-none">취소</a></button>
-							<button class="w3-button w3-padding-small w3-round-large w3-black" id="btn-enter" type="button">보내기</button>
-					      </footer>
-					    </div>
-				  </div>
+					
+						<div id="modal" class="w3-modal w3-margin">
+						    <div class="w3-modal-content">
+						      <header class="w3-container mb-2 w3-black"> 
+						        <h4>수신자 검색</h4>
+						      </header>
+						      <div class="w3-container w3-margin d-flex justify-content-between">
+						      	<input type="hidden" name="page" value="" />
+						      	<div>
+									<input type="text" class="form-control form-control-xs" id="modal-keyword" placeholder="사원이름을 입력해주세요."/>
+									<button type="button" class="btn btn-outline-secondary btn-xs" id="btn-search"><i class="fa fa-search"></i></button>
+								</div>
+						      </div>
+						      <div class="w3-container w3-margin">
+						       	<table class="table table-sm" id="table-modal">
+						       		<colgroup>
+										<col width="33%">
+										<col width="*">
+										<col width="33%">
+									</colgroup>
+									<thead>
+										<tr>
+											<th class="text-center">사원번호</th>
+											<th class="text-center">사원이름</th>
+											<th class="text-center">부서명</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td colspan="3" class="text-center">사원이름을 검색해주세요.</td>
+										</tr>
+									</tbody>
+						       	</table>
+						       	<div>
+						       		<div id="name-btn-box" class="me-3 pt-1 ps-1 mt-1"></div>
+									<div id="name-box" class="me-3 pt-1 ps-1"></div>
+						       	</div>
+						      </div>
+						      <footer class="w3-container text-end w3-container p-3">
+								<button class="w3-button w3-padding-small w3-round-large w3-light-gray" id="btn-out" type="button"><a class="text-decoration-none">취소</a></button>
+						      </footer>
+						    </div>
+					  </div>
+				<!-- 모달 끝 -->
+				
+				
 				</div>
-				<div class="mb-3">
+				<div id="receivers-box" class="me-3 pt-1 ps-1" path="receiversNo"></div>
+				<div class="mb-3 mt-3">
 					<label class="form-label">내용</label>
-					<textarea rows="4" class="form-control" name="content" path="content"></textarea>
+					<form:textarea rows="4" class="form-control" name="content" path="content" />
 				</div>
 				<div class="w3-border-top mb-3">
 				</div>
@@ -130,45 +130,99 @@
 					<button id="submit" type="submit" class="w3-button w3-padding-small w3-round-large w3-blue">보내기</button>
 				</div>
 			</div>
-		</form>
+		</form:form>
 		</div>
 	</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script>
+<script type="text/javascript">
 $(function(){
 	
-	let $modalName = $("#modal-name");
-	let $nameBtnBox = $("#name-btn-box");
-	let $nameBox = $("#name-box");
+	let $reInput = $("#receivers-input");
+	let $reBox = $("#receivers-box");
 	
-	$("#modal-name").click(function(event) {
+	$("#receivers-input").keydown(function(event){
 		
-		let value = $modalName.val();
-		if (value == "") {
-			alert("수신자를 한명 이상 선택하세요.");
+		if(event.which == 13) {
+			let value = $reInput.val();
+			if(value == ""){
+				alert("수신자번호를 입력하세요.");
+				return false;
+			}
+			let reBtn = `
+				<a href="" class="text-white text-decoration-none">
+					<small class="border rounded bg-secondary p-1 text-white">\${value}<i class="bi bi-x"></i></small>
+					<input type="hidden" name="receiversNo" value= "\${value}">
+				</a>
+				`; 
+			
+			$reBox.append(reBtn);
+			$reInput.val("");
+			
 			return false;
 		}
-		let nameBtn = `
-			<small class="border rounded bg-secondary p-1 text-white">#\${value} <a href="" class="text-white text-decoration-none"><i class="bi bi-x"></i></a></small>
-		`;
-		let name = `
-			<input type="hidden" name="tags" value="\${value}">
-		`
-		$nameBtnBox.append(nameBtn);
-		$nameBox.append(name);
-		
 		return true;
 	});
 	
 	$("#btn-open").click(function() {
 		$("#modal").fadeIn();
 	});
-	
 	$("#btn-out").click(function() {
 		$("#modal").fadeOut();
 	});
+	
+	$("#btn-search").click(function() {
+	
+		let $tbody = $("#table-modal tbody").empty()
+	
+		//select, input 값조회
+		let keyValue = $("#modal-keyword").val();
+		 
+		  
+		 if(!keyValue){
+			 alert("사원이름을 입력하세요");
+			 return false;
+		  }
+	
+		  $.getJSON("/note/search.json", {keyword:keyValue}, function(employeeList) {
+			  if (employeeList.length == 0 ) {
+				  $tbody.append('<tr><td colspan="3" class="text-center">검색어로 조회된 값이 없습니다.</td><tr>')
+			  } else {
+				$.each(employeeList, function(index, emp) {
+					let tr = `
+						<tr>
+							<td class="text-center">\${emp.no}</td>
+							<td class="text-center"><a href="" class="text-decoration-none" data-emp-no="\${emp.no}">\${emp.name}</a></td>
+							<td class="text-center">\${emp.deptName}</td>
+						</tr>
+					`
+					$tbody.append(tr);
+				})
+			   }
+			}) 
+		});
+	
+	$reBox.on("click", 'a', function(event){
+		event.preventDefault();
+		$(this).remove();
+	});
+	
+	$("#table-modal tbody").on('click', 'a', function(event) {
+		event.preventDefault();
+		let empNo = $(this).attr('data-emp-no');
+		   
+		let reBtn = `
+			<a href="" class="text-white text-decoration-none">
+				<small class="border rounded bg-secondary p-1 text-white">\${empNo}<i class="bi bi-x"></i></small>
+				<input type="hidden" name="receiversNo" value= "\${empNo}">
+			</a>
+			`; 
+			
+		$reBox.append(reBtn);
+		$("#modal").fadeOut();
+		
+		});
 	
 	$("#note-form").submit(function() {
 		let title = $("#note-form input[name=title]").val();
@@ -187,6 +241,8 @@ $(function(){
 			alert("내용을 입력하세요");
 			return false;
 		}
+		
+		
 		return true;
 	});
 	
