@@ -1,4 +1,4 @@
-package com.example.vo;
+package com.example.vo.employee;
 
 import org.apache.ibatis.type.Alias;
 

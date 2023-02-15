@@ -2,10 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.PostMapper">
 
-	<select id="getPostSequence" resultType="int">
-		select posts_seq.nextval
-		from dual
-	</select>
 	
 	<insert id="insertPost" parameterType="com.example.vo.post.Post">
 		insert into posts
@@ -23,10 +19,183 @@
 	
 	<insert id="insertAttachedFile" parameterType="com.example.vo.post.AttachedFile">
 		insert into post_attached_files
-			(file_no, post_no, post_filename)
+			(file_no, post_no, post_original_filename, post_saved_filename)
 		values
-			(post_attached_files_seq.nextval, #{postNo}, #{filename})	
+			(post_attached_files_seq.nextval, #{postNo}, #{originalName}, #{savedName})	
 	</insert>
+	
+	<select id="getPostSequence" resultType="int">
+		select posts_seq.nextval
+		from dual
+	</select>
 
+	<select id="getTotalRows" resultType="int">
+		select
+			count(*)
+		from
+			posts
+		<where>
+			<choose>
+				<when test="type == 'title'">
+					post_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="type == 'content'">
+					(post_content like '%' || #{keyword} || '%'
+					 or post_title like '%' || #{keyword} || '%')
+				</when>
+				<when test="type == 'name'">
+					employee_no in (select
+										employee_no
+									from
+										employees
+									where
+										employee_name = #{keyword})	
+				</when>
+			</choose>
+			and post_deleted = 'N'
+		</where>
+	</select>
+	
+	<select id="getPostListDto" resultType="com.example.dto.post.PostListDto">
+		select
+		    post_no 				as no,
+		    employee_name 			as name,
+		    post_title 				as title,
+		    post_read_count 		as readCount,
+		    post_comment_count		as commentCount,
+		    post_recommend_count 	as recommendCount,
+		    post_created_date 		as createdDate
+		from (
+		     select
+				 row_number() over (order by A.post_no desc) row_numbers,
+		         A.post_no,
+		         B.employee_name,
+		         A.post_title,
+		         A.post_recommend_count,
+		         A.post_read_count,
+		         A.post_comment_count,
+		         A.post_scrap_count,
+		         A.post_created_date
+		     from
+		         posts A, employees B
+		     <where>
+		     	<choose>
+		     		<when test="type == 'title'">
+		     			A.post_title like '%' || #{keyword} || '%'
+		     		</when>
+		     		<when test="type == 'content'">
+		     			(A.post_content like '%' || #{keyword} || '%'
+		     			 or A.post_title like '%' || #{keyword} || '%')
+		     		</when>
+		     		<when test="type == 'name'">
+		     			B.employee_name like '%' || #{keyword} || '%'
+		     		</when>
+		     	</choose>
+		         and A.post_deleted = 'N'
+		         and A.employee_no = B.employee_no
+		     </where>
+			 <choose>
+				<when test="sort == 'date'">
+					order by A.post_created_date desc
+				</when> 
+				<when test="sort == 'recommend'">
+					order by A.post_recommend_count desc
+				</when> 
+				<when test="sort == 'read'">
+					order by A.post_read_count desc
+				</when> 
+				<when test="sort == 'comment'">
+					order by A.post_comment_count desc
+				</when> 
+				<when test="sort == 'scrap'">
+					order by A.post_scrap_count desc
+				</when> 
+			 </choose>
+		     )
+		where
+		    row_numbers between #{begin} and #{end}
+	</select>
+
+	<select id="getPostDetailDto" parameterType="int" resultType="com.example.dto.post.PostDetailDto">
+		select
+			A.post_no				as no,
+			A.employee_no			as employeeNo,
+			B.employee_name			as name,
+			A.post_title 			as title,
+			A.post_content 			as content,
+			A.post_read_count 		as readCount,
+			A.post_recommend_count 	as recommendCount,
+			A.post_scrap_count 		as scrapCount,
+			A.post_created_date 	as createdDate
+		from
+			posts A, employees B
+		where
+			A.employee_no = B.employee_no
+			and A.post_no	= #{value} 				
+	</select>
+	
+	<select id="getCommentsByPostNo" parameterType="int" resultType="com.example.dto.post.CommentListDto">
+		select
+			A.comment_no				as no,
+			A.employee_no				as employeeNo,
+			B.employee_name				as name,
+			A.comment_content			as content,
+			A.comment_recommend_count	as recommendCount,
+			A.comment_created_date		as createdDate
+		from
+			post_comments A, employees B
+		where
+			A.employee_no = B.employee_no
+			and A.post_no	= #{value} 	
+	</select>
+	
+	<select id="getAttachedFilesByPostNo" parameterType="int" resultType="com.example.vo.post.AttachedFile">
+		select
+			POST_NO					as postNo,
+			POST_ORIGINAL_FILENAME	as originalName,
+			POST_SAVED_FILENAME 	as savedName
+		from
+			POST_ATTACHED_FILES
+		where
+			post_no = #{value}
+	</select>
+	
+	<select id="getTagsByPostNo" parameterType="int" resultType="com.example.vo.post.Tag">
+		select
+			post_no		as postNo,
+			tag_content	as content
+		from
+			post_tags
+		where
+			post_no = #{value}	
+	</select>
+
+	<update id="updatePost" parameterType="com.example.vo.post.Post">
+		update
+			posts
+		set
+			post_title = #{title},
+			post_content = #{content},
+			post_read_count = #{readCount},
+			post_recommend_count = #{recommendCount},
+			post_comment_count = #{commentCount},
+			post_deleted = #{deleted},
+			post_updated_date = sysdate
+		where
+			post_no = #{no}
+	</update>
+	
+	<update id="updateComment" parameterType="com.example.vo.post.Comment">
+		update
+			post_comments
+		set
+			comment_content = #{content},
+			comment_read_count = #{readCount},
+			comment_recommend_count = #{recommendCount},
+			post_deleted = #{deleted},
+			post_updated_date = sysdate
+		where
+			comment_no = #{no}
+	</update>
 	
 </mapper>

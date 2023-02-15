@@ -1,6 +1,7 @@
 package com.example.web.controller;
 
 import java.io.File;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +25,6 @@ import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.EmployeeService;
 import com.example.service.NoteService;
-import com.example.vo.Employee;
 import com.example.web.request.NoteRegisterForm;
 import com.example.web.view.FileDownloadView;
 

@@ -1,11 +1,11 @@
 package com.example.web.request;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-import org.apache.ibatis.type.Alias;
 import org.hibernate.validator.constraints.Length;
 
 import lombok.Getter;
@@ -33,5 +33,9 @@ public class ContactRegisterForm {
 	private String photo;
 	private String url;
 	private String memo;
+	
+	private List<String> contactTels;
+	
+	private List<Integer> addressbookNos;
 
 }

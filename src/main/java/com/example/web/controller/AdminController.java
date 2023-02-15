@@ -3,6 +3,7 @@ package com.example.web.controller;
 import javax.validation.Valid;
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.example.dto.emp.EmployeeDetailDto;
 import com.example.exception.AlreadyRegisteredEmailException;
 import com.example.service.EmployeeService;
-import com.example.vo.Employee;
+import com.example.vo.employee.Employee;
 import com.example.web.request.EmployeeRegisterform;
 
 @Controller

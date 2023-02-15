@@ -2,66 +2,76 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mapper.AddressbookMapper">
 	
+	<!-- 
+		주소록 태그 삽입
+	 -->
 	<insert id="insertAddressbook" parameterType="Addressbook">
-		<selectKey>
-			select addressbook_no.seq.nextval from dual
-		</selectKey>
 		insert into addressbooks
 			(addressbook_no, addressbook_type, addressbook_name)
 		values
-			(#{addressbookNo}, #{type}, #{name})
+			(addressbook_no_seq.nextval, #{type}, #{addressbookName})
 	</insert>
 	
+	<!-- 
+		주소록 태그 수정
+	 -->
 	<update id="updateAddressbook" parameterType="Addressbook">
 		update
 			addressbooks
 		set
-			addressbook_type = #{type},
-			addressbook_name = #{name},
-			addressbook_deleted = #{deleted},
+			addressbook_type = #{type,jdbcType=VARCHAR},
+			addressbook_name = #{addressbookName,jdbcType=VARCHAR},
+			addressbook_deleted = #{deleted,jdbcType=VARCHAR},
 			addressbook_updated_date = sysdate
 		where
 			addressbook_no = #{addressbookNo}
 	</update>
 	
-	<select id="getPublicRows">
+	<!-- 
+		주소록 태그 번호로 주소록 태그 조회하기
+	 -->
+	<select id="getAddressbookByNo" parameterType="int" resultType="Addressbook">
 		select
-			count(*)
-		from
-			addressbooks
-		where
-			addressbook_type = 'public'
-			and addressbook_deleted = 'N'		
-	</select>
-	
-	<select id="getPrivateRows">
-		select
-			count(*)
-		from
-			addressbooks
-		where
-			addressbook_type = 'private'
-			and addressbook_deleted = 'N'		
-	</select>
-	
-	<select id="getAddressbookByNo">
-		select
+			addressbook_no as addressbookNo,
 			addressbook_type as type,
-			addressbook_name as name
+			addressbook_name as addressbookName,
+			addressbook_deleted as deleted
 		from
 			addressbooks
 		where
 			addressbook_no = #{value}
 	</select>
 	
-	<select id="getAddressbookByName">
+	<!-- 
+		주소록 태그 이름, 타입으로 주소록 태그 조회하기
+	 -->
+	<select id="getAddressbookByName" parameterType="string" resultType="Addressbook">
 		select
+			addressbook_no as addressbookNo,
 			addressbook_type as type,
-			addressbook_no as no
+			addressbook_name as addressbookName,
+			addressbook_deleted as deleted
 		from
 			addressbooks
 		where
-			addressbook_name = #{value}
+			addressbook_name = #{addressbookName}
+			and addressbook_type = #{type}
+	</select>
+	
+	<!-- 
+		삭제되지 않은 type(공유 or 개인)값에 속한 주소록 태그 목록 조회하기
+	 -->
+	<select id="getAddressbooks" parameterType="string" resultType="Addressbook">
+		select
+			addressbook_no as addressbookNo,
+			addressbook_name as addressbookName,
+			addressbook_type as type,
+			addressbook_deleted as deleted
+		from
+			addressbooks
+		where
+			addressbook_deleted = 'N'
+			and addressbook_type = #{value}
 	</select>
 	
 </mapper>

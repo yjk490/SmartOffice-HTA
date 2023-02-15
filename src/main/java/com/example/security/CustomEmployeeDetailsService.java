@@ -1,6 +1,7 @@
 package com.example.security;
 
 import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.mapper.EmployeeMapper;
 import com.example.mapper.EmployeeRoleMapper;
-import com.example.vo.Employee;
-import com.example.vo.EmployeeRole;
+import com.example.vo.employee.Employee;
+import com.example.vo.employee.EmployeeRole;
 
 @Service
 public class CustomEmployeeDetailsService implements UserDetailsService {

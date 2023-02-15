@@ -1,4 +1,4 @@
-package com.example.vo;
+package com.example.vo.contact;
 
 import java.util.Date;
 
@@ -14,7 +14,7 @@ public class Addressbook {
 	
 	private int addressbookNo;
 	private String type;
-	private String addressname;
+	private String addressbookName;
 	private String deleted;
 	private Date createdDate;
 	private Date updatedDate;

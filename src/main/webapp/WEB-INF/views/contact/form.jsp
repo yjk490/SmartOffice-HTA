@@ -29,7 +29,7 @@
 			<div class="w3-container">
 				<h1>연락처 추가</h1>
 			</div>
-			
+		<form:form id="contact-form" method="post" action="register">
 		<table class="table table-bordered">
 			<colgroup>
 					<col width="15%">
@@ -47,7 +47,7 @@
 		      <th class="w3-light-grey w3-center tdcenter">전화번호</th>
 		      <td>
 		      	  <div class="input-group">
-				    <input type="text" class="form-control" name="tel" placeholder="숫자만 입력해 주세요(- 제외)">
+				    <input type="text" class="form-control" name="contactTel" placeholder="숫자만 입력해 주세요(- 제외)">
 				    <div class="input-group-btn">
 				      <button class="btn btn-default" type="submit">
 				        <i class="bi bi-plus-square"></i>
@@ -72,7 +72,7 @@
 				</datalist>
 				</td>
 		      <th class="w3-light-grey w3-center tdcenter">생일</th>
-		      <td class="tdcenter"><input class="form-control" type="date" id="birthday" name="birthday"></td>
+		      <td class="tdcenter"><input class="form-control" type="date" id="birth" name="birth"></td>
 		    </tr>
 		    <tr>
 		      <th class="w3-light-grey w3-center tdcenter">회사</th>
@@ -94,25 +94,25 @@
 		    </tr>
 		    <tr>
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">사진</td>
-		      <td colspan="3"><input class="form-control" name="email" type="text" placeholder=""></td>
+		      <td colspan="3"><input class="form-control" name="photo" type="file" placeholder=""></td>
 		    </tr>
 		    <tr>
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">URL</td>
-		      <td colspan="3"><textarea class="form-control" rows="2" id="memo"></textarea></td>
+		      <td colspan="3"><textarea class="form-control" rows="2" id="url"></textarea></td>
 		    </tr>
 		    <tr>
 		      <th colspan="1" class="w3-light-grey w3-center tdcenter">메모</td>
 		      <td colspan="3"><textarea class="form-control" rows="5" id="memo"></textarea></td>
 		    </tr>
 	  	</table>
-	  	
 	  	<div class="w3-container">
 				<div class="w3-bar">
 				  <button type="submit" class="w3-button w3-white w3-border w3-padding w3-border-green w3-round-large w3-left w3-right littlemg">저장</button>
 				  <a href="../contact/list" class="w3-button w3-white w3-border w3-padding w3-border-red w3-round-large w3-left w3-right littlemg">취소</a>
 				</div>
 			</div>
-		</div>	
+		</div>
+		</form:form>
 </div>
 </body>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -150,17 +150,17 @@
                         extraAddr = ' (' + extraAddr + ')';
                     }
                     // 조합된 참고항목을 해당 필드에 넣는다.
-                    document.getElementById("sample6_extraAddress").value = extraAddr;
+                    document.getElementById("extraAddress").value = extraAddr;
                 
                 } else {
-                    document.getElementById("sample6_extraAddress").value = '';
+                    document.getElementById("extraAddress").value = '';
                 }
 
                 // 우편번호와 주소 정보를 해당 필드에 넣는다.
-                document.getElementById('sample6_postcode').value = data.zonecode;
-                document.getElementById("sample6_address").value = addr;
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById("address").value = addr;
                 // 커서를 상세주소 필드로 이동한다.
-                document.getElementById("sample6_detailAddress").focus();
+                document.getElementById("detailAddress").focus();
             }
         }).open();
     }
