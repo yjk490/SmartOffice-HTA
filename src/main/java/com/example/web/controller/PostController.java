@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +13,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostDetailDto;
-import com.example.exception.ApplicationException;
 import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.PostService;
-import com.example.vo.post.AttachedFile;
 import com.example.web.request.PostRegisterForm;
 import com.example.web.request.PostSearchOption;
 import com.example.web.response.PostSearchResult;
@@ -54,7 +52,7 @@ public class PostController {
 		return "post/list";
 	}
 	
-	@GetMapping("/register-form")
+	@GetMapping("/register")
 	public String registerForm() {
 		return "post/register-form";
 	}
@@ -81,8 +79,8 @@ public class PostController {
 	}
 	
 	@GetMapping("/detail")
-	public String detail(@RequestParam("postNo") int postNo, Model model) {
-		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo);
+	public String detail(@RequestParam("postNo") int postNo, @AuthenticatedUser LoginEmployee loginEmployee, Model model) {
+		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, loginEmployee.getNo());
 		
 		model.addAttribute("post", postDetailDto);
 		
@@ -101,6 +99,37 @@ public class PostController {
 		mav.setView(fileDownloadView);
 		
 		return mav;
+	}
+	
+	@GetMapping("/scrap")
+	@ResponseBody
+	public void scrap(@RequestParam("postNo") int postNo, @AuthenticatedUser LoginEmployee loginEmployee) {
+		postService.scrapPost(postNo, loginEmployee.getNo());
+	}
+	
+	@GetMapping("/recommend")
+	@ResponseBody
+	public void recommend(@RequestParam("postNo") int postNo, @AuthenticatedUser LoginEmployee loginEmployee) {
+		postService.recommendPost(postNo, loginEmployee.getNo());
+	}
+	
+	@PostMapping("/register-comment")
+	@ResponseBody
+	public void registerComment(@RequestParam("postNo") int postNo, @RequestParam("content") String content, @AuthenticatedUser LoginEmployee loginEmployee) {
+		postService.registerComment(postNo, content, loginEmployee.getNo());
+	}
+	
+	@GetMapping("/comment-list")
+	@ResponseBody
+	public List<CommentDto> commentList(int postNo, int employeeNo) {
+		List<CommentDto> comments = postService.getComments(postNo, employeeNo);
+		return comments;
+	}
+	
+	@GetMapping("/recommend-comment")
+	@ResponseBody
+	public void recommendComment(@RequestParam("commentNo") int commentNo, @AuthenticatedUser LoginEmployee loginEmployee) {
+		postService.recommendComment(commentNo, loginEmployee.getNo());
 	}
 	
 	@GetMapping("/notice")

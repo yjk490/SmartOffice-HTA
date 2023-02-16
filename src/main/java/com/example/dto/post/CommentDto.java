@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CommentListDto {
+public class CommentDto {
 
 	private int no;
 	private int employeeNo;
@@ -15,4 +15,5 @@ public class CommentListDto {
 	private String content;
 	private int recommendCount;
 	private Date createdDate;
+	private boolean recommended;
 }
