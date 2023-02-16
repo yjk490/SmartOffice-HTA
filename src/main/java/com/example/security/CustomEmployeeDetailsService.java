@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.mapper.EmployeeMapper;
 import com.example.mapper.EmployeeRoleMapper;
-import com.example.vo.contact.Employee;
-import com.example.vo.contact.EmployeeRole;
+import com.example.vo.Employee;
+import com.example.vo.EmployeeRole;
 
 @Service
 public class CustomEmployeeDetailsService implements UserDetailsService {

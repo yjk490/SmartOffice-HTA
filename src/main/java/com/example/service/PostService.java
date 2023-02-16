@@ -4,15 +4,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.dto.post.CommentListDto;
+import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
-import com.example.exception.ApplicationException;
 import com.example.mapper.PostMapper;
 import com.example.utils.Pagination;
 import com.example.vo.post.AttachedFile;
+import com.example.vo.post.Comment;
 import com.example.vo.post.Post;
 import com.example.vo.post.Tag;
 import com.example.web.request.PostRegisterForm;
@@ -43,14 +43,11 @@ public class PostService {
 		return result;
 	}
 	
-	public PostDetailDto getPostDetailDto(int postNo) {
-		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo);
+	public PostDetailDto getPostDetailDto(int postNo, int employeeNo) {
+		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo, employeeNo);
 //		if (postDetailDto == null) {
 //			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
 //		}
-		
-		List<CommentListDto> comments = postMapper.getCommentsByPostNo(postNo);
-		postDetailDto.setComments(comments);
 		
 		List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
 		postDetailDto.setAttachedFiles(attachedFiles);
@@ -97,6 +94,76 @@ public class PostService {
 			}
 		}
 	}
+
+	public void scrapPost(int postNo, int employeeNo) {
+		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo, employeeNo);
+		Post post = postMapper.getPostByNo(postNo);
+		
+		if (!postDetailDto.isScrapped()) {
+			postMapper.insertPostScrap(postNo, employeeNo);
+			post.increaseScrapCount();
+			postMapper.updatePost(post);
+		} else {
+			postMapper.deletePostScrap(postNo, employeeNo);
+			post.decreaseScrapCount();
+			postMapper.updatePost(post);
+		}
+		
+	}
 	
+	public void recommendPost(int postNo, int employeeNo) {
+		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo, employeeNo);
+		Post post = postMapper.getPostByNo(postNo);
+		
+		if (!postDetailDto.isRecommended()) {
+			postMapper.insertPostRecommend(postNo, employeeNo);
+			post.increaseRecommendCount();
+			postMapper.updatePost(post);
+		} else {
+			postMapper.deletePostRecommend(postNo, employeeNo);
+			post.decreaseRecommendCount();
+			postMapper.updatePost(post);
+		}
+	}
+	
+	public void registerComment(int postNo, String content, int employeeNo) {
+		int commentNo = postMapper.getCommentSequence();
+		Comment comment = Comment.builder()
+						  .no(commentNo)
+						  .employeeNo(employeeNo)
+						  .postNo(postNo)
+						  .content(content)
+						  .build();
+		
+		postMapper.insertComment(comment);
+	}
+	
+	public List<CommentDto> getComments(int postNo, int employeeNo) {
+		List<CommentDto> comments = postMapper.getCommentsByPostNo(postNo, employeeNo);
+		return comments;
+	}
+	
+	public void recommendComment(int commentNo, int employeeNo) {
+		CommentDto commentDto = postMapper.getCommentDtoByCommentNo(commentNo, employeeNo);
+		Comment comment = postMapper.getCommentByNo(commentNo);
+		
+		System.out.println("### 댓글 번호: " + commentNo);
+		System.out.println("### 로직 실행 전 댓글 추천 여부: " + commentDto.isRecommended());
+		
+		if(!commentDto.isRecommended()) {
+			postMapper.insertCommentRecommend(commentNo, employeeNo);
+			comment.increaseRecommendCount();
+			postMapper.updateComment(comment);
+		} else {
+			postMapper.deleteCommentRecommend(commentNo, employeeNo);
+			comment.decreaseRecommendCount();
+			postMapper.updateComment(comment);
+		}
+		
+		CommentDto commentDto2 = postMapper.getCommentDtoByCommentNo(commentNo, employeeNo);
+		System.out.println("### 댓글 번호: " + commentNo);
+		System.out.println("### 로직 실행 후 댓글 추천 여부: " + commentDto2.isRecommended());
+		
+	}
 	
 }

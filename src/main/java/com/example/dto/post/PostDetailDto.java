@@ -22,7 +22,17 @@ public class PostDetailDto {
 	private int recommendCount;
 	private int scrapCount;
 	private Date createdDate;
-	private List<CommentListDto> comments;
 	private List<AttachedFile> attachedFiles;
 	private List<Tag> tags;
+	private boolean scrapped;
+	private boolean recommended;
+	
+	
+	
+	public String getDay() {
+		Date today = new Date();
+		
+		
+		return "";
+	}
 }
