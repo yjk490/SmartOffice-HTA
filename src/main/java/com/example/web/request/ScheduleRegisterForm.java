@@ -1,7 +1,9 @@
-package com.example.web.request;
+	package com.example.web.request;
 
 import java.util.Date;
 import java.util.List;
+
+import javax.validation.constraints.NotBlank;
 
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,9 +24,12 @@ public class ScheduleRegisterForm {
 	private String startTime;
 	private String endTime;
 	private String allDay;
+	@NotBlank(message = "분류는 필수값입니다." )
 	private int categoryNo;
 	private String title;
-	private MeetingRoom meetingRoom;	//타입 이렇게 하면 받아지나? MeetingRoom으로 받고 ScheduleRegisterForm.meetingRoom으로 들어오나?
+	
+	private MeetingRoom meetingRoom;	//하나하나씩 받기.
+	
 	private String location;
 	private List<Integer> attendants;
 	private String content;
