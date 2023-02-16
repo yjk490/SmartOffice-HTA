@@ -1,11 +1,11 @@
-package com.example.dto;
+package com.example.dto.emp;
 
 import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.type.Alias;
 
-import com.example.vo.EmployeeRole;
+import com.example.vo.employee.EmployeeRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
