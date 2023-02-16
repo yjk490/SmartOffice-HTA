@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.ScheduleMapper">
+
+	<insert id="insertSchedule" parameterType="Schedule">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select EMPLOYEE_SCHEDULES_SEQ.nextval from dual
+		</selectKey>
+		insert into employee_schedules
+		(schedule_no, schedule_start_date, schedule_end_date, schedule_start_time, schedule_end_time, schedule_allday,
+		 schedule_title, schedule_location, schedule_content, schedule_category_no, employee_no)
+		values
+		(#{no}, #{startDate}, #{endDate}, #{startTime}, #{endTime}, #{allDay}, #{title}, #{location}, #{content}, #{categoryNo}, #{employeeNo})
+	</insert>
+	
+	<insert id="insertScheduleAttachedFile" parameterType="ScheduleAttachedFile">
+			insert into schedule_attached_files
+			(schedule_no, schedule_filename)
+			values
+			(#{scheduleNo}, #{filename})
+	</insert>
+	
+	<insert id="insertAttendant" parameterType="int">
+		insert into schedule_attendants
+		(schedule_no, employee_no)
+		values
+		(#{no}, #{attendantEmployeeNo})
+	</insert>
+
+</mapper>
