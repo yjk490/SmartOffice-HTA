@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.NoteMapper">
+
+	<insert id="insertNote" parameterType="Note">
+		<selectKey keyProperty="noteNo" resultType="int" order="BEFORE">
+			select employee_notes_seq.nextval from dual
+		</selectKey>
+		insert into employee_notes
+			(note_no, note_important, sender_employee_no, note_content, note_send_date, note_created_date, box_no, note_title)
+		values
+			(#{noteNo}, nvl(#{important}, 'N'), #{senderNo}, #{content}, sysdate, sysdate, 10002, #{title})
+	</insert>
+	
+	<insert id="insertNoteAttachedFile" parameterType="NoteAttachedFile">
+		insert into note_attached_files
+			(note_no, note_filename)
+		values
+			(#{noteNo}, #{filename})
+	</insert>
+	
+	<insert id="insertNoteReceiver" parameterType="NoteReceiver">
+		insert into employee_note_receivers
+			(note_no, receiver_employee_no)
+		values
+			(#{noteNo}, #{receiverNo})
+	</insert>
+
+</mapper>

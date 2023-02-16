@@ -16,7 +16,7 @@ public interface AddressbookMapper {
 	int getPrivateRows();
 	
 	Addressbook getAddressbookByNo(int addressNo);
-	Addressbook getAddressbookByName(String addressbookName);
+	Addressbook getAddressbookByName(String type, String addressbookName);
 	
 	List<Addressbook> getAddressbooks(String type);
 
