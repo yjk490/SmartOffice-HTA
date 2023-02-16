@@ -59,9 +59,4 @@ public class ScheduleController {
 			return "redirect:schedule";
 		}
 		
-		@PostMapping("/meetingRoom")	//내부이동하면 등록창에서 입력했던 값 가져올 수 있나?
-		public String upMeetingRoom(@AuthenticatedUser LoginEmployee loginEmployee) {
-			
-			return "schedule/register-form";
-		}
 }
