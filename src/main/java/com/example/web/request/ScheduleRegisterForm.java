@@ -13,9 +13,11 @@ import com.example.vo.schedule.MeetingRoom;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class ScheduleRegisterForm {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date startDate;
