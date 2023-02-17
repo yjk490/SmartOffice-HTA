@@ -47,7 +47,7 @@
 		</div>
 		<div class="col-9">
 		<div class="col-12 mb-3">
-			<h1 class="fs-4 border p-2">받은 쪽지함</h1>
+			<h1 class="fs-4 border p-2">보낸 쪽지함</h1>
 		</div>
 		<div class="mb-3 d-flex justify-content-between">
 			<input type="hidden" name="page" value="" />

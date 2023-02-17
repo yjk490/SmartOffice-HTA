@@ -176,7 +176,6 @@ $(function(){
 	
 		let $tbody = $("#table-modal tbody").empty()
 	
-		//select, input 값조회
 		let keyValue = $("#modal-keyword").val();
 		 
 		  
