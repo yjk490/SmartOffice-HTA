@@ -4,17 +4,14 @@ import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Alias("ContactTag")
 @Getter
 @Setter
+@ToString
 public class ContactTag {
 	
 	private int addressbookNo;
 	private int contactNo;
-	
-	public ContactTag(int addressbookNo, int contactNo) {
-		
-	}
-
 }

@@ -17,6 +17,7 @@ public interface AddressbookMapper {
 	
 	Addressbook getAddressbookByNo(int addressNo);
 	Addressbook getAddressbookByName(String type, String addressbookName);
+	Addressbook getAddressbookByName2(String addressbookName);
 	
 	List<Addressbook> getAddressbooks(String type);
 

@@ -12,7 +12,7 @@
 		insert into contacts
 			(contact_no, contact_name, contact_share, contact_email, contact_birth, contact_company, contact_dept, contact_position, contact_address, contact_photo, contact_url, contact_memo)
 		values
-			(#{contactNo}, #{name}, #{share}, #{email}, #{birth}, #{company}, #{dept}, #{position}, #{address}, #{photo}, #{url}, #{memo})
+			(#{contactNo}, #{name}, #{share}, #{email}, #{birth,jdbcType=DATE}, #{company,jdbcType=VARCHAR}, #{dept,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{photo,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR})
 	</insert>
 	
 	<!-- 
@@ -22,7 +22,7 @@
 		insert into contact_tels
 			(contact_no, contact_tel)
 		values
-			(#{contactNo}, #{tel})
+			(#{contactNo}, #{contactTel})
 	</insert>
 	
 	<!-- 

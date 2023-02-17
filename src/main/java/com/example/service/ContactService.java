@@ -66,18 +66,26 @@ public class ContactService {
 		// Contact_Tels 테이블에 전화번호 목록 저장
 		if(form.getContactTels() != null) {
 			List<String> tels = form.getContactTels();
-			for(String telcon : tels) {
-				ContactTel tel = new ContactTel(contact.getContactNo(), telcon);
+			for(String telcontent : tels) {
+				ContactTel tel = new ContactTel();
+				tel.setContactNo(contact.getContactNo());
+				tel.setContactTel(telcontent);
 				contactMapper.insertContactTel(tel);
+				}
 			}
-		}
 		
 		// Contact_Tags 테이블에 태그 저장 (주소록 태그와의 연결)
-		List<Integer> tags = form.getAddressbookNos();
-		for(int tagcon : tags) {
-			ContactTag tag = new ContactTag(tagcon, contact.getContactNo());
-			contactMapper.insertContactTag(tag);
-		}
+		
+		List<String> tags = form.getContactTags();
+			for(String tagContent : tags) {
+				Addressbook addressbook = addressbookMapper.getAddressbookByName2(tagContent);
+				if(addressbook != null) {
+					ContactTag tag = new ContactTag();
+					tag.setAddressbookNo(addressbook.getAddressbookNo());
+					tag.setContactNo(contact.getContactNo());
+					contactMapper.insertContactTag(tag);
+				}
+			}
 	}
 	
 	// 공유주소록 목록 조회
@@ -88,6 +96,15 @@ public class ContactService {
 	// 개인주소록 목록 조회
 	public List<Addressbook> getPrivateAddressbooks() {	
 		return addressbookMapper.getAddressbooks("private");
+	}
+
+	// 주소록 태그 삭제
+	public void deleteAddressbook(int addressbookNo) {
+		Addressbook adrbook = addressbookMapper.getAddressbookByNo(addressbookNo);
+		
+		adrbook.setDeleted("Y");
+		addressbookMapper.updateAddressbook(adrbook);
+		
 	}
 
 	
