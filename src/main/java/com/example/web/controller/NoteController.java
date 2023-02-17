@@ -4,10 +4,13 @@ import java.io.File;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.ibatis.javassist.compiler.ast.Keyword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,17 +72,57 @@ public class NoteController {
 			return "redirect:sendnote";
 		}
 		
-		@GetMapping("/search.json")
-		@ResponseBody
-		public List<EmployeeDetailDto> search(@RequestParam("keyword") String name) {
-			System.out.println("키워드의 값이 전달되었는가?" + name);
-		   return employeeService.getEmpDetailByName(name);
-		}
 	
 		// 받은 쪽지 화면 요청
 		@GetMapping("/receive")
-		public String note() {
+		public String note(@AuthenticatedUser LoginEmployee loginEmployee, 
+				@RequestParam(name= "page", required = false, defaultValue = "1") int page, 
+				@RequestParam(name="opt", required=false, defaultValue="") String opt,
+				@RequestParam(name="rows", required=false, defaultValue="10") int rows,
+				@RequestParam(name="keyword", required=false, defaultValue="") String keyword,
+				Model model) {
+			
+			int no = loginEmployee.getNo();
+			Map<String, Object> param = new HashMap<>();
+			param.put("rows", rows);
+			if(!opt.isBlank() && !keyword.isBlank()) {
+				param.put("opt", opt);
+				param.put("keyword", keyword);
+			}
+			param.put("page", page);
+			param.put("no", no);
+			
+			Map<String, Object> result = noteService.getRecieveNotes(param);
+			model.addAttribute("notes", result.get("notes"));
+			model.addAttribute("pagination", result.get("pagination"));
+			model.addAttribute("no", result.get("no"));
+			model.addAttribute("rows", rows);
+			model.addAttribute("keyword", keyword);
+			model.addAttribute("opt", opt);
+			
+			System.out.println("rows" + rows);
+			System.out.println("keyword" + keyword);
+			
+			
 			return "note/receive-list";
+		}
+		
+		// 쪽지 삭제 요청
+		@GetMapping("/delete")
+		public String delNote(@RequestParam("noteNo") List<Integer> noteNos) {
+			noteService.deleteNotes(noteNos);
+			
+			// 휴지통으로 이동
+			return "note/wagger-list";
+		}
+		
+		// 쪽지 보관 요청
+		@GetMapping("/save")
+		public String saveNote(@RequestParam("noteNo") List<Integer> noteNos) {
+			noteService.saveNotes(noteNos);
+			
+			// 쪽지 보관함으로 이동
+			return "note/folder-list";
 		}
 		
 		// 보낸 쪽지 화면 요청
@@ -118,5 +161,10 @@ public class NoteController {
 			// 지금은 화면 디자인을 위해 단순 페이지 요청
 			// 추후 empNo로 조회해서 받은/보낸 쪽지 디테일 페이지 반환 코드 추가 예정
 			return "note/detail";
+		}
+		@GetMapping("/search.json")
+		@ResponseBody
+		public List<EmployeeDetailDto> search(@RequestParam("keyword") String name) {
+			return employeeService.getEmpDetailByName(name);
 		}
 }
