@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +26,9 @@ public class ContactRegisterForm {
 	@Email(message = "유효한 이메일 형식이 아닙니다.")
 	private String email;
 	
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date birth;
+	
 	private String company;
 	private String dept;
 	private String position;
@@ -36,6 +39,6 @@ public class ContactRegisterForm {
 	
 	private List<String> contactTels;
 	
-	private List<Integer> addressbookNos;
+	private List<String> contactTags;
 
 }

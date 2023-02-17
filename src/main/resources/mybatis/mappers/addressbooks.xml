@@ -40,6 +40,7 @@
 			addressbooks
 		where
 			addressbook_no = #{value}
+			and addressbook_deleted = 'N'
 	</select>
 	
 	<!-- 
@@ -56,6 +57,23 @@
 		where
 			addressbook_name = #{addressbookName}
 			and addressbook_type = #{type}
+			and addressbook_deleted = 'N'
+	</select>
+	
+		<!-- 
+		주소록 태그 이름으로 주소록 태그 조회하기
+	 -->
+	<select id="getAddressbookByName2" parameterType="string" resultType="Addressbook">
+		select
+			addressbook_no as addressbookNo,
+			addressbook_type as type,
+			addressbook_name as addressbookName,
+			addressbook_deleted as deleted
+		from
+			addressbooks
+		where
+			addressbook_name = #{value}
+			and addressbook_deleted = 'N'
 	</select>
 	
 	<!-- 
