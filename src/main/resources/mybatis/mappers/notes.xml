@@ -12,6 +12,16 @@
 			(#{noteNo}, nvl(#{important}, 'N'), #{senderNo}, #{content}, sysdate, sysdate, 10002, #{title}, 'N')
 	</insert>
 	
+	<insert id="insertDraftNote" parameterType="Note">
+		<selectKey keyProperty="noteNo" resultType="int" order="BEFORE">
+			select employee_notes_seq.nextval from dual
+		</selectKey>
+		insert into employee_notes
+			(note_no, note_important, sender_employee_no, note_content, note_send_date, note_created_date, box_no, note_title, note_deleted)
+		values
+			(#{noteNo}, nvl(#{important}, 'N'), #{senderNo}, #{content}, sysdate, sysdate, 10003, #{title}, 'N')
+	</insert>
+	
 	<insert id="insertNoteAttachedFile" parameterType="NoteAttachedFile">
 		insert into note_attached_files
 			(note_no, note_filename)
@@ -51,8 +61,9 @@
 		where
 			n.note_no = r.note_no
 			and r.receiver_employee_no = e.employee_no
-			and n.note_deleted = 'N'
-			and n.box_no = 10002
+			and n.note_deleted != 'D'
+			and n.note_deleted != 'Y'
+			and n.box_no != 10004
 			and r.receiver_employee_no = #{no}
 		<if test="opt != null">
 			<choose>
@@ -73,6 +84,7 @@
 			</choose>
 		</if>
 	</select>
+	
 	
 	<!-- 로그인한 사용자가 받은 쪽지함 -->
 	<select id="getRecieveNotesByNo" parameterType="map" resultType="NoteListDto">
@@ -97,8 +109,9 @@
 			where
 				n.sender_employee_no = e.employee_no
 				and r.note_no = n.note_no
-				and n.note_deleted = 'N'
-				and n.box_no = 10002
+				and n.note_deleted != 'D'
+				and n.note_deleted != 'Y'
+				and n.box_no != 10004
 				and r.receiver_employee_no = #{no}
 				<if test="opt != null">
 					<choose>
@@ -122,6 +135,257 @@
 			row_numbers between #{begin} and #{end}
 	</select>
 	
+	<!-- 보낸 쪽지함 갯수 -->
+	<select id="getSendTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employee_notes n, employees e, employee_note_receivers r
+		where
+			n.note_deleted != 'SD'
+			and n.note_deleted != 'Y'
+			and r.receiver_employee_no = e.employee_no
+			and r.note_no = n.note_no
+			and n.sender_employee_no = #{no}
+		<if test="opt != null">
+			<choose>
+				<when test="opt == 'title'">
+					and n.note_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'content'">
+					and n.note_content like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'senderName'">
+					and e.employee_no in (select
+										e.employee_no
+									from
+										employees e, employee_note_receivers r
+									where
+										r.receiver_employee_no = e.employee_no
+										 and e.employee_name = #{keyword})	
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<!-- 로그인한 사용자가 보낸 쪽지함 -->
+	<select id="getSendNotesByNo" parameterType="map" resultType="NoteListDto">
+		select
+			note_no				as noteNo,
+			note_important		as important,
+			note_title			as title,
+			employee_name		as senderName,
+			note_send_date		as sendDate,
+			note_status			as status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n, employees e, employee_note_receivers r
+			where
+				n.note_deleted != 'SD'
+				and n.note_deleted != 'Y'
+				and r.receiver_employee_no = e.employee_no
+				and r.note_no = n.note_no
+				and n.sender_employee_no = #{no}
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and n.note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and n.note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+							and e.employee_no in (select
+														e.employee_no
+													from
+														employees e, employee_note_receivers r
+													where
+														r.receiver_employee_no = e.employee_no
+														and e.employee_name = #{keyword})
+						</when>
+					</choose>
+				</if>)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+	
+	
+	<!-- 쪽지 보관함의 쪽지 갯수 -->
+	<select id="getSaveTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employee_notes n, employee_note_receivers r, employees e
+		where
+			n.note_no = r.note_no
+			and r.receiver_employee_no = e.employee_no
+			and n.note_deleted != 'D'
+			and n.note_deleted != 'Y'
+			and n.box_no = 10004
+			and r.receiver_employee_no = #{no}
+		<if test="opt != null">
+			<choose>
+				<when test="opt == 'title'">
+					and note_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'content'">
+					and note_content like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'senderName'">
+					and n.sender_employee_no in (select
+										employee_no
+									from
+										employees
+									where
+										employee_name = #{keyword})	
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<!-- 로그인한 사용자가 보관한 쪽지 보관함 -->
+	<select id="getSaveNotesByNo" parameterType="map" resultType="NoteListDto">
+		select
+			note_no				as noteNo,
+			note_important		as important,
+			note_title			as title,
+			employee_name		as senderName,
+			note_send_date		as sendDate,
+			note_status			as status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n, employees e, employee_note_receivers r
+			where
+				n.sender_employee_no = e.employee_no
+				and r.note_no = n.note_no
+				and n.note_deleted != 'D'
+				and n.note_deleted != 'Y'
+				and n.box_no = 10004
+				and r.receiver_employee_no = #{no}
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+							and n.sender_employee_no in (select
+												employee_no
+											from
+												employees
+											where
+												employee_name = #{keyword})	
+						</when>
+					</choose>
+				</if>)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+	
+	
+	<!-- 임시보관함의 쪽지 갯수 -->
+	<select id="getDraftTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employee_notes n, employees e, employee_note_receivers r
+		where
+			n.note_deleted != 'SD'
+			and n.note_deleted != 'Y'
+			and n.box_no = 10003
+			and r.receiver_employee_no = e.employee_no
+			and r.note_no = n.note_no
+			and n.sender_employee_no = #{no}
+		<if test="opt != null">
+			<choose>
+				<when test="opt == 'title'">
+					and n.note_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'content'">
+					and n.note_content like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'senderName'">
+					and e.employee_no in (select
+										e.employee_no
+									from
+										employees e, employee_note_receivers r
+									where
+										r.receiver_employee_no = e.employee_no
+										 and e.employee_name = #{keyword})	
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<!-- 로그인한 사용자가 임시저장한 임시쪽지함 -->
+	<select id="getDraftNotesByNo" parameterType="map" resultType="NoteListDto">
+		select
+			note_no				as noteNo,
+			note_important		as important,
+			note_title			as title,
+			employee_name		as senderName,
+			note_send_date		as sendDate,
+			note_status			as status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n, employees e, employee_note_receivers r
+			where
+				n.note_deleted != 'SD'
+				and n.note_deleted != 'Y'
+				and n.box_no = 10003
+				and r.receiver_employee_no = e.employee_no
+				and r.note_no = n.note_no
+				and n.sender_employee_no = #{no}
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and n.note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and n.note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+							and e.employee_no in (select
+														e.employee_no
+													from
+														employees e, employee_note_receivers r
+													where
+														r.receiver_employee_no = e.employee_no
+														and e.employee_name = #{keyword})
+						</when>
+					</choose>
+				</if>)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+
+	<!-- 쪽지번호로 해당 쪽지 반환 -->
 	<select id="getNoteByNo" parameterType="int" resultType="Note">
 		select
 			note_no						as noteNo,
@@ -142,5 +406,174 @@
 			note_no = #{value}
 			
 	</select>
-
+	
+	<!-- 중요 쪽지함의 갯수 -->
+	<select id="getImportantTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employee_notes n, employee_note_receivers r, employees e
+		where
+			n.note_no = r.note_no
+			and r.receiver_employee_no = e.employee_no
+			and n.note_deleted != 'D'
+			and n.note_deleted != 'Y'
+			and n.box_no != 10006
+			and n.note_important = 'Y'
+			and r.receiver_employee_no = #{no}
+		<if test="opt != null">
+			<choose>
+				<when test="opt == 'title'">
+					and note_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'content'">
+					and note_content like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'senderName'">
+					and n.sender_employee_no in (select
+										employee_no
+									from
+										employees
+									where
+										employee_name = #{keyword})	
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	
+	<!-- 로그인한 사용자가 받은 중요 쪽지함 -->
+	<select id="getImportantNotesByNo" parameterType="map" resultType="NoteListDto">
+		select
+			note_no				as noteNo,
+			note_important		as important,
+			note_title			as title,
+			employee_name		as senderName,
+			note_send_date		as sendDate,
+			note_status			as status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n, employees e, employee_note_receivers r
+			where
+				n.sender_employee_no = e.employee_no
+				and r.note_no = n.note_no
+				and n.note_deleted != 'D'
+				and n.note_deleted != 'Y'
+				and n.box_no != 10006
+				and n.note_important = 'Y'
+				and r.receiver_employee_no = #{no}
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+							and n.sender_employee_no in (select
+												employee_no
+											from
+												employees
+											where
+												employee_name = #{keyword})	
+						</when>
+					</choose>
+				</if>)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+	
+	<!-- 휴지통의 쪽지 갯수 -->
+	<select id="getWaggerTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employee_notes n, employee_note_receivers r, employees e
+		where
+			n.note_no = r.note_no
+			and r.receiver_employee_no = e.employee_no
+			and n.note_deleted != 'Y'
+			and n.note_deleted != 'N'
+			and n.box_no = 10006
+			and r.receiver_employee_no = #{no}
+		<if test="opt != null">
+			<choose>
+				<when test="opt == 'title'">
+					and note_title like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'content'">
+					and note_content like '%' || #{keyword} || '%'
+				</when>
+				<when test="opt == 'senderName'">
+					and n.sender_employee_no in (select
+										employee_no
+									from
+										employees
+									where
+										employee_name = #{keyword})	
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	
+	<!-- 로그인한 사용자가 보낸 휴지통 -->
+	<select id="getWaggerNotesByNo" parameterType="map" resultType="NoteListDto">
+		select
+			note_no				as noteNo,
+			note_important		as important,
+			note_title			as title,
+			employee_name		as senderName,
+			note_send_date		as sendDate,
+			note_status			as status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n, employees e, employee_note_receivers r
+			where
+				n.sender_employee_no = e.employee_no
+				and r.note_no = n.note_no
+				and n.note_deleted != 'Y'
+				and n.note_deleted != 'N'
+				and n.box_no = 10006
+				and r.receiver_employee_no = #{no}
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+							and n.sender_employee_no in (select
+												employee_no
+											from
+												employees
+											where
+												employee_name = #{keyword})	
+						</when>
+					</choose>
+				</if>)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+	
+	
 </mapper>

@@ -125,8 +125,8 @@
 					<input type="file" class="form-control" name="upfile" path="upfile" />
 				</div>
 				<div class="text-end mt-4">
-					<button class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="/note/receive">취소</a></button>
-					<button class="w3-button w3-padding-small w3-round-large w3-black"><a class="text-decoration-none" href="/note/draftnote">임시저장</a></button>
+					<button type="button" class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="/note/receive">취소</a></button>
+					<button type="button" class="w3-button w3-padding-small w3-round-large w3-black"><a class="text-decoration-none" id="btn-draft" href="/note/draftnote">임시저장</a></button>
 					<button id="submit" type="submit" class="w3-button w3-padding-small w3-round-large w3-blue">보내기</button>
 				</div>
 			</div>
@@ -243,6 +243,17 @@ $(function(){
 		
 		
 		return true;
+	});
+	
+	// 임시저장 버튼을 누르면 쪽지를 임시저장함으로 저장하기
+	$("#btn-draft").click(function(){
+		var formData = $('#note-form').serialize();
+		
+		$.ajax({
+			url: '/note/draft',
+			type: 'GET',
+			data: formData
+		});
 	});
 	
 });

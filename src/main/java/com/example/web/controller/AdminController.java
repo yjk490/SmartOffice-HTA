@@ -1,5 +1,8 @@
 package com.example.web.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.validation.Valid;
 
 
@@ -28,7 +31,27 @@ public class AdminController {
 	private EmployeeService employeeService;
 	
 	@GetMapping("/list")
-	public String emplist() {
+	public String emplist(@RequestParam(name= "page", required = false, defaultValue = "1") int page, 
+			@RequestParam(name="opt", required=false, defaultValue="") String opt,
+			@RequestParam(name="rows", required=false, defaultValue="10") int rows,
+			@RequestParam(name="keyword", required=false, defaultValue="") String keyword, Model model) {
+		
+		Map<String, Object> param = new HashMap<>();
+		param.put("rows", rows);
+		if(!opt.isBlank() && !keyword.isBlank()) {
+			param.put("opt", opt);
+			param.put("keyword", keyword);
+		}
+		param.put("page", page);
+		
+		
+		Map<String, Object> result = employeeService.getAllEmployees(param);
+		model.addAttribute("employees", result.get("employees")); 
+		model.addAttribute("pagination", result.get("pagination"));
+		model.addAttribute("rows", rows);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("opt", opt);
+		
 		return "admin/employee-list";
 	}
 	

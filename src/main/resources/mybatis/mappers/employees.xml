@@ -114,4 +114,76 @@
 			
 	</select>
 	
+	<select id="getAllEmployeeTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employees e, departments d
+		where
+			e.dept_no = d.dept_no
+			<if test="opt != null">
+				<choose>
+					<when test="opt == 'empName'">
+						and e.employee_name like '%' || #{keyword} || '%'
+					</when>
+					<when test="opt == 'empNo'">
+						and e.employee_no like '%' || #{keyword} || '%'
+					</when>
+					<when test="opt == 'deptName'">
+						and d.dept_no in (select
+											dept_no
+										from
+											departments
+										where
+											dept_name = #{keyword})	
+					</when>
+				</choose>
+			</if>
+	</select>
+	
+	<select id="getAllEmployees" parameterType="map" resultType="EmployeeListDto">
+		select
+			employee_no			as empNo,
+			employee_name		as empName,
+			employee_tel		as tel,
+			employee_email		as email,
+			dept_name			as deptName,
+			employee_status		as status
+		from(
+			select
+				row_number() over (order by e.employee_no desc) row_numbers,
+				e.employee_no,			
+				e.employee_name,
+				e.employee_tel,
+				e.employee_email,
+				d.dept_name,
+				e.employee_status
+			from
+				employees e, departments d
+			where
+				e.dept_no = d.dept_no
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'empName'">
+							and e.employee_name like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'empNo'">
+							and e.employee_no like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'deptName'">
+							and d.dept_no in (select
+												dept_no
+											from
+												departments
+											where
+												dept_name = #{keyword})	
+						</when>
+					</choose>
+				</if>
+			order by
+				e.employee_name asc)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+	
 </mapper>
