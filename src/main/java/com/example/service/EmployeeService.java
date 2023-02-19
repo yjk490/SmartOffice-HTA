@@ -1,6 +1,9 @@
 package com.example.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dto.emp.EmployeeDetailDto;
+import com.example.dto.emp.EmployeeListDto;
 import com.example.exception.AlreadyRegisteredEmailException;
 import com.example.mapper.EmployeeMapper;
 import com.example.mapper.EmployeeRoleMapper;
+import com.example.utils.Pagination;
 import com.example.vo.employee.Employee;
 import com.example.vo.employee.EmployeeRole;
 import com.example.web.request.EmployeeRegisterform;
@@ -74,6 +79,24 @@ public class EmployeeService {
 		employeeDetailDto.setEmpRoles(employeeRoles);
 		
 		return employeeDetailDto;
+	}
+
+	public Map<String, Object> getAllEmployees(Map<String, Object> param) {
+		int totalRows = employeeMapper.getAllEmployeeTotalRows(param);
+		int page = (Integer)param.get("page");
+		int rows = (Integer)param.get("rows");
+		Pagination pagination = new Pagination(page,totalRows, rows);
+		
+		param.put("begin", pagination.getBegin());
+		param.put("end", pagination.getEnd());
+		
+		List<EmployeeListDto> employees = employeeMapper.getAllEmployees(param);
+		
+		Map<String, Object> result = new HashMap<>();
+		result.put("employees", employees);
+		result.put("pagination", pagination);
+		
+		return result;
 	}
 
 }

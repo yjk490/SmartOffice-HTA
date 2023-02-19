@@ -14,11 +14,25 @@ public interface NoteMapper {
 	
 	// 받은 쪽지의 갯수
 	int getRecieveTotalRows(Map<String, Object> param);
+	// 보낸 쪽지의 갯수
+	int getSendTotalRows(Map<String, Object> param);
+	// 쪽지 보관함의 쪽지 갯수
+	int getSaveTotalRows(Map<String, Object> param);
+	// 임시 보관함의 쪽지 갯수
+	int getDraftTotalRows(Map<String, Object> param);
+	// 중요 쪽지함의 쪽지 갯수
+	int getImportantTotalRows(Map<String, Object> param);
+	// 휴지통의 쪽지의 갯수
+	int getWaggerTotalRows(Map<String, Object> param);
 	
 	// 쪽지 등록
 	void insertNote(Note note);
+	// 임시보관함에 쪽지 등록
+	void insertDraftNote(Note note);
 	// 쪽지 업데이트 하기
 	void updateNote(Note note);
+	
+	
 	// 쪽지의 첨부 파일 등록
 	void insertNoteAttachedFile(NoteAttachedFile noteAttachedFile);
 	// 쪽지의 수신자 아이디 등록
@@ -27,8 +41,18 @@ public interface NoteMapper {
 	Note getNoteByNo(int noteNo);
 	
 	
-	// 쪽지함 리스트 구현
+	// 받은 쪽지함 리스트 
 	List<NoteListDto> getRecieveNotesByNo(Map<String, Object> param);
+	// 보낸 쪽지함 리스트 
+	List<NoteListDto> getSendNotesByNo(Map<String, Object> param);
+	// 쪽지 보관함 리스트 
+	List<NoteListDto> getSaveNotesByNo(Map<String, Object> param);
+	// 임시 보관함의 리스트
+	List<NoteListDto> getDraftNotesByNo(Map<String, Object> param);
+	// 중요 쪽지함의 리스트
+	List<NoteListDto> getImportantNotesByNo(Map<String, Object> param);
+	// 휴지통의 리스트
+	List<NoteListDto> getWaggerNotesByNo(Map<String, Object> param);
 
 
 

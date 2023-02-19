@@ -49,25 +49,28 @@
 		<div class="col-12 mb-3">
 			<h1 class="fs-4 border p-2">쪽지 보관함</h1>
 		</div>
-		<div class="mb-3 d-flex justify-content-between">
-			<input type="hidden" name="page" value="" />
-			<div>
-				<select class="form-select form-select-xs" name="rows">
-					<option>10개씩</option>
-					<option>15개씩</option>
-					<option>20개씩</option>
-				</select>
+		<form id="note-form" method="get" action="foldernote">
+			<input type="hidden" name="page" value="${pagination.page }" />
+			<div class="mb-3 d-flex justify-content-between">
+				<div>
+					<select id="select-rows" class="form-select form-select-xs" name="rows">
+						<option value="10" ${rows eq 10 ? 'selected' : '' }>10개씩</option>
+						<option value="15" ${rows eq 15 ? 'selected' : '' }>15개씩</option>
+						<option value="20" ${rows eq 20 ? 'selected' : '' }>20개씩</option>
+					</select>
+				</div>
+				<div>
+					<select class="form-select form-select-xs" name="opt">
+						<option value="senderName" ${opt eq 'senderName' ? 'selected' : '' }>보낸사람</option>
+						<option value="title" ${opt eq 'title' ? 'selected' : '' }>제목</option>
+						<option value="content" ${opt eq 'content' ? 'selected' : '' }>내용</option>
+					</select>
+					<input type="text" class="form-control form-control-xs" id="search-keyword" name="keyword" value="${keyword }" />
+					<button type="button" class="btn btn-outline-secondary btn-xs" id="btn-keyword"><i class="fa fa-search"></i></button>
+				</div>
 			</div>
-			<div>
-				<select class="form-select form-select-xs" name="opt">
-					<option>보낸사람</option>
-					<option>제목</option>
-					<option>내용</option>
-				</select>
-				<input type="text" class="form-control form-control-xs" name="keyword" value="" />
-				<button type="button" class="btn btn-outline-secondary btn-xs" id="btn-search"><i class="fa fa-search"></i></button>
-			</div>
-		</div>
+		</form>
+		<form id="note-update">
 		<table class="table table-sm">
 				<colgroup>
 					<col width="5%">
@@ -81,7 +84,7 @@
 					<tr>
 						<th>
 							<div>
- 								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
+ 								<input class="form-check-input" type="checkbox" id="checkbox-all" value="" aria-label="...">
 							</div>
 						</th>
 						<th class="text-center">중요</th>
@@ -92,48 +95,137 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>
-							<div>
- 								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
-							</div>
-						</td>
-						<td class="text-center"><i class="fas fa-star w3-text-amber"></i></td>
-						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 중요쪽지 테스트입니다.</a></td>
-						<td class="text-center">2023-01-31</td>
-						<td class="text-center">안읽음</td>
-					</tr>
-					<tr>
-						<td>
-							<div>
- 								<input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
-							</div>
-						</td>
-						<td class="text-center"><i class="far fa-star w3-text-amber"></i></td>
-						<td class="text-center">강감찬</td>
-						<td class="text-center"><a href="" class="text-decoration-none">보낸쪽지함 페이지 테스트입니다.</a></td>
-						<td class="text-center">2023-01-31</td>
-						<td class="text-center">안읽음</td>
-					</tr>
+					<c:choose>
+						<c:when test="${empty notes }">
+							<tr>
+								<td colspan="6" class="text-center"><b>보관한 쪽지가 없습니다.</b></td>
+							</tr>
+						</c:when>
+						<c:otherwise>
+							<c:forEach var="note" items="${notes }">
+								<tr>
+									<td>
+										<div>
+											<input class="form-check-input" type="checkbox" name="noteNo" value="${note.noteNo }" aria-label="...">
+										</div>
+									</td>
+									<td class="text-center"><i class="${note.important eq 'Y' ? 'fas fa-star w3-text-amber' : 'far fa-star w3-text-amber' }"></i></td>
+									<td class="text-center">${note.senderName }</td>
+									<td class="text-center"><a href="/note/detail" class="text-decoration-none">${note.title }</a></td>
+									<td class="text-center"><fmt:formatDate value="${note.sendDate }"/></td>
+									<td class="text-center">${note.status eq 'Y' ? '읽음' : '안읽음' }</td>
+								</tr>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
+				</tbody>
 			</table>
+			</form>
 			<div class="w3-bar">
-			  <button class="w3-button w3-padding-small w3-round-large w3-black">삭제</button>
+			   <button type="button" class="w3-button w3-padding-small w3-round-large w3-black" id="btn-delete">삭제</button>
 			</div>
-			<div class="w3-center">
-				<div class="w3-bar">
-				  <a href="#" class="w3-button">«</a>
-				  <a href="#" class="w3-button w3-light-gray">1</a>
-				  <a href="#" class="w3-button">2</a>
-				  <a href="#" class="w3-button">3</a>
-				  <a href="#" class="w3-button">4</a>
-				  <a href="#" class="w3-button">»</a>
+			<c:if test="${not empty notes }">
+				<div class="w3-center" id="pagination">
+					<div class="w3-bar">
+						<a class="page-link w3-button ${pagination.first ? 'disabled' : '' }" href="${pagination.prevPage }">«</a>
+				  		<c:forEach var="num" begin="${pagination.beginPage }" end="${pagination.endPage }">
+				  			<a class="page-link w3-button ${pagination.page eq num ? 'w3-light-gray' : '' }" href="${num }">${num }</a>
+				 		</c:forEach>
+				  		<a class="page-link w3-button ${pagination.last ? 'disabled' : '' }" href="${pagination.nextPage }">»</a>
+					</div>
 				</div>
-			</div>
+			</c:if>
 		</div>
 	</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	
+	let $buttonDelete = $("#btn-delete").prop("disabled",true);
+	
+	function noteForm(page){
+		$("#note-form input[name=page]").val(page);
+		$("#note-form").submit();
+	}
+	
+	$("#select-rows").change(function(){
+		noteForm(1);
+	});
+	
+	$("#pagination a").click(function(event){
+		event.preventDefault();
+		var page = $(this).attr("href");
+		noteForm(page);
+	});
+	
+	$("#btn-keyword").click(function(){
+		noteForm(1);
+	});
+	
+	// 쪽지 삭제 확인 메세지
+	$("#btn-delete").click(function() {
+		if ($(":checkbox[name=noteNo]:checked").length === 0){
+			alert("삭제할 쪽지를 하나 이상 선택해주세요.");
+			return;
+		} if(confirm("쪽지를 삭제하시겠습니까?")){
+			alert("선택한 쪽지의 삭제가 완료되었습니다.")
+		} else {
+			return false;
+		}
+	});
+	
+	// 모든 체크 박스 체크하기
+	$("#checkbox-all").change(function(){
+		let $allChecked = $(this).prop('checked');
+		$(":checkbox[name=noteNo]").prop('checked', $allChecked);
+		toggleSelectedCheckbox();
+	});
+	
+	$(":checkbox[name=noteNo]").change(function() {
+		toggleCheckboxAll();
+		toggleSelectedCheckbox();
+	});
+	
+	// 개별 체크박스의 체크갯수가 체크박스의 총 갯수와 같으면, 전체 체크 박스의 체크 상태와 동일하게 설정
+	function toggleCheckboxAll(){
+		let $checkboxLength = $(":checkbox[name=noteNo]").length;
+		let $checkedCheckboxLength = $(":checkbox[name=noteNo]:checked").length;
+		$("#checkbox-all").prop('checked', $checkboxLength === $checkedCheckboxLength);
+	
+	}
+	
+	// 체크박스의 값이 없으면 삭제/보관 버튼 disable 처리
+	function toggleSelectedCheckbox() {
+		let $buttonDelete = $("#btn-delete");
+		let $checkedCheckboxLength =  $(":checkbox[name=noteNo]:checked").length;
+		
+		if ($checkedCheckboxLength === 0) {
+			$buttonDelete.prop("disabled",true);
+		} else {
+			$buttonDelete.prop("disabled",false);
+		}
+	}
+	
+	// 삭제버튼을 누르면 휴지통으로 쪽지 보내기
+	$("#btn-delete").click(function(){
+		var formData = $('#note-update').serialize();
+		
+		$.ajax({
+			url: '/note/delete',
+			type: 'GET',
+			data: formData,
+			traditional: true,
+			success: function() {
+				location.reload();
+			 }
+		});
+	});
+	
+	
+	
+})
+</script>
 </body>
 </html>

@@ -53,7 +53,7 @@
 			<input type="hidden" name="page" value="${pagination.page }" />
 			<div class="mb-3 d-flex justify-content-between">
 				<div>
-					<select id="select-rows" class="form-select form-select form-select-xs" name="rows" >
+					<select id="select-rows" class="form-select form-select-xs" name="rows" >
 						<option value="10" ${rows eq 10 ? 'selected' : '' }>10개씩</option>
 						<option value="15" ${rows eq 15 ? 'selected' : '' }>15개씩</option>
 						<option value="20" ${rows eq 20 ? 'selected' : '' }>20개씩</option>
@@ -173,8 +173,6 @@ $(function(){
 			alert("삭제할 쪽지를 하나 이상 선택해주세요.");
 			return;
 		} if(confirm("쪽지를 삭제하시겠습니까?")){
-			// 삭제할 delete 링크 만들어서 attr에 추가하기
-			//$("#note-form").attr().trigger("submit");
 			alert("선택한 쪽지의 삭제가 완료되었습니다.")
 		} else {
 			return false;
@@ -187,8 +185,6 @@ $(function(){
 			alert("보관할 쪽지를 하나 이상 선택해주세요.");
 			return;
 		} if(confirm("쪽지를 보관하시겠습니까?")){
-			// 삭제할 delete 링크 만들어서 attr에 추가하기
-			//$("#note-form").attr().trigger("submit");
 			alert("선택한 쪽지의 보관이 완료되었습니다.")
 		} else {
 			return false;
@@ -207,7 +203,7 @@ $(function(){
 		toggleSelectedCheckbox();
 	});
 	
-	// 개별 체크박스의 체크갯수가 체크박스의 총 갯수와 같으면, 전체 페크 박스의 체크 상태와 동일하게 설정
+	// 개별 체크박스의 체크갯수가 체크박스의 총 갯수와 같으면, 전체 체크 박스의 체크 상태와 동일하게 설정
 	function toggleCheckboxAll(){
 		let $checkboxLength = $(":checkbox[name=noteNo]").length;
 		let $checkedCheckboxLength = $(":checkbox[name=noteNo]:checked").length;
@@ -233,7 +229,6 @@ $(function(){
 	// 삭제버튼을 누르면 휴지통으로 쪽지 보내기
 	$("#btn-delete").click(function(){
 		var formData = $('#note-update').serialize();
-		alert(formData);
 		
 		$.ajax({
 			url: '/note/delete',
@@ -249,7 +244,6 @@ $(function(){
 	// 보관버튼을 누르면 쪽지보관함으로 해당 쪽지 보내기
 	$("#btn-box").click(function(){
 		var formData = $('#note-update').serialize();
-		alert(formData);
 		
 		$.ajax({
 			url: '/note/save',
