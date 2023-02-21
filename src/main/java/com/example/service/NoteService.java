@@ -1,5 +1,6 @@
 package com.example.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,10 +8,13 @@ import java.util.Map;
 import org.springframework.beans.BeanUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dto.note.NoteDetailDto;
 import com.example.dto.note.NoteListDto;
+import com.example.exception.ApplicationException;
 import com.example.mapper.NoteMapper;
 import com.example.utils.Pagination;
 import com.example.vo.note.Note;
@@ -32,32 +36,6 @@ public class NoteService {
 		
 		BeanUtils.copyProperties(form, note);
 		noteMapper.insertNote(note);
-		
-		if(form.getFilename() != null) {
-			NoteAttachedFile noteAttachedFile  = new NoteAttachedFile();
-			noteAttachedFile.setNoteNo(note.getNoteNo());
-			noteAttachedFile.setFilename(form.getFilename());
-			
-			noteMapper.insertNoteAttachedFile(noteAttachedFile);
-		}
-		
-		if(form.getReceiversNo() != null) {
-			List<Integer> receiversNo = form.getReceiversNo();
-			for(int receiverNo : receiversNo) {
-				NoteReceiver noteReceiver = new NoteReceiver(note.getNoteNo(), receiverNo);
-				noteMapper.insertNoteReceiver(noteReceiver);
-			}
-		}
-		
-	}
-	
-	// 임시 보관함으로 쪽지 보내기 구현
-	public void insertDraftNote(int empNo, NoteRegisterForm form) {
-		Note note = new Note();
-		note.setSenderNo(empNo);
-		
-		BeanUtils.copyProperties(form, note);
-		noteMapper.insertDraftNote(note);
 		
 		if(form.getFilename() != null) {
 			NoteAttachedFile noteAttachedFile  = new NoteAttachedFile();
@@ -250,6 +228,40 @@ public class NoteService {
 		result.put("no", no);
 		
 		return result;
+	}
+
+	// 쪽지의 상세정보
+	public NoteDetailDto getNoteDetail(int noteNo) {
+		NoteDetailDto noteDetailDto = noteMapper.getNoteDetailByNo(noteNo);
+		if(noteDetailDto == null) {
+			throw new ApplicationContextException("["+noteNo+"] 번 쪽지가 존재하지 않습니다.");
+		}
+		
+		// 첨부파일 정보 조회
+		List<NoteAttachedFile>attachedFiles = noteMapper.getAttachedFilesByNoteNo(noteNo);
+		noteDetailDto.setAttachedFiles(attachedFiles);
+		
+		return noteDetailDto;
+	}
+
+	// 쪽지를 읽음 상태로 읽은 날짜 업데이트 서비스
+	public void updateNote(int loginNo,int noteNo) {
+		Note note = noteMapper.getNoteByNo(noteNo);
+		if(note == null) {
+			throw new ApplicationException("["+noteNo+"] 번 쪽지는 존재하지 않습니다.");
+		}
+		
+		if (!"N".equals(note.getDeleted())) {
+			throw new ApplicationException("["+noteNo+"] 번 쪽지는 삭제된 쪽지입니다.");
+		}
+		
+		if(loginNo != note.getSenderNo()) {
+			note.setStatus("Y");
+			note.setReadDate(new Date());
+			noteMapper.updateNote(note);
+			
+		}
+		
 	}
 
 }

@@ -108,7 +108,7 @@
 										</div>
 									</td>
 									<td class="text-center">${note.senderName }</td>
-									<td class="text-center"><a href="/note/detail" class="text-decoration-none">${note.title }</a></td>
+									<td class="text-center"><a href="read?noteNo=${note.noteNo }" class="text-decoration-none">${note.title }</a></td>
 									<td class="text-center"><fmt:formatDate value="${note.sendDate }"/></td>
 									<td class="text-center">${note.status eq 'Y' ? '읽음' : '안읽음' }</td>
 								</tr>

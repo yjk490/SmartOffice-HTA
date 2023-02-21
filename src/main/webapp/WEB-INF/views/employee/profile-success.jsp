@@ -15,34 +15,16 @@
 <div class="container">
 	<div class="row g-3">
 		<div class="col-3">
-			<c:set var="left" value="password" />
+			<c:set var="left" value="profile" />
 			<%@ include file="../common/left/employee.jsp" %>
 		</div>
 		<div class="col-9">
 			<div class="col-12 mb-3">
-				<h1 class="fs-4 border p-2">비밀번호 변경</h1>
+				<h1 class="fs-4 border p-2">프로필 사진 변경</h1>
 			</div>
-			<form id="form-change-password" class="border p-3 bg-light" method="post" action="password">
-				<div class="mb-3">
-					<label class="form-label">사원 번호</label>
-					<input type="text" class="form-control form-control-sm" name="empNo" placeholder="사원번호를 입력해주세요" />
-				</div>
-				<div class="mb-3">
-					<label class="form-label">기존 비밀번호</label>
-					<input type="password" class="form-control form-control-sm" name="oldPassword" placeholder="기본 비밀번호을 바꾸시려면 해당란에 zxcv1234를 적으세요." />
-				</div>
-				<div class="mb-3">
-					<label class="form-label">새 비밀번호</label>
-					<input type="password" class="form-control" id="password" name="password">
-				</div>
-				<div class="mb-3">
-					<label class="form-label">비밀번호 확인</label>
-					<input type="password" class="form-control" id="password-confirm">
-				</div>
-				<div class="text-center mt-3">
-					<button type="submit" class="w3-button w3-medium w3-round-large w3-black">변경</button>
-				</div>
-			</form>
+			<div class="col-12 mb-3">
+				<div class="fs-5 border p-2 text-center"><b>프로필 사진이 성공적으로 변경되었습니다.</b></div>
+			</div>
 		</div>
 	</div>
 </div>

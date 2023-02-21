@@ -36,3 +36,6 @@ mybatis:
 # 업로드 파일 저장 경로
 file:
   directory: C:\\app\\eGovFrameDev-4.0.0-64bit\\uploadfiles
+  
+smartoffice-team2:
+  default-profile-image: default.png
