@@ -2,6 +2,7 @@ package com.example.web.controller;
 
 import java.io.File;
 
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,7 +11,6 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.apache.ibatis.javassist.compiler.ast.Keyword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.example.dto.emp.EmployeeDetailDto;
+import com.example.dto.note.NoteDetailDto;
+import com.example.exception.ApplicationException;
 import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.EmployeeService;
@@ -68,32 +71,6 @@ public class NoteController {
 			noteService.insertNote(loginEmployee.getNo(), form);
 			
 			return "redirect:sendnote";
-		}
-		
-		// 임시보관함으로 쪽지 보내기
-		@GetMapping("/draft")
-		@AuthenticatedUser
-		public String draftform(Model model) {
-			NoteRegisterForm form = new NoteRegisterForm();
-			model.addAttribute("noteRegisterForm", form);
-			
-			return"note/note-form";
-		}
-		
-		@PostMapping("/draft")
-		public String insertDraftNote(@AuthenticatedUser LoginEmployee loginEmployee, 
-				@ModelAttribute("noteRegisterForm") @Valid NoteRegisterForm form) throws IOException {
-			MultipartFile upfile = form.getUpfile();
-			if(!upfile.isEmpty()) {
-				String filename = upfile.getOriginalFilename();
-				form.setFilename(filename);
-				
-				FileCopyUtils.copy(upfile.getInputStream(), new FileOutputStream(new File(directory, filename)));
-			}
-			
-			noteService.insertDraftNote(loginEmployee.getNo(), form);
-			
-			return "redirect:draftnote";
 		}
 	
 		// 받은 쪽지 화면 요청
@@ -274,13 +251,38 @@ public class NoteController {
 			return "note/wagger-list";
 		}
 		
+		@GetMapping("/read")
+		public String read(@AuthenticatedUser LoginEmployee loginEmployee, 
+							@RequestParam("noteNo") int noteNo) {
+			noteService.updateNote(loginEmployee.getNo(),noteNo);
+			
+			return "redirect:detail?noteNo=" + noteNo;
+		}
+		
 		// 쪽지 디테일 화면 요청
 		@GetMapping("/detail")
-		public String detail() {
+		public String detail(@RequestParam("noteNo") int noteNo, Model model) {
 			// 지금은 화면 디자인을 위해 단순 페이지 요청
 			// 추후 empNo로 조회해서 받은/보낸 쪽지 디테일 페이지 반환 코드 추가 예정
+			NoteDetailDto noteDetailDto = noteService.getNoteDetail(noteNo);
+			model.addAttribute("note", noteDetailDto);
+			
 			return "note/detail";
 		}
+		
+		@GetMapping("/download")
+		public ModelAndView fileDownload(@RequestParam("filename") String filename) {
+			File file = new File(directory, filename);
+			if (!file.exists()) {
+				throw new ApplicationException("["+filename+"] 파일이 존재하지 않습니다.");
+			}
+			
+			ModelAndView mav = new ModelAndView();
+			mav.addObject("file", file);
+			mav.setView(fileDownloadView);
+			
+			return mav;
+		}	
 		
 		// 쪽지 보내기에서 모달로 사원 검색
 		@GetMapping("/search.json")

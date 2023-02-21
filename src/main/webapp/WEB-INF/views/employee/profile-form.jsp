@@ -23,13 +23,13 @@
 			<div class="col-12 mb-3">
 				<h1 class="fs-4 border p-2">프로필 사진 변경</h1>
 			</div>
-			<form class="w3-panel w3-display-container border bg-light text-center" method="post" action="modify">
+			<form class="w3-panel w3-display-container border bg-light text-center" method="post" enctype="multipart/form-data" action="profile">
 				<div>
 					<img src="https://mblogthumb-phinf.pstatic.net/MjAyMDA2MTBfMTY1/MDAxNTkxNzQ2ODcyOTI2.Yw5WjjU3IuItPtqbegrIBJr3TSDMd_OPhQ2Nw-0-0ksg.8WgVjtB0fy0RCv0XhhUOOWt90Kz_394Zzb6xPjG6I8gg.PNG.lamute/user.png?type=w800" 
 						alt="Alps" class="w3-circle m-3" style="width: 30%;">
 				</div>
 				<div class="w3-panel w3-border-top w3-border-bottom">
-					<input type="file" class="form-control mb-3 mt-3" name="upfile" />
+					<input type="file" class="form-control mb-3 mt-3" name="profile" />
 				</div>
 			<div class="text-center mt-3 mb-3">
 					<button type="submit" class="w3-button w3-medium w3-round-large w3-black">수정</button>

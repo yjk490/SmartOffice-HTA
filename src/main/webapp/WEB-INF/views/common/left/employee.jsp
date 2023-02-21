@@ -7,8 +7,8 @@
 				<h4><b>내 정보 관리</b></h4>
 			</div>
 			<div class="mt-3 mb-3">
-					<a class="w3-bar-item w3-button ${left eq 'profile' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'profile' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/profile">프로필 관리</a>
-			       	<a class="w3-bar-item w3-button ${left eq 'password' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'password' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/password">비밀번호 변경</a>
+					<a class="w3-bar-item w3-button ${left eq 'profile' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'profile' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/employee/profile">프로필 관리</a>
+			       	<a class="w3-bar-item w3-button ${left eq 'password' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'password' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/employee/password">비밀번호 변경</a>
 			</div>
 	</div>
 </div>

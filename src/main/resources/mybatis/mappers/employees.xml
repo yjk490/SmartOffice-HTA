@@ -7,9 +7,9 @@
 			select employees_seq.nextval from dual
 		</selectKey>
 		insert into employees
-			(employee_no, employee_password, employee_name, employee_tel, employee_email, employee_hire_date, dept_no, position_no)
+			(employee_no, employee_password, employee_name, employee_tel, employee_email, employee_photo, employee_hire_date, dept_no, position_no)
 		values
-			(#{no}, #{encryptPassword}, #{name}, #{tel}, #{email}, #{hireDate}, #{departmentNo}, #{positionNo})
+			(#{no}, #{encryptPassword}, #{name}, #{tel}, #{email}, #{photo}, #{hireDate}, #{departmentNo}, #{positionNo})
 	</insert>
 	
 	<update id="updateEmployee" parameterType="Employee">
@@ -19,7 +19,7 @@
 			employee_password = #{encryptPassword},
 			employee_photo = #{photo},
 			employee_status = #{status},
-			employee_update_date = sysdate
+			employee_updated_date = sysdate
 		where
 			employee_no = #{no}
 	</update>

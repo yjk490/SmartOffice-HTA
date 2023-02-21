@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+
+import com.example.dto.note.NoteDetailDto;
 import com.example.dto.note.NoteListDto;
 import com.example.vo.note.Note;
 import com.example.vo.note.NoteAttachedFile;
@@ -27,8 +29,6 @@ public interface NoteMapper {
 	
 	// 쪽지 등록
 	void insertNote(Note note);
-	// 임시보관함에 쪽지 등록
-	void insertDraftNote(Note note);
 	// 쪽지 업데이트 하기
 	void updateNote(Note note);
 	
@@ -53,6 +53,11 @@ public interface NoteMapper {
 	List<NoteListDto> getImportantNotesByNo(Map<String, Object> param);
 	// 휴지통의 리스트
 	List<NoteListDto> getWaggerNotesByNo(Map<String, Object> param);
+	
+	// 쪽지 번호로 쪽지 상세정보를 가져온다.
+	NoteDetailDto getNoteDetailByNo(int noteNo);
+	// 쪽지 번호로 쪽지에 저장된 첨부파일 정보를 가져온다.
+	List<NoteAttachedFile> getAttachedFilesByNoteNo(int noteNo);
 
 
 

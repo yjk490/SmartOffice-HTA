@@ -31,38 +31,46 @@
 					<tbody>
 						<tr>
 							<th>제목</th>
-							<td colspan="3"><i class="fas fa-star w3-text-amber"></i> 테스트(중요메세지는 앞에 별표)</td>
+							<td colspan="3"><i class="${note.important eq 'Y' ? 'fas fa-star w3-text-amber' : 'far fa-star w3-text-amber' }"></i> ${note.title }</td>
 						</tr>
 						<tr>
 							<th>보낸사람</th>
-							<td>홍길동</td>
+							<td>${note.senderName }</td>
 							<th>받는사람</th>
-							<td>강감찬</td>
+							<td>
+								<c:forEach var="emp" items="${note.employees }">
+									${emp.name } 
+								</c:forEach>
+							</td>
 						</tr>
 						<tr>
 							<th>보낸일자</th>
-							<td colspan="3">2023.02.01</td>
+							<td colspan="3"><fmt:formatDate value="${note.sendDate }" /></td>
 						</tr>
 						<tr>
 							<th>첨부파일</th>
 							<td colspan="3">
-							 등록된 첨부파일이 없습니다.
+								<c:choose>
+									<c:when test="${empty note.attachedFiles }">
+										등록된 첨부파일이 없습니다.
+									</c:when>
+									<c:otherwise>
+										<c:forEach var="file" items="${note.attachedFiles }">
+											<a href="download?filename=${file.filename }" class="btn btn-outline-dark btn-sm">${file.filename } <i class="bi bi-download ms-2"></i></a>
+										</c:forEach>
+									</c:otherwise>
+								</c:choose>
 							</td>
 						</tr>
 						<tr>
 							<th>내용</th>
-							<td colspan="3">
-							 쪽지테스트입니다. 쪽지테스트입니다. 쪽지테스트입니다. 쪽지테스트입니다. 쪽지테스트입니다. 쪽지테스트입니다. 쪽지테스트입니다. 쪽지테스트입니다. 
-							</td>
+							<td colspan="3">${note.content }</td>
 						</tr>
 					</tbody>
 				</table>
 				<div class="row">
 					<div class="text-end col-12">
-						<button class="w3-button w3-padding-small w3-round-large w3-light-gray w3-text-gray"><a class="text-decoration-none" href="">삭제</a></button>
-						<button class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="">보관</a></button>
-						<button class="w3-button w3-padding-small w3-round-large w3-black"><a class="text-decoration-none" href="">첨부파일</a></button>
-						<button class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="">답장</a></button>
+						<button class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="">파일다운</a></button>
 						<button class="w3-button w3-padding-small w3-round-large w3-black"><a class="text-decoration-none" href="/note/receive">목록</a></button>
 					</div>
 				</div>

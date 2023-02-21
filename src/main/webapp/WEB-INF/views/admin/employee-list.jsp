@@ -50,7 +50,7 @@
 		<div class="col-12 mb-3">
 			<h1 class="fs-4 border p-2">사원 관리</h1>
 		</div>
-		<form id="note-form" method="get" action="list">
+		<form id="admin-form" method="get" action="list">
 			<input type="hidden" name="page" value="${pagination.page }" />
 			<div class="mb-3 d-flex justify-content-between">
 				<div>
@@ -165,24 +165,25 @@ $(function(){
 	let $buttonStop = $("#btn-stop").prop("disabled",true);
 	let $buttonDelete = $("#btn-delete").prop("disabled",true);
 	
-	function noteForm(page){
-		$("#note-form input[name=page]").val(page);
-		$("#note-form").submit();
+	function adminForm(page){
+		$("#admin-form input[name=page]").val(page);
+		$("#admin-form").submit();
 	}
 	
 	$("#select-rows").change(function(){
-		noteForm(1);
+		adminForm(1);
 	});
 	
 	$("#pagination a").click(function(event){
 		event.preventDefault();
 		var page = $(this).attr("href");
-		noteForm(page);
+		adminForm(page);
 	});
 	
 	$("#btn-keyword").click(function(){
-		noteForm(1);
+		adminForm(1);
 	});
+	
 	
 	// 모든 체크 박스 체크하기
 	$("#checkbox-all").change(function(){
@@ -218,6 +219,61 @@ $(function(){
 			$buttonDelete.prop("disabled",false);
 		}
 	}
+	
+	// 선택중지 확인 메세지
+	$("#btn-stop").click(function() {
+		if ($(":checkbox[name=empNo]:checked").length === 0){
+			alert("사용 중지할 사원을 한명 이상 선택해주세요.");
+			return;
+		} if(confirm("사원의 사용은 중지 하시겠습니까?")){
+			alert("선택한 사원의 사용이 중지되었습니다.")
+		} else {
+			return false;
+		}
+	});
+	
+	
+	// 선택해지 확인 메세지
+	$("#btn-delete").click(function() {
+		if ($(":checkbox[name=empNo]:checked").length === 0){
+			alert("사용 해지할 사원을 한명 이상 선택해주세요.");
+			return;
+		} if(confirm("사원의 사용은 해지 하시겠습니까?")){
+			alert("선택한 사원의 사용이 해지되었습니다.")
+		} else {
+			return false;
+		}
+	});
+	
+	// 선택중지 버튼을 누르면 상태가 중지 상태로 업데이트 하기
+	$("#btn-stop").click(function(){
+		var formData = $('#emp-update').serialize();
+		
+		$.ajax({
+			url: '/admin/stop',
+			type: 'GET',
+			data: formData,
+			traditional: true,
+			success: function() {
+				location.reload();
+			 }
+		});
+	});
+	
+	// 선택해지 버튼을 누르면 상태가 해지 상태로 업데이트 하기
+	$("#btn-delete").click(function(){
+		var formData = $('#emp-update').serialize();
+		
+		$.ajax({
+			url: '/admin/delete',
+			type: 'GET',
+			data: formData,
+			traditional: true,
+			success: function() {
+				location.reload();
+			 }
+		});
+	});
 	
 	
 })

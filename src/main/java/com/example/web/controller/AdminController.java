@@ -1,6 +1,7 @@
 package com.example.web.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -93,6 +94,22 @@ public class AdminController {
 	@GetMapping("/document")
 	public String documentlist() {
 		return "admin/document-list";
+	}
+	
+	// 사용자 사용 중지 요청
+	@GetMapping("/stop")
+	public String stop(@RequestParam("empNo")List<Integer> empNos) {
+		employeeService.stopEmployees(empNos);
+		
+		return "admin/employee-list";
+	}
+	
+	// 사용자 사용 해지 요청
+	@GetMapping("/delete")
+	public String delete(@RequestParam("empNo")List<Integer> empNos) {
+		employeeService.deleteEmployees(empNos);
+		
+		return "admin/employee-list";
 	}
 
 }

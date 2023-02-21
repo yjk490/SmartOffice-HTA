@@ -9,17 +9,7 @@
 		insert into employee_notes
 			(note_no, note_important, sender_employee_no, note_content, note_send_date, note_created_date, box_no, note_title, note_deleted)
 		values
-			(#{noteNo}, nvl(#{important}, 'N'), #{senderNo}, #{content}, sysdate, sysdate, 10002, #{title}, 'N')
-	</insert>
-	
-	<insert id="insertDraftNote" parameterType="Note">
-		<selectKey keyProperty="noteNo" resultType="int" order="BEFORE">
-			select employee_notes_seq.nextval from dual
-		</selectKey>
-		insert into employee_notes
-			(note_no, note_important, sender_employee_no, note_content, note_send_date, note_created_date, box_no, note_title, note_deleted)
-		values
-			(#{noteNo}, nvl(#{important}, 'N'), #{senderNo}, #{content}, sysdate, sysdate, 10003, #{title}, 'N')
+			(#{noteNo}, nvl(#{important}, 'N'), #{senderNo}, #{content}, sysdate, sysdate, #{boxNo}, #{title}, 'N')
 	</insert>
 	
 	<insert id="insertNoteAttachedFile" parameterType="NoteAttachedFile">
@@ -63,6 +53,7 @@
 			and r.receiver_employee_no = e.employee_no
 			and n.note_deleted != 'D'
 			and n.note_deleted != 'Y'
+			and n.box_no != 10003
 			and n.box_no != 10004
 			and r.receiver_employee_no = #{no}
 		<if test="opt != null">
@@ -111,6 +102,7 @@
 				and r.note_no = n.note_no
 				and n.note_deleted != 'D'
 				and n.note_deleted != 'Y'
+				and n.box_no != 10003
 				and n.box_no != 10004
 				and r.receiver_employee_no = #{no}
 				<if test="opt != null">
@@ -146,6 +138,7 @@
 			and n.note_deleted != 'Y'
 			and r.receiver_employee_no = e.employee_no
 			and r.note_no = n.note_no
+			and n.box_no != 10003
 			and n.sender_employee_no = #{no}
 		<if test="opt != null">
 			<choose>
@@ -193,6 +186,7 @@
 				and n.note_deleted != 'Y'
 				and r.receiver_employee_no = e.employee_no
 				and r.note_no = n.note_no
+				and n.box_no != 10003
 				and n.sender_employee_no = #{no}
 				<if test="opt != null">
 					<choose>
@@ -385,27 +379,6 @@
 			row_numbers between #{begin} and #{end}
 	</select>
 
-	<!-- 쪽지번호로 해당 쪽지 반환 -->
-	<select id="getNoteByNo" parameterType="int" resultType="Note">
-		select
-			note_no						as noteNo,
-			note_important				as important,
-			sender_employee_no			as senderNo,
-			note_content				as content,
-			note_send_date				as sendDate,
-			note_read_date				as readDate,
-			note_status					as status,
-			note_created_date			as createdDate,
-			note_updated_date			as updatedDate,
-			box_no						as boxNo,
-			note_title					as title,
-			note_deleted				as deleted
-		from
-			employee_notes
-		where
-			note_no = #{value}
-			
-	</select>
 	
 	<!-- 중요 쪽지함의 갯수 -->
 	<select id="getImportantTotalRows" parameterType="map" resultType="int">
@@ -575,5 +548,73 @@
 			row_numbers between #{begin} and #{end}
 	</select>
 	
+	<!-- 쪽지번호로 해당 쪽지 반환 -->
+	<select id="getNoteByNo" parameterType="int" resultType="Note">
+		select
+			note_no						as noteNo,
+			note_important				as important,
+			sender_employee_no			as senderNo,
+			note_content				as content,
+			note_send_date				as sendDate,
+			note_read_date				as readDate,
+			note_status					as status,
+			note_created_date			as createdDate,
+			note_updated_date			as updatedDate,
+			box_no						as boxNo,
+			note_title					as title,
+			note_deleted				as deleted
+		from
+			employee_notes
+		where
+			note_no = #{value}
+			
+	</select>
+	
+	<!-- 쪽지 상세 정보를 반환 -->
+	<resultMap id="NoteDetailMap" type="NoteDetailDto">
+	  <id column="note_no" property="noteNo"/>
+	  <result column="note_title" property="title"/>
+	  <result column="note_important" property="important"/>
+	  <result column="sender_name" property="senderName"/>
+	  <result column="note_send_date" property="sendDate"/>
+	  <result column="note_read_date" property="readDate"/>
+	  <result column="note_status" property="status"/>
+	  <result column="note_content" property="content"/>
+	  <collection property="employees" ofType="Employee">
+	    <result column="reciever_name" property="name"/>
+	  </collection>
+	</resultMap>
+	
+	
+	<select id="getNoteDetailByNo" parameterType="int" resultMap="NoteDetailMap">
+		select 
+	        a.note_no,
+	        a.note_title,
+	        a.note_important,
+			b.employee_name	as sender_name,
+	        d.employee_name as reciever_name,
+	        a.note_send_date,
+	        a.note_read_date,
+	        a.note_status,
+	        a.note_content
+		from employee_notes a, employees b, employee_note_receivers c, employees d
+		where
+			a.sender_employee_no = b.employee_no
+			and a.note_no = c.note_no
+			and c.receiver_employee_no = d.employee_no
+			and a.note_no = #{value}
+		
+	</select>
+	
+	<!-- 쪽지 상세정보의 첨부파일 정보 -->
+	<select id="getAttachedFilesByNoteNo" parameterType="int" resultType="NoteAttachedFile">
+		select
+			note_no			as noteNo,
+			note_filename	as filename
+		from
+			note_attached_files
+		where
+			note_no = #{value}
+	</select>
 	
 </mapper>
