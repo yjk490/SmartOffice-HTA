@@ -1,5 +1,6 @@
 package com.example.service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.dto.emp.EmployeeDetailDto;
 import com.example.dto.emp.EmployeeListDto;
@@ -130,6 +130,17 @@ public class EmployeeService {
 		}
 		
 	}
+	
+	// 사원 번호를 받아서 해당 사원 사용 복구 시키기
+	public void backEmployees(List<Integer> empNos) {
+		for(int empNo : empNos) {
+			Employee employee = employeeMapper.getEmployeeByNo(empNo);
+			employee.setStatus("Y");
+			
+			employeeMapper.updateEmployee(employee);
+		}
+		
+	}
 
 	public void changePassword(int empNo, String oldPassword, String password) {
 		Employee employee = employeeMapper.getEmployeeByNo(empNo);
@@ -153,13 +164,11 @@ public class EmployeeService {
 	}
 
 	// 프로필 사진 업데이트
-	public void updateProfile(int empNo, MultipartFile profile) {
+	public void updateProfile(int empNo, String filename) throws IOException {
 		Employee employee = employeeMapper.getEmployeeByNo(empNo);
-		
-		employee.setPhoto("profile");
-		
+		employee.setPhoto(filename);
 		employeeMapper.updateEmployee(employee);
-		
 	}
+
 
 }

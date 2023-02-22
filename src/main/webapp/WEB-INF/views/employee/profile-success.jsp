@@ -23,7 +23,10 @@
 				<h1 class="fs-4 border p-2">프로필 사진 변경</h1>
 			</div>
 			<div class="col-12 mb-3">
-				<div class="fs-5 border p-2 text-center"><b>프로필 사진이 성공적으로 변경되었습니다.</b></div>
+				<div class="fs-5 border p-2 text-center">
+					<div class="mt-4 mb-4"><b>프로필 사진이 성공적으로 변경되었습니다.</b></div>
+					<button type="button" class="w3-button w3-padding-small w3-round-large mb-4 w3-black"><a class="text-decoration-none" href="/employee/profile">확인</a></button>
+				</div>
 			</div>
 		</div>
 	</div>
