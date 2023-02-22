@@ -1,5 +1,6 @@
 package com.example.web.controller;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -22,6 +23,12 @@ public class HomeController {
 	@GetMapping("/login")
 	public String loginform() {
 		return "/employee/login-form";
+	}
+	
+	// 비밀번호 찾기
+	@GetMapping("/help")
+	public String passwordsearchForm() {
+		return "employee/password-search-form";
 	}
 	
 

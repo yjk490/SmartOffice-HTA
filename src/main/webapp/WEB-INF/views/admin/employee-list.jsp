@@ -141,6 +141,7 @@
 		<div class="w3-bar">
 			 <button type="button" id="btn-stop" class="w3-button w3-padding-small w3-round-large w3-black">선택중지</button>
 			 <button type="button" id="btn-delete" class="w3-button w3-padding-small w3-round-large w3-light-gray">선택해지</button>
+			 <button type="button" id="btn-back" class="w3-button w3-padding-small w3-round-large w3-gray">선택복구</button>
 			 <button type="button" class="w3-button w3-padding-small w3-right w3-round-large w3-black"><a class="text-decoration-none" href="/admin/form"><b>사원등록</b></a></button>
 		</div>
 		<c:if test="${not empty employees }">
@@ -164,6 +165,7 @@ $(function(){
 	
 	let $buttonStop = $("#btn-stop").prop("disabled",true);
 	let $buttonDelete = $("#btn-delete").prop("disabled",true);
+	let $buttonBack = $("#btn-back").prop("disabled",true);
 	
 	function adminForm(page){
 		$("#admin-form input[name=page]").val(page);
@@ -209,14 +211,17 @@ $(function(){
 	function toggleSelectedCheckbox() {
 		let $buttonStop = $("#btn-stop");
 		let $buttonDelete = $("#btn-delete");
+		let $buttonBack = $("#btn-back");
 		let $checkedCheckboxLength =  $(":checkbox[name=empNo]:checked").length;
 		
 		if ($checkedCheckboxLength === 0) {
 			$buttonStop.prop("disabled",true);
 			$buttonDelete.prop("disabled",true);
+			$buttonBack.prop("disabled",true);
 		} else {
 			$buttonStop.prop("disabled",false);
 			$buttonDelete.prop("disabled",false);
+			$buttonBack.prop("disabled",false);
 		}
 	}
 	
@@ -225,7 +230,7 @@ $(function(){
 		if ($(":checkbox[name=empNo]:checked").length === 0){
 			alert("사용 중지할 사원을 한명 이상 선택해주세요.");
 			return;
-		} if(confirm("사원의 사용은 중지 하시겠습니까?")){
+		} if(confirm("선택한 사원의 사용을 중지 하시겠습니까?")){
 			alert("선택한 사원의 사용이 중지되었습니다.")
 		} else {
 			return false;
@@ -238,8 +243,20 @@ $(function(){
 		if ($(":checkbox[name=empNo]:checked").length === 0){
 			alert("사용 해지할 사원을 한명 이상 선택해주세요.");
 			return;
-		} if(confirm("사원의 사용은 해지 하시겠습니까?")){
+		} if(confirm("선택한 사원의 사용을 해지 하시겠습니까?")){
 			alert("선택한 사원의 사용이 해지되었습니다.")
+		} else {
+			return false;
+		}
+	});
+	
+	// 선택 복구 확인 메세지
+	$("#btn-back").click(function() {
+		if ($(":checkbox[name=empNo]:checked").length === 0){
+			alert("사용 복구할 사원을 한명 이상 선택해주세요.");
+			return;
+		} if(confirm("선택한 사원의 사용을 복구 시키겠습니까?")){
+			alert("선택한 사원의 사용을 복구되었습니다.")
 		} else {
 			return false;
 		}
@@ -275,6 +292,20 @@ $(function(){
 		});
 	});
 	
+	// 선택복구 버튼을 누르면 상태가 복구된 상태로 업데이트 하기
+	$("#btn-back").click(function(){
+		var formData = $('#emp-update').serialize();
+		
+		$.ajax({
+			url: '/admin/back',
+			type: 'GET',
+			data: formData,
+			traditional: true,
+			success: function() {
+				location.reload();
+			 }
+		});
+	});
 	
 })
 </script>

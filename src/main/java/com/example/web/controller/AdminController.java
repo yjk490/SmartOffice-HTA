@@ -111,5 +111,13 @@ public class AdminController {
 		
 		return "admin/employee-list";
 	}
+	
+	// 사용자 사용 복구 요청
+	@GetMapping("/back")
+	public String back(@RequestParam("empNo")List<Integer> empNos) {
+		employeeService.backEmployees(empNos);
+		
+		return "admin/employee-list";
+	}
 
 }
