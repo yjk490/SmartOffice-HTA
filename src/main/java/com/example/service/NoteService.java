@@ -251,7 +251,7 @@ public class NoteService {
 			throw new ApplicationException("["+noteNo+"] 번 쪽지는 존재하지 않습니다.");
 		}
 		
-		if (!"N".equals(note.getDeleted())) {
+		if ("Y".equals(note.getDeleted())) {
 			throw new ApplicationException("["+noteNo+"] 번 쪽지는 삭제된 쪽지입니다.");
 		}
 		
