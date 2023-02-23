@@ -51,8 +51,8 @@
 		where
 			n.note_no = r.note_no
 			and r.receiver_employee_no = e.employee_no
+			and n.note_deleted !='Y'
 			and n.note_deleted != 'D'
-			and n.note_deleted != 'Y'
 			and n.box_no != 10003
 			and n.box_no != 10004
 			and r.receiver_employee_no = #{no}
@@ -100,8 +100,8 @@
 			where
 				n.sender_employee_no = e.employee_no
 				and r.note_no = n.note_no
-				and n.note_deleted != 'D'
-				and n.note_deleted != 'Y'
+				and n.note_deleted !='Y'
+				and n.note_deleted !='D'
 				and n.box_no != 10003
 				and n.box_no != 10004
 				and r.receiver_employee_no = #{no}
@@ -391,7 +391,6 @@
 			and r.receiver_employee_no = e.employee_no
 			and n.note_deleted != 'D'
 			and n.note_deleted != 'Y'
-			and n.box_no != 10006
 			and n.note_important = 'Y'
 			and r.receiver_employee_no = #{no}
 		<if test="opt != null">
@@ -440,7 +439,6 @@
 				and r.note_no = n.note_no
 				and n.note_deleted != 'D'
 				and n.note_deleted != 'Y'
-				and n.box_no != 10006
 				and n.note_important = 'Y'
 				and r.receiver_employee_no = #{no}
 				<if test="opt != null">
@@ -473,11 +471,11 @@
 			employee_notes n, employee_note_receivers r, employees e
 		where
 			n.note_no = r.note_no
-			and r.receiver_employee_no = e.employee_no
+			and n.sender_employee_no = e.employee_no
 			and n.note_deleted != 'Y'
 			and n.note_deleted != 'N'
 			and n.box_no = 10006
-			and r.receiver_employee_no = #{no}
+			and n.sender_employee_no = #{no}
 		<if test="opt != null">
 			<choose>
 				<when test="opt == 'title'">
@@ -525,7 +523,7 @@
 				and n.note_deleted != 'Y'
 				and n.note_deleted != 'N'
 				and n.box_no = 10006
-				and r.receiver_employee_no = #{no}
+				and n.sender_employee_no = #{no}
 				<if test="opt != null">
 					<choose>
 						<when test="opt == 'title'">

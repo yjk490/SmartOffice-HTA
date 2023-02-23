@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,7 @@ import com.example.mapper.EmployeeRoleMapper;
 import com.example.utils.Pagination;
 import com.example.vo.employee.Employee;
 import com.example.vo.employee.EmployeeRole;
+import com.example.web.request.EmployeePasswordForm;
 import com.example.web.request.EmployeeRegisterform;
 
 @Service
@@ -168,6 +171,33 @@ public class EmployeeService {
 		Employee employee = employeeMapper.getEmployeeByNo(empNo);
 		employee.setPhoto(filename);
 		employeeMapper.updateEmployee(employee);
+	}
+
+	// 임시비밀번호로 비밀번호 업데이트 시키기
+	public String getUpdateTemporaryPassword(@Valid EmployeePasswordForm employeePasswordForm) {
+		
+		Employee employee = employeeMapper.getEmployeeByNo(employeePasswordForm.getEmpNo());
+		String str = getTemporaryPassword();
+		
+		employee.setEncryptPassword(passwordEncoder.encode(str));
+		employeeMapper.updateEmployee(employee);
+		
+		return str;
+		
+	}
+	
+	public String getTemporaryPassword() {
+		char[] charSet = new char[] {'0','1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
+				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+				'!', '@', '^', '*', '_'};
+		String str = "";
+		int idx = 0;
+		for (int i = 0; i < 10; i++) {
+			idx = (int) (charSet.length * Math.random());
+			str += charSet[idx];
+		}
+		return str;
+		
 	}
 
 

@@ -15,30 +15,18 @@
 <div class="container">
 	<div class="row mt-5">
 		<div class="col-8 offset-2">
-			<form:form modelAttribute="employeePasswordForm" id="form-search-password" action="/help" class="w3-container w3-card-4 w3-light-grey w3-text-black w3-margin" method="post">
-				<div class="row mb-5">
-					<div class="col-12 mt-5">
+			<div class="w3-container w3-card-4 w3-light-grey w3-text-black w3-margin">
+				<div class="row mb-3">
+					<div class="col-12 mt-5 mb-3">
 						<h2 class="w3-center"><b>비밀번호 찾기</b></h2>
 					</div>
 				</div>
 				<div class="w3-row w3-margin">
-					<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
-					<div class="w3-rest">
-						<form:input class="w3-input w3-border" path="empNo" placeholder="사원번호" />
-						<form:errors path="empNo" cssClass="text-danger" />
-					</div>
+					<div class="mt-4 mb-4"><b>비밀번호 찾기가 완료되었습니다.</b></div>
+					<div class="mt-4 mb-4">임시 비밀번호는 <b>${temporaryPassword }</b>입니다. 로그인 후 비밀번호 변경을 통해 꼭 바꿔주세요.</div>
+					<button type="button" class="w3-button w3-block w3-section w3-black"><a class="text-decoration-none" href="/login">로그인으로 돌아가기</a></button>
 				</div>
-				<div class="w3-row w3-margin">
-					<div class="w3-col" style="width:50px"><i class="w3-xxlarge fas fa-envelope"></i></div>
-					<div class="w3-rest">
-						<form:input class="w3-input w3-border" path="email" placeholder="이메일" />
-						<form:errors path="email" cssClass="text-danger"/>
-					</div>
-				</div>
-				<div class="w3-center mb-5">
-					<button type="submit" class="w3-button w3-block w3-section w3-black"><b>비밀번호 재발급</b></button>
-				</div>
-			</form:form>
+			</div>
 		</div>
 	</div>
 </div>
