@@ -11,12 +11,12 @@
 				<li class="nav-item"><a class="nav-link" href="">메신저</a></li>
 				<li class="nav-item"><a class="nav-link ${top eq 'post' ? 'active' : '' }" href="/post/list">게시판</a></li>
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<a class="nav-link dropdown-toggle ${top eq 'todo' ? 'active' : '' }" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						업무
 					</a>
 					<ul class="dropdown-menu">
-						<li><a class="dropdown-item" href="">업무 문서함</a></li>
-						<li><a class="dropdown-item" href="">업무 관리</a></li>
+						<li><a class="dropdown-item" href="/todo/todoBox">업무 문서함</a></li>
+						<li><a class="dropdown-item" href="/todo/list?category=100">업무 관리</a></li>
 					</ul>
 				</li>
 			</sec:authorize>

@@ -26,6 +26,7 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/", "/login", "/logout").permitAll()
 		.antMatchers("/note/**").hasRole("EMPLOYEE")
 		.antMatchers("/post/**").hasAnyRole("EMPLOYEE", "ADMIN")
+		.antMatchers("/todo/**").hasAnyRole("EMPLOYEE", "ADMIN")
 		.antMatchers("/admin/**").hasRole("ADMIN")
 		
 	.and()
