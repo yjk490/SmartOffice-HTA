@@ -17,10 +17,18 @@
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->
 		<div class="col-9">
-			<div class="row border m-1 mb-4">
-				<p class="fs-1 my-2">자유 게시판</p>
-				<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
-			</div>
+			<sec:authorize access="hasRole('ADMIN')">
+				<div class="row border m-1 mb-2 text-danger">
+					<p class="fs-1 my-2">자유 게시판</p>
+					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글을 삭제할 수 있습니다.</p>
+				</div>
+			</sec:authorize>
+			<sec:authorize access="hasRole('EMPLOYEE')">
+				<div class="row border m-1 mb-2">
+					<p class="fs-1 my-2">자유 게시판</p>
+					<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
+				</div>
+			</sec:authorize>
 			<div class="row">
 				<div class="col">
 					<div class="my-3 border-bottom border-secondary">
@@ -36,12 +44,14 @@
 									<span class="fs-5">${post.name }</span>
 								</div>
 								<div>
-									<span>${post.createdDate }</span>
-									<span>조회수 ${post.scrapCount }</span>
-									<c:forEach var="file" items="${post.attachedFiles }">
-										<a href="/post/download?filename=${file.savedName }" 
-										   class="btn btn-outline-dark btn-sm" 
-										   style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">${file.originalName }</a>
+									<span>${post.createdDateTimeToString }</span>
+									<span class="ms-2"><i class="fa-regular fa-eye"></i> ${post.readCount }</span>
+									<c:forEach var="map" items="${post.fileNamesMap }">
+										<c:set var="savedFileName" value="${map.key}" />
+										<c:set var="originalFileName" value="${map.value}" />
+										<a href="/post/download?filename=${savedFileName }" 
+										   class="btn btn-outline-dark btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+										   ${originalFileName }</a>
 									</c:forEach>
 								</div>
 							</div>
@@ -58,17 +68,29 @@
 						</div>
 						<div class="row mb-3">
 							<div class="col py-3">
-								<c:forEach var="tag" items="${post.tags }">
-									<a href="/post/list?type=content&keyword=${tag.content }" >
-									<span class="badge text-bg-success">${tag.content }</span>
+								<c:forEach var="tag" items="${post.tagContents }">
+									<a href="/post/list?type=content&keyword=${tag }" >
+									<span class="badge text-bg-success">${tag }</span>
 									</a>
 								</c:forEach>
 							</div>
 							<div class="col text-end pe-5">
+							<sec:authorize access="hasRole('ADMIN')">
 								<div class="d-inline me-4">
-									<button type="button" class="btn btn-outline-primary ${post.employeeNo eq loginUser.no ? '' : 'd-none' }">수정</button>
-									<button type="button" class="btn btn-outline-danger ${post.employeeNo eq loginUser.no ? '' : 'd-none' }">삭제</button>
+									<c:if test="${post.employeeNo eq loginUser.no }">
+									<a href="/post/modify-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-primary">수정</a>
+									</c:if>
+									<a href="/post/remove-post?postNo=${post.no }" class="btn btn-danger">삭제</a>
 								</div>
+							</sec:authorize>
+							<sec:authorize access="hasRole('EMPLOYEE')">
+							<c:if test="${post.employeeNo eq loginUser.no }">
+								<div class="d-inline me-4">
+									<a href="/post/modify-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-outline-primary">수정</a>
+									<a href="/post/delete-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-outline-danger">삭제</a>
+								</div>
+							</c:if>
+							</sec:authorize>
 								<div class="d-inline">
 									<a id="toggle-recommend" href="" class="link-dark">
 										<i class="bi bi-hand-thumbs-up-fill fs-3 ${post.recommended eq false ? 'd-none' : '' }"></i>
@@ -109,56 +131,69 @@ $(function () {
 	let $commentListBox = $("#div-comment-list")
 	let $commentRegisterInputBox = $("#div-register-comment :input[name=content]")
 	let $commentRegisterBtn = $("#div-register-comment button")
-	
-	// 댓글 리스트 ajax 요청 후, <div id="div-comment-list">에 렌더링
+
 	getCommentList()
 	function getCommentList() {
-		$.getJSON('/post/comment-list',
+		$.getJSON('/post/role',
 				{
-					postNo: postNo,
 					employeeNo: loginEmployeeNo
 				})
-				.done(function (comments) {
+				.done(function (employeeRoles) {
+					let hasAdmin = employeeRoles.includes('ROLE_ADMIN');
 					
-					$.each(comments, function(index, comment) {
-						console.log(index + 1  + ':' + comment.recommended)
-						
-						let ModifyAndDeleteBtn = (comment.employeeNo != loginEmployeeNo) ? 'd-none' : ''
-						let filledIcon = (comment.recommended == false) ? 'd-none' : '' 
-						let unFilledIcon = (comment.recommended == true) ? 'd-none' : '' 
-						let commentBox = `
-										<div class="my-3 border-bottom">
-											<div class="row mb-3">
-												<div>
-													<span>\${comment.name }</span>
-												</div>
-												<div>
-													<span>\${comment.createdDate }</span>
-												</div>
-											</div>
-											<div class="row">
-												<p>\${comment.content }</p>
-											</div>
-											<div class="row mb-3">
-												<div class="col text-end pe-5">
-													<div class="d-inline me-4">
-														<button type="button" class="btn btn-outline-primary btn-sm \${ModifyAndDeleteBtn}">수정</button>
-														<button type="button" class="btn btn-outline-danger btn-sm \${ModifyAndDeleteBtn}">삭제</button>
-													</div>
-													<div class="d-inline">
-														<a href="" class="link-dark" data-comment-no="\${comment.no}">
-															<i class="bi bi-hand-thumbs-up-fill fs-5 \${filledIcon}"></i>
-															<i class="bi bi-hand-thumbs-up fs-5 \${unFilledIcon}"></i>
-														</a>
-														<span class="fs-5">\${comment.recommendCount }</span>
-													</div>
-												</div>						
-											</div>
-										</div>					
-										`
-						
-						$commentListBox.append(commentBox)
-					})
+					$.getJSON('/post/comment-list',
+							{
+								postNo: postNo,
+								employeeNo: loginEmployeeNo
+							})
+							.done(function (comments) {
+								$.each(comments, function(index, comment) {
+									let modifyOrDeleteBtn = ""
+									if (comment.employeeNo == loginEmployeeNo) {
+										modifyOrDeleteBtn = `
+															<button type="button" class="btn btn-outline-primary btn-sm">수정</button>
+															<button type="button" class="btn btn-outline-danger btn-sm">삭제</button>
+															`
+									} else if (hasAdmin) {
+										modifyOrDeleteBtn = `<button type="button" class="btn btn-danger btn-sm">삭제</button>`
+									}
+									
+									let filledIcon = (comment.recommended == false) ? 'd-none' : '' 
+									let unFilledIcon = (comment.recommended == true) ? 'd-none' : '' 
+											
+									let commentBox = `
+													<div class="my-3 border-bottom">
+														<div class="row mb-3">
+															<div>
+																<span>\${comment.name }</span>
+															</div>
+															<div>
+																<span>\${comment.createdDateTimeToString }</span>
+															</div>
+														</div>
+														<div class="row">
+															<p>\${comment.content }</p>
+														</div>
+														<div class="row mb-3">
+															<div class="col text-end pe-5">
+																<div class="d-inline me-4">
+																	\${modifyOrDeleteBtn}
+																</div>
+																<div class="d-inline">
+																	<a href="" class="link-dark" data-comment-no="\${comment.no}">
+																		<i class="bi bi-hand-thumbs-up-fill fs-5 \${filledIcon}"></i>
+																		<i class="bi bi-hand-thumbs-up fs-5 \${unFilledIcon}"></i>
+																	</a>
+																	<span class="fs-5">\${comment.recommendCount }</span>
+																</div>
+															</div>						
+														</div>
+													</div>					
+													`
+									
+									$commentListBox.append(commentBox)
+								})
+							})					
 				})
 	}
 	
@@ -207,7 +242,7 @@ $(function () {
 		event.preventDefault();
 		
 		let clickedElement = $(this)
-		$.get("/post/recommend", 
+		$.get("/post/recommend-post", 
 			  {
 				postNo: postNo
 			  })

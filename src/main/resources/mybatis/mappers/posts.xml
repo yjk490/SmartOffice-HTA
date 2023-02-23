@@ -8,19 +8,27 @@
 		values
 			(#{no}, #{employeeNo}, #{title}, #{content})
 	</insert>
-
-	<insert id="insertTag" parameterType="com.example.vo.post.Tag">
-		insert into post_tags
-			(post_no, tag_content)
-		values
-			(#{postNo}, #{content})
+	
+	<insert id="insertTags" parameterType="java.util.List">
+	    insert all 
+	    <foreach item="tag" collection="list">
+	        into post_tags 
+	        	(post_no, tag_content) 
+	        values 
+	        	(#{tag.postNo}, #{tag.content})
+	    </foreach>
+	    select 1 from dual
 	</insert>
 	
-	<insert id="insertAttachedFile" parameterType="com.example.vo.post.AttachedFile">
-		insert into post_attached_files
-			(file_no, post_no, post_original_filename, post_saved_filename)
-		values
-			(post_attached_files_seq.nextval, #{postNo}, #{originalName}, #{savedName})	
+	<insert id="insertAttachedFiles" parameterType="java.util.List">
+		insert all
+		<foreach item="attachedFile" collection="list">
+			into post_attached_files
+				(post_no, post_original_filename, post_saved_filename)
+			values
+				(#{attachedFile.postNo}, #{attachedFile.originalName}, #{attachedFile.savedName})
+		</foreach>
+		select 1 from dual
 	</insert>
 	
 	<insert id="insertComment" parameterType="com.example.vo.post.Comment">
@@ -101,7 +109,7 @@
 		    post_read_count 		as readCount,
 		    post_comment_count		as commentCount,
 		    post_recommend_count 	as recommendCount,
-		    post_created_date 		as createdDate
+		    post_created_date 		as createdDateTime
 		from (
 		     select
 		     	 <choose>
@@ -167,7 +175,7 @@
 			A.post_read_count 		as readCount,
 			A.post_recommend_count 	as recommendCount,
 			A.post_scrap_count 		as scrapCount,
-			A.post_created_date 	as createdDate,
+			A.post_created_date 	as createdDateTime,
 			nvl((select 'true' from post_scraps where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as scrapped ,
 			nvl((select 'true' from post_recommends where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as recommended
 		from
@@ -184,7 +192,7 @@
 			B.employee_name				as name,
 			A.comment_content			as content,
 			A.comment_recommend_count	as recommendCount,
-			A.comment_created_date		as createdDate,
+			A.comment_created_date		as createdDateTime,
 			nvl((select 'true' from post_comment_recommends where employee_no = #{employeeNo} and  comment_no = A.comment_no ), 'false') as recommended
 		from
 			post_comments A, employees B
@@ -266,6 +274,15 @@
 			post_no = #{value}
 	</select>
 
+	<select id="getEmpRolesByEmployeeNo" parameterType="int" resultType="String">
+		select
+			employee_role_name		as roleName
+		from
+			employee_roles
+		where
+			employee_no = #{value}
+	</select>
+
 	<update id="updatePost" parameterType="com.example.vo.post.Post">
 		update
 			posts
@@ -294,6 +311,13 @@
 			comment_no = #{no}
 	</update>
 	
+	<delete id="deletePost" parameterType="int">
+		delete from
+			posts
+		where
+			post_no = #{value}
+	</delete>
+	
 	<delete id="deletePostScrap">
 		delete from
 			post_scraps
@@ -316,5 +340,12 @@
 		where
 			comment_no = #{commentNo}
 			and employee_no = #{employeeNo}
+	</delete>
+	
+	<delete id="deleteFileBySavedName" parameterType="String">
+		delete from
+			post_attached_files
+		where
+			post_saved_filename = #{value}
 	</delete>
 </mapper>
