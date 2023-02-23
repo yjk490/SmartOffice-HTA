@@ -8,11 +8,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PostRegisterForm {
+public class PostModifyForm {
 
+	private int no;
+	private int employeeNo;
 	private String title;
 	private String content;
-	private List<String> tagContents;
 	private Map<String, String> fileNamesMap;
+	private List<String> tagContents;
+	private List<String> deleteFileNames;
 	
 }

@@ -24,7 +24,7 @@
 					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글을 삭제할 수 있습니다.</p>
 				</div>
 			</sec:authorize>
-			<sec:authorize access="hasRole('EMP')">
+			<sec:authorize access="hasRole('EMPLOYEE')">
 				<div class="row border m-1 mb-2">
 					<p class="fs-1 my-2">자유 게시판</p>
 					<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
@@ -86,7 +86,7 @@
 									</a>
 								</div>
 								<div class="col-6 text-end">
-									<span>${post.createdDate }</span>
+									<span>${post.createdDateTimeToString }</span>
 								</div>
 							</div>
 							<div class="row">

@@ -3,6 +3,7 @@ package com.example.security;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
@@ -24,7 +26,6 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 		.csrf().ignoringAntMatchers("/post/**")
 		.and()
 		.authorizeHttpRequests()		// 모든 요청에 대해서 인가정책을 적용하도록 한다. AuthorizeHttpRequestsConfigurer 객체를 반환한다.
-
 		.antMatchers("/", "/login", "/logout").permitAll()
 		.antMatchers("/note/**").hasRole("EMPLOYEE")
 		.antMatchers("/post/**").hasAnyRole("EMPLOYEE", "ADMIN")

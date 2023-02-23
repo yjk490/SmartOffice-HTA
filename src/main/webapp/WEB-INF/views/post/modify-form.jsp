@@ -17,19 +17,21 @@
 		</div> <!-- 사이드 바 끝 -->
 		<div class="col-9">
 			<div class="row border m-1 mb-3">
-				<p class="fs-1 my-2">글 작성하기</p>
+				<p class="fs-1 my-2">글 수정하기</p>
 			</div>
-			<form id="form-post" class="row p-2 auto" method="post" action="register-post" enctype="multipart/form-data">
+			<form id="form-post" class="row p-2 auto" method="post" action="modify-post" enctype="multipart/form-data">
+				<input type="hidden" name="no" value="${modifyPost.no }">
+				<input type="hidden" name="employeeNo" value="${modifyPost.employeeNo }">
 				<div class="mb-4">
 				  	<label class="form-label lead">제목</label>
-				  	<input type="text" class="form-control" name="title" placeholder="제목을 입력해주세요.">
+				  	<input type="text" class="form-control" name="title" value="${modifyPost.title }" placeholder="제목을 입력해주세요.">
 				  	<div class="invalid-feedback">
         				<span class="ps-2">제목은 필수 입력입니다.</span>
       				</div>
 				</div>
 				<div class="mb-4">
 				  	<label class="form-label lead">내용</label>
-				  	<textarea class="form-control" name="content" rows="10" placeholder="내용을 입력해주세요."></textarea>
+				  	<textarea class="form-control" name="content" rows="10" placeholder="내용을 입력해주세요.">${modifyPost.content }</textarea>
 				  	<div class="invalid-feedback">
         				<span class="ps-2">내용은 필수 입력입니다.</span>
       				</div>
@@ -37,18 +39,35 @@
 				<div class="mb-2">
 				  	<label class="form-label lead">태그</label>
 				  	<input id="tag-input" type="text" class="form-control" placeholder="태그를 입력해주세요.">
-					<div id="tag-btn-box" class="m-2"></div>
+					<div id="tag-btn-box" class="m-2">
+						<c:forEach var="tag" items="${modifyPost.tagContents }">
+							<a href="" class="text-white text-decoration-none pe-2" data-tag-content="${tag }">
+								<span class="badge text-bg-success">${tag}<i class="bi bi-x ms-1"></i></span>
+							</a>
+						</c:forEach>
+					</div>
+				</div>
 				<div class="mb-4">
-			  		<label class="form-label lead">파일 첨부</label>
+			  		<label class="form-label lead mb-2">파일 첨부</label>
 			  		<input type="file" class="form-control" name="uploadFiles" multiple>
-			  		<div id="div-new-file-box" class="my-1">
+			  		<div id="div-new-file-box" class="m-1">
 			  			<small class="form-text text-muted">새 첨부파일 : </small>
+			  		</div>
+			  		<div id="div-old-file-box" class="my-1">
+			  			<small class="form-text text-muted">기존 첨부파일 : </small>
+				  		<c:forEach var="map" items="${modifyPost.fileNamesMap }">
+				  			<c:set var="savedFileName" value="${map.key}" />
+							<c:set var="originalFileName" value="${map.value}" />
+				  			<a href="" class="text-white text-decoration-none pe-2" data-delete-file-name="${savedFileName }">
+								<span class="badge text-bg-secondary">${originalFileName}<i class="bi bi-x ms-1"></i></span>
+							</a>
+						</c:forEach>
 			  		</div>
 			  		<small class="form-text text-muted">파일 1개당 10MB, 전체용량 100MB까지 첨부할 수 있습니다.</small>
 				</div>
 				<div class="text-end">
-					<a href="list" class="btn btn-outline-secondary">취소</a>
-					<button class="btn btn-outline-primary" type="submit">등록</button>
+					<a href="detail?postNo=${post.no }" class="btn btn-outline-secondary">취소</a>
+					<button class="btn btn-outline-primary" type="submit">수정완료</button>
 				</div>
 			</form>
 		</div>
@@ -89,7 +108,7 @@ $(function() {
 	// 게시글 등록 태그 입력
 	let $tagInput = $("#tag-input");
 	let $tagBtnBox = $("#tag-btn-box");
-
+	
 	$("#tag-input").keydown(function(event) {
 		if (event.which == 13) {
 			let value = $tagInput.val();
@@ -124,10 +143,14 @@ $(function() {
 	
 	$tagBtnBox.on("click", 'a', function(event) {
 		event.preventDefault();
+		
+		let aa = $(this).data('tag-content')
+			console.log(aa)
+		
 		$(this).remove()
 	})
 	
-	// 새로 업로드한 첨부파일 목록을 표현하는 핸들러 함수
+	// 새로 업로드한 첨부파일 목록을 표현하는 핸들러 함수	
 	$('input[type=file]').change(function() {
 		$('#div-new-file-box a').remove()
 		let files = $('input[type=file]')[0].files
@@ -162,6 +185,17 @@ $(function() {
 		
 		$(this).remove()		
 	})
+	
+	// 기존 첨부파일을 부분적으로 삭제하는 핸들러 함수. 삭제할 파일의 savedName을 input값으로 저장해서 서버로 보낸다.
+	$("#div-old-file-box").on("click", 'a', function(event) {
+		event.preventDefault()
+		
+		let deleteFileName = $(this).data('delete-file-name')
+		let html = `<input type="hidden" name="deleteFileNames" value="\${deleteFileName}">`
+		$("#form-post").append(html)
+		
+		$(this).remove()
+	})	
 	
 })
 </script>
