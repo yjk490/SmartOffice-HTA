@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dto.note.NoteDetailDto;
 import com.example.dto.note.NoteListDto;
+import com.example.dto.note.NoteSendListDto;
 import com.example.exception.ApplicationException;
 import com.example.mapper.NoteMapper;
 import com.example.utils.Pagination;
@@ -48,7 +49,7 @@ public class NoteService {
 		if(form.getReceiversNo() != null) {
 			List<Integer> receiversNo = form.getReceiversNo();
 			for(int receiverNo : receiversNo) {
-				NoteReceiver noteReceiver = new NoteReceiver(note.getNoteNo(), receiverNo);
+				NoteReceiver noteReceiver = new NoteReceiver(note.getNoteNo(), receiverNo, 10001, "N");
 				noteMapper.insertNoteReceiver(noteReceiver);
 			}
 		}
@@ -79,16 +80,32 @@ public class NoteService {
 	}
 	
 	//쪽지 업데이트 하기(받은 쪽지함, 쪽지보관함, 중요쪽지함에서 쪽지를 삭제)
-	public void deleteNotes(List<Integer> noteNos) {
+	public void deleteNotes(int empNo, List<Integer> noteNos) {
 		for(int noteNo : noteNos) { 
-			Note note = noteMapper.getNoteByNo(noteNo);
-			note.setBoxNo(10006);
-			note.setDeleted("D");
+			List<NoteReceiver> noteReceivers = noteMapper.getReceiveNoteByNo(noteNo);
 			
-			// 설정 값을 update에 입력한다.
-			noteMapper.updateNote(note);
+			for (NoteReceiver noteReceiver : noteReceivers) {
+				System.out.println(empNo); 
+				System.out.println(noteReceiver.getReceiverNo()); 
+				
+				if(empNo == noteReceiver.getReceiverNo()) {
+					NoteReceiver updatedNoteReceiver = new NoteReceiver();
+					updatedNoteReceiver.setNoteNo(noteReceiver.getNoteNo());
+					updatedNoteReceiver.setReceiverNo(empNo);
+					updatedNoteReceiver.setBoxNo(10006);
+					updatedNoteReceiver.setDeleted("D");
+					
+					Map<String, Object> param = new HashMap<>();
+					param.put("noteNo", noteNo);
+					param.put("receiverNo", empNo);
+					param.put("deleted", updatedNoteReceiver.getDeleted());
+					param.put("boxNo", updatedNoteReceiver.getBoxNo());
+					
+					// 설정 값을 update에 입력한다.
+					noteMapper.updateNote(param);
+				} 
+			}
 		}
-		
 	}
 	
 	//쪽지 업데이트 하기(보낸 쪽지함, 임시보관함에서 쪽지를 삭제)
@@ -96,37 +113,83 @@ public class NoteService {
 		for(int noteNo : noteNos) { 
 			Note note = noteMapper.getNoteByNo(noteNo);
 			note.setBoxNo(10006);
-			note.setDeleted("SD");
+			note.setDeleted("D");
 			
 			// 설정 값을 update에 입력한다.
-			noteMapper.updateNote(note);
+			noteMapper.updateSendNote(note);
 		}
 		
 	}
 	
 	// 쪽지 업데이트 하기(휴지통에서 쪽지를 삭제)
-	public void deleteWaggerNotes(List<Integer> noteNos) {
+	public void deleteWaggerNotes(int empNo, List<Integer> noteNos) {
 		for(int noteNo : noteNos) { 
 			Note note = noteMapper.getNoteByNo(noteNo);
-			note.setDeleted("Y");
+			List<NoteReceiver> noteReceivers = noteMapper.getReceiveNoteByNo(noteNo);
 			
-			// 설정 값을 update에 입력한다.
-			noteMapper.updateNote(note);
+			if(empNo == note.getSenderNo()) {
+				note.setDeleted("Y");
+				
+				// 설정 값을 update에 입력한다.
+				noteMapper.updateSendNote(note);
+			} else {
+				for (NoteReceiver noteReceiver : noteReceivers) {
+					if(empNo == noteReceiver.getReceiverNo()) {
+						NoteReceiver updatedNoteReceiver = new NoteReceiver();
+						updatedNoteReceiver.setNoteNo(noteReceiver.getNoteNo());
+						updatedNoteReceiver.setReceiverNo(empNo);
+						updatedNoteReceiver.setBoxNo(10006);
+						updatedNoteReceiver.setDeleted("Y");
+						
+						Map<String, Object> param = new HashMap<>();
+						param.put("noteNo", noteNo);
+						param.put("receiverNo", empNo);
+						param.put("deleted", updatedNoteReceiver.getDeleted());
+						param.put("boxNo", updatedNoteReceiver.getBoxNo());
+						
+						// 설정 값을 update에 입력한다.
+						noteMapper.updateNote(param);
+						
+					}
+				}
+				
+			}
+			
+			
+			
 		}
 		
 	}
 	
 	// 받은 쪽지함에서 쪽지 보관함에 보관하기
-	public void saveNotes(List<Integer> noteNos) {
+	public void saveNotes(int empNo, List<Integer> noteNos) {
 		for(int noteNo : noteNos) { 
-			Note note = noteMapper.getNoteByNo(noteNo);
-			note.setBoxNo(10004);
+			List<NoteReceiver> noteReceivers = noteMapper.getReceiveNoteByNo(noteNo);
 			
-			// 설정 값을 update에 입력한다.
-			noteMapper.updateNote(note);
+			for (NoteReceiver noteReceiver : noteReceivers) {
+				System.out.println(empNo); 
+				System.out.println(noteReceiver.getReceiverNo()); 
+				
+				if(empNo == noteReceiver.getReceiverNo()) {
+					NoteReceiver updatedNoteReceiver = new NoteReceiver();
+					updatedNoteReceiver.setNoteNo(noteReceiver.getNoteNo());
+					updatedNoteReceiver.setReceiverNo(empNo);
+					updatedNoteReceiver.setBoxNo(10004);
+					updatedNoteReceiver.setDeleted("N");
+					
+					Map<String, Object> param = new HashMap<>();
+					param.put("noteNo", noteNo);
+					param.put("receiverNo", empNo);
+					param.put("deleted", updatedNoteReceiver.getDeleted());
+					param.put("boxNo", updatedNoteReceiver.getBoxNo());
+					
+					// 설정 값을 update에 입력한다.
+					noteMapper.updateNote(param);
+				} 
+			}
 		}
-		
 	}
+	
 
 	// 보낸 쪽지함 리스트
 	public Map<String, Object> getSendNotes(Map<String, Object> param) {
@@ -139,7 +202,7 @@ public class NoteService {
 		param.put("begin", pagination.getBegin());
 		param.put("end", pagination.getEnd());
 		
-		List<NoteListDto> notes = noteMapper.getSendNotesByNo(param);
+		List<NoteSendListDto> notes = noteMapper.getSendNotesByNo(param);
 		
 		Map<String, Object> result = new HashMap<>();
 		result.put("notes", notes);
@@ -170,6 +233,7 @@ public class NoteService {
 		return result;
 	}
 
+	// 임시보관함 리스트
 	public Map<String, Object> getDraftNotes(Map<String, Object> param) {
 		int totalRows = noteMapper.getDraftTotalRows(param);
 		int page = (Integer)param.get("page");
@@ -180,7 +244,7 @@ public class NoteService {
 		param.put("begin", pagination.getBegin());
 		param.put("end", pagination.getEnd());
 		
-		List<NoteListDto> notes = noteMapper.getDraftNotesByNo(param);
+		List<NoteSendListDto> notes = noteMapper.getDraftNotesByNo(param);
 		
 		Map<String, Object> result = new HashMap<>();
 		result.put("notes", notes);
@@ -190,6 +254,7 @@ public class NoteService {
 		return result;
 	}
 
+	// 중요쪽지함 리스트
 	public Map<String, Object> getImportantNotes(Map<String, Object> param) {
 		int totalRows = noteMapper.getImportantTotalRows(param);
 		int page = (Integer)param.get("page");
@@ -210,6 +275,7 @@ public class NoteService {
 		return result;
 	}
 
+	// 휴지통 리스트
 	public Map<String, Object> getWaggerNotes(Map<String, Object> param) {
 		int totalRows = noteMapper.getWaggerTotalRows(param);
 		int page = (Integer)param.get("page");
@@ -220,7 +286,7 @@ public class NoteService {
 		param.put("begin", pagination.getBegin());
 		param.put("end", pagination.getEnd());
 		
-		List<NoteListDto> notes = noteMapper.getWaggerNotesByNo(param);
+		List<NoteSendListDto> notes = noteMapper.getWaggerNotesByNo(param);
 		
 		Map<String, Object> result = new HashMap<>();
 		result.put("notes", notes);
@@ -258,7 +324,7 @@ public class NoteService {
 		if(loginNo != note.getSenderNo()) {
 			note.setStatus("Y");
 			note.setReadDate(new Date());
-			noteMapper.updateNote(note);
+			noteMapper.updateSendNote(note);
 			
 		}
 		

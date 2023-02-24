@@ -11,9 +11,8 @@
 					<a class="w3-bar-item w3-btn w3-round-xlarge w3-black w3-large w3-center" href="/admin/form"><b>사원 등록</b></a>
 				</div>
 			</div>
-			<div class="mt-3">
-					<a class="w3-bar-item w3-button ${left eq 'emplist' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'emplist' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/admin/list">사원 관리</a>
-					<a class="w3-bar-item w3-button ${left eq 'document' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'document' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/admin/document">문서양식 관리</a>
+			<div class="mt-3 mb-3">
+				<a class="w3-bar-item w3-button ${left eq 'emplist' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'emplist' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/admin/list">사원 관리</a>
 			</div>
 	</div>
 </div>

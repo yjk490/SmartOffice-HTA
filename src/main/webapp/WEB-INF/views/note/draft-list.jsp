@@ -73,7 +73,7 @@
 		<form id="note-update">
 		<table class="table table-sm">
 				<colgroup>
-					<col width="10%">
+					<col width="7%">
 					<col width="15%">
 					<col width="*">
 					<col width="25%">
@@ -105,7 +105,11 @@
 											<input class="form-check-input" type="checkbox" name="noteNo" value="${note.noteNo }" aria-label="...">
 										</div>
 									</td>
-									<td class="text-center">${note.senderName }</td>
+									<td class="text-center">
+										<c:forEach var="emp" items="${note.employees }">
+											${emp.name }
+										</c:forEach>
+									</td>
 									<td class="text-center"><a href="read?noteNo=${note.noteNo }" class="text-decoration-none">${note.title }</a></td>
 									<td class="text-center"><fmt:formatDate value="${note.sendDate }"/></td>
 								</tr>

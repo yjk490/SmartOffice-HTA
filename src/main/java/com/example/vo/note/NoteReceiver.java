@@ -16,5 +16,7 @@ public class NoteReceiver {
 	
 	private int noteNo;
 	private int receiverNo;
+	private int boxNo;
+	private String deleted;
 
 }

@@ -262,8 +262,6 @@ public class NoteController {
 		// 쪽지 디테일 화면 요청
 		@GetMapping("/detail")
 		public String detail(@RequestParam("noteNo") int noteNo, Model model) {
-			// 지금은 화면 디자인을 위해 단순 페이지 요청
-			// 추후 empNo로 조회해서 받은/보낸 쪽지 디테일 페이지 반환 코드 추가 예정
 			NoteDetailDto noteDetailDto = noteService.getNoteDetail(noteNo);
 			model.addAttribute("note", noteDetailDto);
 			
@@ -293,8 +291,11 @@ public class NoteController {
 		
 		// 쪽지 삭제 요청(받은 쪽지함, 쪽지보관함, 중요쪽지함에서 쪽지를 삭제)
 		@GetMapping("/delete")
-		public String delNote(@RequestParam("noteNo") List<Integer> noteNos) {
-			noteService.deleteNotes(noteNos);
+		public String delNote(@AuthenticatedUser LoginEmployee loginEmployee, 
+							@RequestParam("noteNo") List<Integer> noteNos) {
+			int empNo = loginEmployee.getNo();
+			
+			noteService.deleteNotes(empNo, noteNos);
 			
 			// 휴지통으로 이동
 			return "note/wagger-list";
@@ -311,8 +312,9 @@ public class NoteController {
 		
 		// 쪽지 삭제 요청(휴지통에서 쪽지를 삭제)
 		@GetMapping("/wagger-delete")
-		public String delWaggerNote(@RequestParam("noteNo") List<Integer> noteNos) {
-			noteService.deleteWaggerNotes(noteNos);
+		public String delWaggerNote(@AuthenticatedUser LoginEmployee loginEmployee, 
+							@RequestParam("noteNo") List<Integer> noteNos) {
+			noteService.deleteWaggerNotes(loginEmployee.getNo(), noteNos);
 			
 			// 휴지통으로 이동
 			return "note/wagger-list";
@@ -320,8 +322,11 @@ public class NoteController {
 		
 		// 받은 쪽지 보관함에 보관 요청
 		@GetMapping("/save")
-		public String saveNote(@RequestParam("noteNo") List<Integer> noteNos) {
-			noteService.saveNotes(noteNos);
+		public String saveNote(@AuthenticatedUser LoginEmployee loginEmployee, 
+						@RequestParam("noteNo") List<Integer> noteNos) {
+			 
+			
+			noteService.saveNotes(loginEmployee.getNo(), noteNos);
 			
 			// 쪽지 보관함으로 이동
 			return "note/folder-list";

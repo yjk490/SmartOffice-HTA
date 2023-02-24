@@ -74,10 +74,10 @@
 		<table class="table table-sm">
 				<colgroup>
 					<col width="5%">
-					<col width="15%">
+					<col width="17%">
 					<col width="*">
-					<col width="20%">
 					<col width="15%">
+					<col width="10%">
 				</colgroup>
 				<thead>
 					<tr>
@@ -107,7 +107,11 @@
 											<input class="form-check-input" type="checkbox" name="noteNo" value="${note.noteNo }" aria-label="...">
 										</div>
 									</td>
-									<td class="text-center">${note.senderName }</td>
+									<td class="text-center">
+										<c:forEach var="emp" items="${note.employees }">
+											${emp.name }
+										</c:forEach>
+									</td>
 									<td class="text-center"><a href="read?noteNo=${note.noteNo }" class="text-decoration-none">${note.title }</a></td>
 									<td class="text-center"><fmt:formatDate value="${note.sendDate }"/></td>
 									<td class="text-center">${note.status eq 'Y' ? '읽음' : '안읽음' }</td>
