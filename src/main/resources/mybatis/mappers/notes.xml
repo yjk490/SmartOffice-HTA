@@ -21,13 +21,13 @@
 	
 	<insert id="insertNoteReceiver" parameterType="NoteReceiver">
 		insert into employee_note_receivers
-			(note_no, receiver_employee_no)
+			(note_no, receiver_employee_no, box_no,receive_note_deleted)
 		values
-			(#{noteNo}, #{receiverNo})
+			(#{noteNo}, #{receiverNo}, #{boxNo}, #{deleted})
 	</insert>
 	
 	<!-- 쪽지 업데이트 -->
-	<update id="updateNote" parameterType="Note">
+	<update id="updateSendNote" parameterType="Note">
 		update
 			employee_notes
 		set
@@ -42,19 +42,29 @@
 			note_no = #{noteNo}
 	</update>
 	
+	<update id="updateNote" parameterType="map">
+		update
+			employee_note_receivers
+		set
+			receive_note_deleted = #{deleted},
+			box_no = #{boxNo}
+		where
+			note_no = #{noteNo}
+			and receiver_employee_no = #{receiverNo}
+	</update>
+	
 	<!-- 받은 편지함의 갯수 -->
 	<select id="getRecieveTotalRows" parameterType="map" resultType="int">
 		select
 			count(*)
 		from
-			employee_notes n, employee_note_receivers r, employees e
+			employee_notes n 
+			inner join employees e on n.sender_employee_no = e.employee_no
+			inner join employee_note_receivers r on n.note_no = r.note_no
 		where
-			n.note_no = r.note_no
-			and r.receiver_employee_no = e.employee_no
-			and n.note_deleted !='Y'
-			and n.note_deleted != 'D'
+			r.receive_note_deleted not in ('Y', 'D')
+			and r.box_no = 10001
 			and n.box_no != 10003
-			and n.box_no != 10004
 			and r.receiver_employee_no = #{no}
 		<if test="opt != null">
 			<choose>
@@ -96,14 +106,13 @@
 				n.note_send_date,
 				n.note_status
 			from
-				employee_notes n, employees e, employee_note_receivers r
+				employee_notes n 
+				inner join employees e on n.sender_employee_no = e.employee_no
+				inner join employee_note_receivers r on n.note_no = r.note_no
 			where
-				n.sender_employee_no = e.employee_no
-				and r.note_no = n.note_no
-				and n.note_deleted !='Y'
-				and n.note_deleted !='D'
+				r.receive_note_deleted not in ('Y', 'D')
+				and r.box_no = 10001
 				and n.box_no != 10003
-				and n.box_no != 10004
 				and r.receiver_employee_no = #{no}
 				<if test="opt != null">
 					<choose>
@@ -131,45 +140,61 @@
 	<select id="getSendTotalRows" parameterType="map" resultType="int">
 		select
 			count(*)
-		from
-			employee_notes n, employees e, employee_note_receivers r
-		where
-			n.note_deleted != 'SD'
-			and n.note_deleted != 'Y'
-			and r.receiver_employee_no = e.employee_no
-			and r.note_no = n.note_no
-			and n.box_no != 10003
-			and n.sender_employee_no = #{no}
-		<if test="opt != null">
-			<choose>
-				<when test="opt == 'title'">
-					and n.note_title like '%' || #{keyword} || '%'
-				</when>
-				<when test="opt == 'content'">
-					and n.note_content like '%' || #{keyword} || '%'
-				</when>
-				<when test="opt == 'senderName'">
-					and e.employee_no in (select
-										e.employee_no
-									from
-										employees e, employee_note_receivers r
-									where
-										r.receiver_employee_no = e.employee_no
-										 and e.employee_name = #{keyword})	
-				</when>
-			</choose>
-		</if>
+		from (
+			select 
+				n.note_no
+			from 
+				employee_notes n
+			    INNER JOIN employee_note_receivers r ON n.note_no = r.note_no
+			    INNER JOIN employees e ON r.receiver_employee_no = e.employee_no
+			where
+				n.sender_employee_no = #{no}
+				and n.note_deleted = 'N'
+				and n.box_no = 10002
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and n.note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and n.note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+								and e.employee_no in (select
+															e.employee_no
+														from
+															employees e
+															inner join employee_note_receivers r on e.employee_no = r.receiver_employee_no
+		            									where 
+		            										e.employee_name = #{keyword})
+						</when>
+					</choose>
+				</if>
+			group by n.note_no
+		)
 	</select>
 	
 	<!-- 로그인한 사용자가 보낸 쪽지함 -->
-	<select id="getSendNotesByNo" parameterType="map" resultType="NoteListDto">
+	<resultMap id="noteSendResultMap" type="NoteSendListDto">
+	  <id column="note_no" property="noteNo"/>
+	  <result column="note_title" property="title"/>
+	  <result column="note_important" property="important"/>
+	  <result column="note_send_date" property="sendDate"/>
+	  <result column="note_status" property="status"/>
+	  <collection property="employees" ofType="Employee">
+	    <result column="reciever_name" property="name"/>
+	  </collection>
+	</resultMap>
+	
+	
+	<select id="getSendNotesByNo" parameterType="map" resultMap="noteSendResultMap">
 		select
-			note_no				as noteNo,
-			note_important		as important,
-			note_title			as title,
-			employee_name		as senderName,
-			note_send_date		as sendDate,
-			note_status			as status
+			note_no,
+			note_important,
+			note_title,
+			employee_name as reciever_name,
+			note_send_date,
+			note_status
 		from (
 			select
 				row_number() over (order by n.note_no desc) row_numbers,
@@ -180,14 +205,13 @@
 				n.note_send_date,
 				n.note_status
 			from
-				employee_notes n, employees e, employee_note_receivers r
+				employee_notes n
+			    INNER JOIN employee_note_receivers r ON n.note_no = r.note_no
+			    INNER JOIN employees e ON r.receiver_employee_no = e.employee_no
 			where
-				n.note_deleted != 'SD'
-				and n.note_deleted != 'Y'
-				and r.receiver_employee_no = e.employee_no
-				and r.note_no = n.note_no
-				and n.box_no != 10003
-				and n.sender_employee_no = #{no}
+				n.sender_employee_no = #{no}
+				and n.note_deleted = 'N'
+				and n.box_no = 10002
 				<if test="opt != null">
 					<choose>
 						<when test="opt == 'title'">
@@ -200,10 +224,97 @@
 							and e.employee_no in (select
 														e.employee_no
 													from
-														employees e, employee_note_receivers r
-													where
-														r.receiver_employee_no = e.employee_no
-														and e.employee_name = #{keyword})
+														employees e
+														inner join employee_note_receivers r on e.employee_no = r.receiver_employee_no
+            										where 
+            											e.employee_name = #{keyword})
+						</when>
+					</choose>
+				</if>)
+		where
+			row_numbers between #{begin} and #{end}
+	</select>
+	
+	<!-- 로그인한 사용자가 임시 저장한 쪽지 갯수 -->
+	<select id="getDraftTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from (
+			select 
+				n.note_no
+			from 
+				employee_notes n
+			    INNER JOIN employee_note_receivers r ON n.note_no = r.note_no
+			    INNER JOIN employees e ON r.receiver_employee_no = e.employee_no
+			where
+				n.sender_employee_no = #{no}
+				and n.note_deleted = 'N'
+				and n.box_no = 10003
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and n.note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and n.note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+								and e.employee_no in (select
+															e.employee_no
+														from
+															employees e
+															inner join employee_note_receivers r on e.employee_no = r.receiver_employee_no
+		            									where 
+		            										e.employee_name = #{keyword})
+						</when>
+					</choose>
+				</if>
+			group by n.note_no
+		)
+	</select>
+	
+	<!-- 로그인한 사용자가 임시저장한 임시쪽지함 -->
+	<select id="getDraftNotesByNo" parameterType="map" resultMap="noteSendResultMap">
+		select
+			note_no,
+			note_important,
+			note_title,
+			employee_name as reciever_name,
+			note_send_date,
+			note_status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n
+			    INNER JOIN employee_note_receivers r ON n.note_no = r.note_no
+			    INNER JOIN employees e ON r.receiver_employee_no = e.employee_no
+			where
+				n.sender_employee_no = #{no}
+				and n.note_deleted = 'N'
+				and n.box_no = 10003
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'title'">
+							and n.note_title like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'content'">
+							and n.note_content like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'senderName'">
+							and e.employee_no in (select
+														e.employee_no
+													from
+														employees e
+														inner join employee_note_receivers r on e.employee_no = r.receiver_employee_no
+            										where 
+            											e.employee_name = #{keyword})
 						</when>
 					</choose>
 				</if>)
@@ -217,13 +328,12 @@
 		select
 			count(*)
 		from
-			employee_notes n, employee_note_receivers r, employees e
+			employee_notes n 
+			inner join employees e on n.sender_employee_no = e.employee_no
+			inner join employee_note_receivers r on n.note_no = r.note_no
 		where
-			n.note_no = r.note_no
-			and r.receiver_employee_no = e.employee_no
-			and n.note_deleted != 'D'
-			and n.note_deleted != 'Y'
-			and n.box_no = 10004
+			r.receive_note_deleted not in ('Y', 'D')
+			and r.box_no = 10004
 			and r.receiver_employee_no = #{no}
 		<if test="opt != null">
 			<choose>
@@ -263,14 +373,14 @@
 				e.employee_name,
 				n.note_send_date,
 				n.note_status
+				
 			from
-				employee_notes n, employees e, employee_note_receivers r
+				employee_notes n 
+				inner join employees e on n.sender_employee_no = e.employee_no
+				inner join employee_note_receivers r on n.note_no = r.note_no
 			where
-				n.sender_employee_no = e.employee_no
-				and r.note_no = n.note_no
-				and n.note_deleted != 'D'
-				and n.note_deleted != 'Y'
-				and n.box_no = 10004
+				r.receive_note_deleted not in ('Y', 'D')
+				and r.box_no = 10004
 				and r.receiver_employee_no = #{no}
 				<if test="opt != null">
 					<choose>
@@ -295,102 +405,18 @@
 	</select>
 	
 	
-	<!-- 임시보관함의 쪽지 갯수 -->
-	<select id="getDraftTotalRows" parameterType="map" resultType="int">
-		select
-			count(*)
-		from
-			employee_notes n, employees e, employee_note_receivers r
-		where
-			n.note_deleted != 'SD'
-			and n.note_deleted != 'Y'
-			and n.box_no = 10003
-			and r.receiver_employee_no = e.employee_no
-			and r.note_no = n.note_no
-			and n.sender_employee_no = #{no}
-		<if test="opt != null">
-			<choose>
-				<when test="opt == 'title'">
-					and n.note_title like '%' || #{keyword} || '%'
-				</when>
-				<when test="opt == 'content'">
-					and n.note_content like '%' || #{keyword} || '%'
-				</when>
-				<when test="opt == 'senderName'">
-					and e.employee_no in (select
-										e.employee_no
-									from
-										employees e, employee_note_receivers r
-									where
-										r.receiver_employee_no = e.employee_no
-										 and e.employee_name = #{keyword})	
-				</when>
-			</choose>
-		</if>
-	</select>
-	
-	<!-- 로그인한 사용자가 임시저장한 임시쪽지함 -->
-	<select id="getDraftNotesByNo" parameterType="map" resultType="NoteListDto">
-		select
-			note_no				as noteNo,
-			note_important		as important,
-			note_title			as title,
-			employee_name		as senderName,
-			note_send_date		as sendDate,
-			note_status			as status
-		from (
-			select
-				row_number() over (order by n.note_no desc) row_numbers,
-				n.note_no,
-				n.note_important,
-				n.note_title,
-				e.employee_name,
-				n.note_send_date,
-				n.note_status
-			from
-				employee_notes n, employees e, employee_note_receivers r
-			where
-				n.note_deleted != 'SD'
-				and n.note_deleted != 'Y'
-				and n.box_no = 10003
-				and r.receiver_employee_no = e.employee_no
-				and r.note_no = n.note_no
-				and n.sender_employee_no = #{no}
-				<if test="opt != null">
-					<choose>
-						<when test="opt == 'title'">
-							and n.note_title like '%' || #{keyword} || '%'
-						</when>
-						<when test="opt == 'content'">
-							and n.note_content like '%' || #{keyword} || '%'
-						</when>
-						<when test="opt == 'senderName'">
-							and e.employee_no in (select
-														e.employee_no
-													from
-														employees e, employee_note_receivers r
-													where
-														r.receiver_employee_no = e.employee_no
-														and e.employee_name = #{keyword})
-						</when>
-					</choose>
-				</if>)
-		where
-			row_numbers between #{begin} and #{end}
-	</select>
-
-	
 	<!-- 중요 쪽지함의 갯수 -->
 	<select id="getImportantTotalRows" parameterType="map" resultType="int">
 		select
 			count(*)
+			
 		from
-			employee_notes n, employee_note_receivers r, employees e
+			employee_notes n 
+			inner join employees e on n.sender_employee_no = e.employee_no
+			inner join employee_note_receivers r on n.note_no = r.note_no
 		where
-			n.note_no = r.note_no
-			and r.receiver_employee_no = e.employee_no
-			and n.note_deleted != 'D'
-			and n.note_deleted != 'Y'
+			r.receive_note_deleted not in ('Y', 'D')
+			and r.box_no != 10006
 			and n.note_important = 'Y'
 			and r.receiver_employee_no = #{no}
 		<if test="opt != null">
@@ -432,13 +458,14 @@
 				e.employee_name,
 				n.note_send_date,
 				n.note_status
+				
 			from
-				employee_notes n, employees e, employee_note_receivers r
+				employee_notes n 
+				inner join employees e on n.sender_employee_no = e.employee_no
+				inner join employee_note_receivers r on n.note_no = r.note_no
 			where
-				n.sender_employee_no = e.employee_no
-				and r.note_no = n.note_no
-				and n.note_deleted != 'D'
-				and n.note_deleted != 'Y'
+				r.receive_note_deleted not in ('Y', 'D')
+				and r.box_no != 10006
 				and n.note_important = 'Y'
 				and r.receiver_employee_no = #{no}
 				<if test="opt != null">
@@ -467,15 +494,13 @@
 	<select id="getWaggerTotalRows" parameterType="map" resultType="int">
 		select
 			count(*)
-		from
-			employee_notes n, employee_note_receivers r, employees e
-		where
-			n.note_no = r.note_no
-			and n.sender_employee_no = e.employee_no
-			and n.note_deleted != 'Y'
-			and n.note_deleted != 'N'
-			and n.box_no = 10006
-			and n.sender_employee_no = #{no}
+		from 
+		    employee_notes n
+		    INNER JOIN employees e on n.sender_employee_no = e.employee_no
+		    INNER JOIN employee_note_receivers r on n.note_no = r.note_no
+		where 
+		    (r.receiver_employee_no = #{no} and r.receive_note_deleted not in ('Y', 'N'))
+             OR (n.sender_employee_no = #{no} and n.note_deleted not in ('Y', 'N'))
 		<if test="opt != null">
 			<choose>
 				<when test="opt == 'title'">
@@ -486,11 +511,12 @@
 				</when>
 				<when test="opt == 'senderName'">
 					and n.sender_employee_no in (select
-										employee_no
-									from
-										employees
-									where
-										employee_name = #{keyword})	
+														e.employee_no
+													from
+														employees e
+														inner join employee_notes n on e.employee_no = n.sender_employee_no
+		            								where 
+		            									e.employee_name = #{keyword})
 				</when>
 			</choose>
 		</if>
@@ -498,32 +524,43 @@
 	
 	
 	<!-- 로그인한 사용자가 보낸 휴지통 -->
-	<select id="getWaggerNotesByNo" parameterType="map" resultType="NoteListDto">
+	
+	<resultMap id="noteDeleteResultMap" type="NoteSendListDto">
+	  <id column="note_no" property="noteNo"/>
+	  <result column="note_title" property="title"/>
+	  <result column="note_important" property="important"/>
+	  <result column="note_send_date" property="sendDate"/>
+	  <result column="note_status" property="status"/>
+	  <collection property="employees" ofType="Employee">
+	    <result column="reciever_name" property="name"/>
+	  </collection>
+	</resultMap>
+	
+	
+	<select id="getWaggerNotesByNo" parameterType="map" resultMap="noteDeleteResultMap">
 		select
-			note_no				as noteNo,
-			note_important		as important,
-			note_title			as title,
-			employee_name		as senderName,
-			note_send_date		as sendDate,
-			note_status			as status
+			note_no,
+			note_important,
+			note_title,
+			employee_name	as reciever_name,
+			note_send_date,
+			note_status
 		from (
-			select
-				row_number() over (order by n.note_no desc) row_numbers,
-				n.note_no,
-				n.note_important,
-				n.note_title,
-				e.employee_name,
-				n.note_send_date,
-				n.note_status
-			from
-				employee_notes n, employees e, employee_note_receivers r
-			where
-				n.sender_employee_no = e.employee_no
-				and r.note_no = n.note_no
-				and n.note_deleted != 'Y'
-				and n.note_deleted != 'N'
-				and n.box_no = 10006
-				and n.sender_employee_no = #{no}
+			select 
+		        n.note_no,
+		        n.note_important,
+		        n.note_title,
+		        e.employee_name,
+		        n.note_send_date,
+		        n.note_status,
+		        ROW_NUMBER() OVER (ORDER BY n.note_no DESC) as row_numbers
+		    from 
+		        employee_notes n
+		        INNER JOIN employees e on n.sender_employee_no = e.employee_no
+		        INNER JOIN employee_note_receivers r on n.note_no = r.note_no
+		    where 
+		        (r.receiver_employee_no = #{no} and r.receive_note_deleted not in ('Y', 'N'))
+                  or (n.sender_employee_no = #{no} and n.note_deleted not in ('Y', 'N'))
 				<if test="opt != null">
 					<choose>
 						<when test="opt == 'title'">
@@ -534,11 +571,12 @@
 						</when>
 						<when test="opt == 'senderName'">
 							and n.sender_employee_no in (select
-												employee_no
-											from
-												employees
-											where
-												employee_name = #{keyword})	
+															e.employee_no
+														from
+															employees e
+															inner join employee_notes n on e.employee_no = n.sender_employee_no
+		            									where 
+		            										e.employee_name = #{keyword})	
 						</when>
 					</choose>
 				</if>)
@@ -563,6 +601,19 @@
 			note_deleted				as deleted
 		from
 			employee_notes
+		where
+			note_no = #{value}
+			
+	</select>
+	
+	<select id="getReceiveNoteByNo" parameterType="int" resultType="NoteReceiver">
+		select
+			note_no							as noteNo,
+			receiver_employee_no			as receiverNo,
+			box_no							as boxNo,
+			receive_note_deleted			as deleted
+		from
+			employee_note_receivers
 		where
 			note_no = #{value}
 			

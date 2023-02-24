@@ -91,11 +91,6 @@ public class AdminController {
 		return "admin/register-success";
 	}
 	
-	@GetMapping("/document")
-	public String documentlist() {
-		return "admin/document-list";
-	}
-	
 	// 사용자 사용 중지 요청
 	@GetMapping("/stop")
 	public String stop(@RequestParam("empNo")List<Integer> empNos) {
