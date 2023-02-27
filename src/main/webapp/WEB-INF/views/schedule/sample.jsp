@@ -22,6 +22,26 @@
 			
 		</div>
 	</div>
+	<div class="row">
+					<div class="col-3" id="nextBeforeButtons" >
+						<button class="w3-btn w3-round-xxlarge w3-tiny w3-padding w3-green w3-left">&laquo;</button>
+						<button class="w3-btn w3-round-xxlarge w3-tiny w3-padding w3-green w3-left" >&raquo;</button>
+						<button class="w3-btn w3-round-xxlarge w3-tiny w3-green w3-left">오늘</button>
+					</div>
+					<div class="col-6">
+						<form id="search">
+							<input class="btn-outline-secondary" type="date" id="start">
+							<input class="btn-outline-secondary"type="date" id="end">
+							<button type="submit" class="btn btn-outline-secondary w3-round-large w3-tiny"><i class="fa fa-search"></i></button>
+						</form>
+					</div>
+					<div class="col-3" id="dayButtons">
+						<button id="monthly" class="w3-btn w3-round-xxlarge w3-tiny w3-padding w3-blue w3-right">월간</button>
+						<button id="weekly" class="w3-btn w3-round-xxlarge w3-tiny w3-padding w3-blue w3-right">주간</button>
+						<button id="daily"class="w3-btn w3-round-xxlarge w3-tiny w3-padding w3-blue w3-right">일간</button>
+						<button id="list" class="w3-btn w3-round-xxlarge w3-tiny w3-padding w3-blue w3-right">목록</button>
+					</div>
+	
 	
 </div>
 

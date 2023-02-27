@@ -2,6 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.ScheduleMapper">
 
+	<select id="countAttendantsByNo" parameterType="int" resultType="int">
+		select
+			count(*)
+		from
+			SCHEDULE_ATTENDANTS
+		where
+			schedule_no = #{value}
+	</select>
+	
+	<select id="countMeetingRoomByScheduleNo" resultType="int" parameterType="int">
+		select
+			count(*)
+		from
+			meeting_reservations
+		where
+			schedule_no = #{value}
+	</select>
+	
+	<delete id="deleteAttendantsByNo" parameterType="int">
+		delete  from schedule_attendants
+		where schedule_no = #{value}
+	</delete>
+	
+	<delete id="deleteMeetingReservationByNo" parameterType="int">
+		delete from meeting_reservations
+		where schedule_no = #{value}
+	</delete>
+	
 	<insert id="insertSchedule" parameterType="Schedule">
 		<selectKey keyProperty="no" resultType="int" order="BEFORE">
 			select EMPLOYEE_SCHEDULES_SEQ.nextval from dual
@@ -26,5 +54,95 @@
 		values
 		(#{no}, #{attendantEmployeeNo})
 	</insert>
-
+	
+	<insert id="insertMeetingReservation" parameterType="MeetingRoom">
+		insert into meeting_reservations
+			(room_no, schedule_no,MEETING_ROOM_RESERVATION_DATE, MEETING_ROOM_RESERVATION_TIME)
+		values
+			(#{roomNo}, #{scheduleNo}, #{reservationDate}, #{reservationTime})
+	</insert>
+	
+	
+	<select id="getSchedules" parameterType="map" resultType="ScheduleEvent">
+		select
+        distinct
+			S.schedule_no as no,
+			S.schedule_start_date as startDate,
+			S.schedule_end_date as endDate,
+			S.schedule_start_time as startTime,
+			S.schedule_end_time as endTime,
+			S.schedule_allday as allDay,
+			S.schedule_title as title,
+			S.schedule_category_no as categoryNo,
+			S.schedule_content as content,
+			S.schedule_location as location,
+			S.employee_no as employeeNo,
+			M.room_no as roomNo,
+			M.meeting_room_reservation_date as reservationDate,
+           (  select  LISTAGG(meeting_room_reservation_time, ',') WITHIN GROUP (ORDER BY schedule_no) 
+            from 	Meeting_Reservations 
+            where schedule_no = s.schedule_no
+            group by schedule_no) as reservationTime,
+			F.schedule_filename as filename,
+			(  select  LISTAGG(employee_no, ',') WITHIN GROUP (ORDER BY schedule_no) 
+            from 	schedule_attendants
+            where schedule_no = s.schedule_no
+            group by schedule_no) as employeesNo,
+            ( select  LISTAGG(b.employee_name, ',') WITHIN GROUP (ORDER BY a.schedule_no) 
+            from 	schedule_attendants  a, employees b
+            where a.schedule_no = s.schedule_no
+            and a.employee_no = b.employee_no
+            group by schedule_no) as employees
+		from
+			employee_schedules S, SCHEDULE_ATTACHED_FILES F, Meeting_Reservations M
+		where
+			S.employee_no = ${empNo}
+		and
+			S.schedule_no = F.schedule_no(+)
+        and
+            S.schedule_no = M.schedule_no(+)
+		and
+			(S.schedule_start_date between #{startDate} and #{endDate}
+			or
+			S.schedule_end_date between #{startDate} and #{endDate})
+	</select>
+	
+	<select id="getScheduleByNo" parameterType="int" resultType="Schedule">
+		select
+			S.schedule_no as no,
+			S.schedule_start_date as startDate,
+			S.schedule_end_date as endDate,
+			S.schedule_start_time as startTime,
+			S.schedule_end_time as endTime,
+			S.schedule_allday as allDay,
+			S.schedule_title as title,
+			S.schedule_category_no as categoryNo,
+			S.schedule_content as content,
+			S.schedule_location as location,
+			S.employee_no as employeeNo
+		from
+			employee_schedules S
+		where
+			S.schedule_no = ${value}
+	</select>
+	
+	<!--  -->
+	<update id="updateScheduleByNo" parameterType="Schedule">
+		update 
+			employee_schedules
+		set
+			schedule_start_date = #{startDate},
+			schedule_end_date = #{endDate},
+			schedule_start_time = #{startTime},
+			schedule_end_time = #{endTime},
+			schedule_allday = #{allDay},
+			schedule_location = #{location},
+			schedule_content = #{content},
+			schedule_title = #{title},
+			schedule_category_no = #{categoryNo},
+			schedule_updated_date = sysdate
+		where
+			schedule_no = #{no}
+	</update>
+	
 </mapper>

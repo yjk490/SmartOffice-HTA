@@ -28,8 +28,8 @@
 					</div>
 					<div class="col-4">
 						<input class="form-control" type="date" name="startDate" value="">
-						<select class="form-select"  name="startTime">
-							<option value="09:00" selected>09:00</option>
+						<select class="form-select"  name="startTime" disabled="disabled">
+							<option value="09:00">09:00</option>
 							<option value="09:30">09:30</option>
 							<option value="10:00">10:00</option>
 							<option value="10:30">10:30</option>
@@ -60,8 +60,8 @@
 					</div>			
 					<div class="col-4">						
 						<input class="form-control" type="date" name="endDate">	
-						<select class="form-select"  name="endTime">
-							<option value="09:00" selected>09:00</option>
+						<select class="form-select"  name="endTime" disabled="disabled">
+							<option value="09:00">09:00</option>
 							<option value="09:30">09:30</option>
 							<option value="10:00">10:00</option>
 							<option value="10:30">10:30</option>
@@ -84,12 +84,13 @@
 							<option value="19:00">19:00</option>
 							<option value="19:30">19:30</option>
 							<option value="20:00">20:00</option>
-						
 						</select>
 					</div>
-						<div class="col-1 form-check form-check-inline border ">
-								<input class="form-check-input" type="checkbox" name="allDay" value="Y">
-								<label class="form-check-label">종일 여부 체크</label>
+						<div class="col-1 form-check form-check-inline border">
+								<div class="form-check form-switch d-inline float-end">
+									<input class="form-check-input" type="checkbox" checked="checked" role="switch" name="allDay" value="Y">
+								</div>
+								<label class="form-label">종일 여부 체크</label>
 						</div>
 				</div>
 				<div class="row mb-3">
@@ -97,7 +98,7 @@
 						<label class="form-label">제목</label>
 					</div>
 					<div class="col-2">
-					<select class="form-select"  name="categoryNo">
+					<select class="form-select" name="categoryNo">
 							<option class="secondary" selected disabled>일정종류</option>
 							<option value="1">업무</option>
 							<option value="2">중요</option>
@@ -108,7 +109,7 @@
 					</select>
 					</div>
 					<div class="col-8">
-						<input class="form-control" type="text" name="title" placeholder="일정의 제목을 입력해주세요.">
+						<input class="form-control" type="text" name="title" placeholder="일정의 제목을 입력해주세요." val="">
 					</div>
 				</div>
 				<div class="row mb-3">
@@ -129,7 +130,9 @@
 						</button>
 					</div>
 					<div class="col-7">
-						<div class="bg-primary">d</div>
+						<label>예약일자</label><input type="date" class="form-control" name="reservationDate" id="reservationDate" val="" disabled readonly="readonly">
+						<span>회의실</span><input type="number" class="form-control" name="roomNo" id="roomNo" val="" disabled readonly="readonly"> 
+						<span>예약시간</span><input type="text" class="form-control" name="reservationTime" id="reservationTime" val="" disabled readonly="readonly"> 
 					</div>
 				</div>
 				<div class="row mb-3">
@@ -172,7 +175,7 @@
 				<div id="buttons" class="row">
 					<div class="col-9"></div>
 					<div class="col-3">
-						<button class="btn btn-primary" type="submit" class="btn">등록</button>
+						<button class="btn btn-primary" type="submit" class="btn" id="submitBtn">등록</button>
 						<button class="btn btn-danger" type="" class="btn">수정</button>
 						<button class="btn btn-secondary"><a href=""></a>취소</button>
 					</div>
@@ -184,7 +187,6 @@
 </body>
 
 <!-- modal -->
-<form action="" method="post" id="meetingRoomReservationForm">
 <sec:csrfInput />
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -203,7 +205,7 @@
 		    </h2>
 		    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
 		      <div class="accordion-body">
-		        <input class="form-control" type="date" id="reservationDate" name="reservationDate" value="">
+		        <input class="form-control" type="date" id="modalReservationDate" name="modalReservationDate" value="">
 		      </div>
 		    </div>
 		  </div>
@@ -218,11 +220,11 @@
 		      <div class="accordion-body">
 		        <div class="row">
 		        	<div class="col form-check">
-		        		<input type="radio" name="roomNo" value="101">회의실1
-		        		<input type="radio" name="roomNo" value="102">회의실2
-		        		<input type="radio" name="roomNo" value="103">회의실3
-		        		<input type="radio" name="roomNo" value="104">회의실4
-		        		<input type="radio" name="roomNo" value="105">회의실5
+		        		<input type="radio" name="modalRoomNo" value="101">회의실1
+		        		<input type="radio" name="modalRoomNo" value="102">회의실2
+		        		<input type="radio" name="modalRoomNo" value="103">회의실3
+		        		<input type="radio" name="modalRoomNo" value="104">회의실4
+		        		<input type="radio" name="modalRoomNo" value="105">회의실5
 		        	</div>
 		        </div>
 		      </div>
@@ -238,86 +240,86 @@
 		      <div class="accordion-body" id="roomTime">
 		        <div class="row mb-2">
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="09:00" > 09:00
+		        		<input type="checkbox" name="modalReservationTime" value="09:00" > 09:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="09:30" > 09:30
+		        		<input type="checkbox" name="modalReservationTime" value="09:30" > 09:30
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="10:00" > 10:00
+		        		<input type="checkbox" name="modalReservationTime" value="10:00" > 10:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="10:30" > 10:30
+		        		<input type="checkbox" name="modalReservationTime" value="10:30" > 10:30
 		        	</div>
 		        </div>
 		        <div class="row mb-2">
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="11:00" > 11:00
+		        		<input type="checkbox" name="modalReservationTime" value="11:00" > 11:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="11:30" > 11:30
+		        		<input type="checkbox" name="modalReservationTime" value="11:30" > 11:30
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="12:00" > 12:00
+		        		<input type="checkbox" name="modalReservationTime" value="12:00" > 12:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="12:30" > 12:30
+		        		<input type="checkbox" name="modalReservationTime" value="12:30" > 12:30
 		        	</div>
 		        </div>
 		        <div class="row mb-2">	
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="13:00" > 13:00
+		        		<input type="checkbox" name="modalReservationTime" value="13:00" > 13:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="13:30" > 13:30
+		        		<input type="checkbox" name="modalReservationTime" value="13:30" > 13:30
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="14:00" > 14:00
+		        		<input type="checkbox" name="modalReservationTime" value="14:00" > 14:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="14:30" > 14:30
-		        	</div>
-		        </div>
-		        <div class="row mb-2">
-		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="15:00" > 15:00
-		        	</div>
-		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="15:30" > 15:30
-		        	</div>
-		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="16:00" > 16:00
-		        	</div>
-		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="16:30" > 16:30
+		        		<input type="checkbox" name="modalReservationTime" value="14:30" > 14:30
 		        	</div>
 		        </div>
 		        <div class="row mb-2">
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="17:00" > 17:00
+		        		<input type="checkbox" name="modalReservationTime" value="15:00" > 15:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="17:30" > 17:30
+		        		<input type="checkbox" name="modalReservationTime" value="15:30" > 15:30
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="18:00" > 18:00
+		        		<input type="checkbox" name="modalReservationTime" value="16:00" > 16:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="18:30" > 18:30
+		        		<input type="checkbox" name="modalReservationTime" value="16:30" > 16:30
 		        	</div>
 		        </div>
 		        <div class="row mb-2">
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="19:00" > 19:00
+		        		<input type="checkbox" name="modalReservationTime" value="17:00" > 17:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="19:30" > 19:30
+		        		<input type="checkbox" name="modalReservationTime" value="17:30" > 17:30
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="20:00" > 20:00
+		        		<input type="checkbox" name="modalReservationTime" value="18:00" > 18:00
 		        	</div>
 		        	<div class="col-3">
-		        		<input type="checkbox" name="reservationTime" value="20:30" > 20:30
+		        		<input type="checkbox" name="modalReservationTime" value="18:30" > 18:30
+		        	</div>
+		        </div>
+		        <div class="row mb-2">
+		        	<div class="col-3">
+		        		<input type="checkbox" name="modalReservationTime" value="19:00" > 19:00
+		        	</div>
+		        	<div class="col-3">
+		        		<input type="checkbox" name="modalReservationTime" value="19:30" > 19:30
+		        	</div>
+		        	<div class="col-3">
+		        		<input type="checkbox" name="modalReservationTime" value="20:00" > 20:00
+		        	</div>
+		        	<div class="col-3">
+		        		<input type="checkbox" name="modalReservationTime" value="20:30" > 20:30
 		        	</div>
 		        </div>
 		      </div>
@@ -326,13 +328,12 @@
 		</div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" id="RoomReservationBtn">등록</button>
+        <button type="button" class="btn btn-primary" id="RoomReservationBtn" data-bs-dismiss="modal">등록</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
       </div>
     </div>
   </div>
 </div>
-</form>
 
 <script src="https://mvnrepository.com/artifact/org.webjars.bower/jquery"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
@@ -343,7 +344,14 @@ $(function() {
 	let $tagBtnBox = $("#tag-btn-box");
 	let $tagBox = $("#tag-box");
 	
+	//모달창에서 입력하는 것들.
+	let $reservationDate = $("input[name='reservationDate']");
+	let $roomNo = $("input[name='roomNo']");
+	let $reservationTimeList = $("input[name='reservationTime']");
 	
+	
+	
+	//태그추가하기
 	$("#attendant-tag").keydown(function(event) {
 		
 		if (event.which == 13) {
@@ -369,16 +377,90 @@ $(function() {
 		return true;
 	});
 	
-	let reservationDate = $("#reservationDate").val();
+	//태그 클릭하면 지우기. 나중에 수정하기.
+	$tagBtnBox.on("click",'', function(event){
+		event.preventDefault();
+		$(this).remove();
+	})
+	
 	
 	$("#RoomReservationBtn").click(function(){
+		let modalReservationDate = $("#modalReservationDate").val();
+		let modalRoomNo = $("input[name='modalRoomNo']:checked").val();
+		let modalReservationTime = $("input[name='modalReservationTime']:checked").val();
+		
+		let timeLength = $("input[name='modalReservationTime']:checked").length;
+		let timeArray = [];
+		
+		if(timeLength >= 1 && modalRoomNo != null && modalReservationDate != null){
+			$reservationDate.removeAttr('disabled');
+			$roomNo.removeAttr('disabled');
+			$reservationTimeList.removeAttr('disabled');
+			
+			$("input[name='modalReservationTime']:checked").each(function(e){
+				let time = $(this).val();
+				timeArray.push(time);
+			});
+			
+			
+			$reservationDate.val(modalReservationDate);
+			$roomNo.val(modalRoomNo);
+			$reservationTimeList.val(timeArray);
+		}else{
+			alert("예약일자, 회의실, 시간 모두를 선택해주셔야합니다.");
+		}
+		
+		//alert(modalReservationDate);		
+		//alert(modalRoomNo);
+		//alert(timeArray);
 		
 		
-		alert("");
 		
+		//alert($roomNo.val());
+		//alert($reservationTimeList.val());
 		
+	});	//회의실 예약function 종료.
+	
+	let $startDate = $("input[name='startDate']")
+	let $endDate = $("input[name='endDate']");
+	let $allDay = $("input[name='allDay']")
+	let $title = $("input[name='title']");
+	let $startTime = $("select[name='startTime']");
+	let $endTime = $("select[name='endTime']");
+	
+
+	//빈칸이면 안되는 곳 체크하기.
+	//만약 올데이가 체크되면 시작시간 종료시간이 disabled 되게하기. 완료
+	//분류는 꼭 선택, 제목 꼭 입력	
+	//회의실 꼭 셋 다 입력되어있어야하기 (이건 아마 회의실버튼누르는데서 하는게 좋을듯)	완료
+	//+ 회의실 선택된 시간의 경우에는 표시하기(글씨색을 바꾸든지해야될듯?)	
+	//참여자 중복될 경우 안들어가게 하기
+	$("#submitBtn").click(function(){
+		if($title.val() == null || $startDate.val() == null || $endDate.val() == null){
+			return false;
+			alert("제목, 시작일자, 종료일자는 필수입력값입니다.")
+		};
 		
-	});
+	})
+	
+	
+	
+	let flag = $allDay.val();
+	
+	//올데이체크하면 시간 disabled되게 하기
+	$allDay.click(function(){
+		console.log(flag)
+		if($allDay.is(":checked")){
+			flag = 'N'
+			$startTime.prop('disabled','disabled');
+			$endTime.prop('disabled','disabled');
+		}else{
+			flag = 'Y'
+			$startTime.prop('disabled',false);
+			$endTime.prop('disabled',false);
+		}
+	})
+	
 	
 	
 });
