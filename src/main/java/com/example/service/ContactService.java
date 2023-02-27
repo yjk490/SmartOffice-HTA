@@ -10,14 +10,17 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dto.contact.ContactListDto;
 import com.example.mapper.AddressbookMapper;
 import com.example.mapper.ContactMapper;
+import com.example.utils.Pagination;
 import com.example.vo.contact.Addressbook;
 import com.example.vo.contact.Contact;
 import com.example.vo.contact.ContactTag;
 import com.example.vo.contact.ContactTel;
 import com.example.web.request.AddressbookModifyForm;
 import com.example.web.request.ContactRegisterForm;
+import com.example.web.request.ContactSearchOption;
 
 @Service
 @Transactional
@@ -75,7 +78,6 @@ public class ContactService {
 			}
 		
 		// Contact_Tags 테이블에 태그 저장 (주소록 태그와의 연결)
-		
 		List<String> tags = form.getContactTags();
 			for(String tagContent : tags) {
 				Addressbook addressbook = addressbookMapper.getAddressbookByName2(tagContent);
@@ -104,11 +106,70 @@ public class ContactService {
 		
 		adrbook.setDeleted("Y");
 		addressbookMapper.updateAddressbook(adrbook);
+	}
+	
+	// 초성값이 들어오면 초성번호 ~ 초성번호+1 사이를 검색하는 SQL문을 작성한다
+	// initial값에 따라 변화하는 SQL문을 작성했다. 이걸 어떻게 Mapper에 넣을 수 있을까?
+	public String getinitial(String initial) {
+		Map<Integer, String> index_map = new HashMap<>();
+
+		index_map.put(0, "가");  index_map.put(1, "나");  index_map.put(2, "다");  
+		index_map.put(3, "라");  index_map.put(4, "마");  index_map.put(5, "바");
+		index_map.put(6, "사");  index_map.put(7, "아");  index_map.put(8, "자");  
+		index_map.put(9, "차");  index_map.put(10, "카");  index_map.put(11, "타");
+		index_map.put(12, "파");  index_map.put(13, "하"); index_map.put(14, "힣");
+		index_map.put(15, "A"); index_map.put(16, "Z"); index_map.put(17, "0");
+		index_map.put(18, "01099999999");
 		
+		String index = initial;
+		int num = 0;
+		String whereSQL = "";
+
+		for( int i = 0; i < index_map.size(); i++ ) {
+		    if( index.equals(index_map.get(i)) ) {
+		        num = i;
+		        break;
+		    }
+		}
+
+		whereSQL = "contact_name between'" + index_map.get(num) + "' and '" + index_map.get(num+1) + "' ";
+		return whereSQL;
 	}
 
-	
-
-
+	// 검색 결과를 적용한 연락처 목록 조회
+	public Map<String, Object> getContacts(int page, ContactSearchOption opt) {
+		
+		if(opt.getType() == "public") {
+			int rows = contactMapper.getPublicRows(opt.getKeyword(), opt.getInitial(), opt.getTag());
+			Pagination pagination = new Pagination(page, rows);
+					
+			Map<String, Object> Param = new HashMap<String, Object>();
+			Param.put("begin", pagination.getBegin());
+			Param.put("end", pagination.getEnd());
+			
+			List<ContactListDto> contacts = contactMapper.getContacts(pagination.getBegin(), pagination.getEnd(), opt.getSort(), opt.getType(), opt.getKeyword());
+			
+			Map<String, Object> result = new HashMap<>();
+			result.put("Contacts", contacts);
+			result.put("Pagination", pagination);
+			
+			return result;
+		} else {
+			int rows = contactMapper.getPrivateRows(opt.getKeyword(), opt.getInitial(), opt.getTag());
+			Pagination pagination = new Pagination(page, rows);
+			
+			Map<String, Object> Param = new HashMap<String, Object>();
+			Param.put("begin", pagination.getBegin());
+			Param.put("end", pagination.getEnd());
+			
+			List<ContactListDto> contacts = contactMapper.getContacts(pagination.getBegin(), pagination.getEnd(), opt.getSort(), opt.getType(), opt.getKeyword());
+			
+			Map<String, Object> result = new HashMap<>();
+			result.put("Contacts", contacts);
+			result.put("Pagination", pagination);
+			
+			return result;
+		}
+	}
 
 }
