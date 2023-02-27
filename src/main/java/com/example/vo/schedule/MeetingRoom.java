@@ -17,6 +17,6 @@ public class MeetingRoom {
 	private int scheduleNo;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date reservationDate;
-	private List<String> reservationTime;
+	private String reservationTime;
 	
 }
