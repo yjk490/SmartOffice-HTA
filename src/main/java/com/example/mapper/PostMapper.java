@@ -46,6 +46,7 @@ public interface PostMapper {
 	void deletePostScrap(@Param("postNo")int postNo, @Param("employeeNo")int employeeNo);
 	void deletePostRecommend(@Param("postNo")int postNo, @Param("employeeNo")int employeeNo);
 	void deleteCommentRecommend(@Param("commentNo") int commentNo, @Param("employeeNo") int employeeNo);
-	void deleteFileBySavedName(String filename);
+	void deleteFiles(List<String> deleteFileNames);
+	void deleteTags(List<String> deleteTagContents);
 	
 }

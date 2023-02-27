@@ -342,10 +342,22 @@
 			and employee_no = #{employeeNo}
 	</delete>
 	
-	<delete id="deleteFileBySavedName" parameterType="String">
+	<delete id="deleteFiles" parameterType="java.util.List">
 		delete from
 			post_attached_files
 		where
-			post_saved_filename = #{value}
+	    	<foreach item="item" collection="list" separator="or">
+			post_saved_filename = #{item}
+			</foreach>
 	</delete>
+	
+  	<delete id="deleteTags" parameterType="java.util.List">
+		delete from 
+			post_tags
+		where
+	    	<foreach item="item" collection="list" separator="or">
+		    tag_content = #{item}
+	    	</foreach>
+  	</delete>
+	
 </mapper>

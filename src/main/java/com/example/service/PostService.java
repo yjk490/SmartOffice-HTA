@@ -190,6 +190,13 @@ public class PostService {
 		modifyPost.modifyContent(form.getContent());
 		postMapper.updatePost(modifyPost);
 		
+		// 원래 게시글에 저장된 태그 정보 삭제
+		if (form.getDeleteTagContents() != null) {
+			List<String> deleteTagContents = form.getDeleteTagContents();
+			
+			postMapper.deleteTags(deleteTagContents);
+		}
+		
 		// 새 태그 저장.
 		if (form.getTagContents() != null) {
 			List<String> tagContents = form.getTagContents();
@@ -211,8 +218,8 @@ public class PostService {
 				if (file.exists()) {
 					file.delete();
 				}
-				postMapper.deleteFileBySavedName(filename);				
 			}
+			postMapper.deleteFiles(deleteFilenames);
 		}
 		
 		// 새로 업로드한 파일 정보 저장
@@ -246,13 +253,5 @@ public class PostService {
 	public List<String> getEmployeeRoles(int employeeNo) {
 		List<String> employeeRoles = postMapper.getEmpRolesByEmployeeNo(employeeNo);
 		return employeeRoles;
-	}
-	
-	public void deleteFile(String filename) {
-		File file = new File(directory, filename);
-		if (file.exists()) {
-			file.delete();
-		}
-		postMapper.deleteFileBySavedName(filename);
 	}
 }

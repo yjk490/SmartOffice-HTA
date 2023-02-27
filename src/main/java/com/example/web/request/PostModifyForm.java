@@ -14,8 +14,8 @@ public class PostModifyForm {
 	private int employeeNo;
 	private String title;
 	private String content;
-	private Map<String, String> fileNamesMap;
+	private List<String> deleteTagContents;
 	private List<String> tagContents;
 	private List<String> deleteFileNames;
-	
+	private Map<String, String> fileNamesMap;
 }
