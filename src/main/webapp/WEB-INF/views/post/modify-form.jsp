@@ -141,12 +141,15 @@ $(function() {
 		return true;
 	})
 	
+	// 기존에 입력되어 있는 태그를 삭제하는 함수.
+	// 삭제할 태그를 input값으로 저장해서 서버로 보낸다.
 	$tagBtnBox.on("click", 'a', function(event) {
 		event.preventDefault();
 		
-		let aa = $(this).data('tag-content')
-			console.log(aa)
-		
+		let deleteTagContents = $(this).data('tag-content')
+		let html = `<input type="hidden" name="deleteTagContents" value="\${deleteTagContents}">`
+		$("#form-post").prepend(html)
+				
 		$(this).remove()
 	})
 	
@@ -192,7 +195,7 @@ $(function() {
 		
 		let deleteFileName = $(this).data('delete-file-name')
 		let html = `<input type="hidden" name="deleteFileNames" value="\${deleteFileName}">`
-		$("#form-post").append(html)
+		$("#form-post").prepend(html)
 		
 		$(this).remove()
 	})	
