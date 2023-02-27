@@ -1,4 +1,6 @@
 package com.example.web.controller;
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.dto.emp.EmployeeDetailDto;
+import com.example.dto.note.NoteListDto;
+import com.example.security.AuthenticatedUser;
+import com.example.security.LoginEmployee;
 import com.example.service.EmployeeService;
+import com.example.service.NoteService;
 import com.example.web.request.EmployeePasswordForm;
 
 @Controller
@@ -20,11 +26,33 @@ public class HomeController {
 	
 	@Autowired
 	private EmployeeService employeeService;
+	@Autowired
+	private NoteService noteService;
 	
 	// 홈 화면 요청
 	@GetMapping("/")
-	public String home() {
-		return "home";
+	public String home(@AuthenticatedUser LoginEmployee loginEmployee, Model model) {
+		if(loginEmployee == null) {
+			return "employee/login-form";
+		} else {
+			EmployeeDetailDto empDto = employeeService.getInsertEmployeeDetail(loginEmployee.getNo());
+			List<NoteListDto> noteDto = noteService.getRecieveNotesByNo(loginEmployee.getNo());
+
+			String defaultProfilePath = "/resources/images/profiles/default.png";
+			String profilePath;
+			
+			if (!empDto.getPhoto().equals("default.png")) {
+				profilePath = "/resources/images/profiles/" + empDto.getPhoto();
+			} else {
+				profilePath = defaultProfilePath;
+			}
+			
+			model.addAttribute("profile", profilePath);
+			model.addAttribute("emp", empDto);
+			model.addAttribute("notes", noteDto);
+			
+			return "home";
+		}
 	}
 
 	

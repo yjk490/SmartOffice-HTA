@@ -49,7 +49,7 @@ public interface NoteMapper {
 	
 	
 	// 받은 쪽지함 리스트 
-	List<NoteListDto> getRecieveNotesByNo(Map<String, Object> param);
+	List<NoteListDto> getRecieveNotes(Map<String, Object> param);
 	// 보낸 쪽지함 리스트 
 	List<NoteSendListDto> getSendNotesByNo(Map<String, Object> param);
 	// 쪽지 보관함 리스트 
@@ -65,6 +65,8 @@ public interface NoteMapper {
 	NoteDetailDto getNoteDetailByNo(int noteNo);
 	// 쪽지 번호로 쪽지에 저장된 첨부파일 정보를 가져온다.
 	List<NoteAttachedFile> getAttachedFilesByNoteNo(int noteNo);
+	// 사용자 번호로 받은 쪽지를 반환한다.(홈화면 출력을 위함)
+	List<NoteListDto> getRecieveNotesByNo(int no);
 
 
 
