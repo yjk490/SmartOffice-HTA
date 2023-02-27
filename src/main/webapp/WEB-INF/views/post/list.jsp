@@ -1,11 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,6 +10,7 @@
 </head>
 <body>
 <c:set var="top" value="post" />
+<sec:authentication property="principal" var="loginUser" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row">
@@ -29,7 +24,7 @@
 					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글을 삭제할 수 있습니다.</p>
 				</div>
 			</sec:authorize>
-			<sec:authorize access="hasRole('EMP')">
+			<sec:authorize access="hasRole('EMPLOYEE')">
 				<div class="row border m-1 mb-2">
 					<p class="fs-1 my-2">자유 게시판</p>
 					<p class="fs-5 my-3">자유롭게 의견을 나누고 생각의 폭을 넓혀보세요.</p>
@@ -91,7 +86,7 @@
 									</a>
 								</div>
 								<div class="col-6 text-end">
-									<span>${post.createdDate }</span>
+									<span>${post.createdDateTimeToString }</span>
 								</div>
 							</div>
 							<div class="row">

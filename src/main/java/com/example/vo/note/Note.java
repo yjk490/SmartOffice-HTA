@@ -18,8 +18,9 @@ public class Note {
 	private int senderNo;
 	private String content;
 	private Date sendDate;
-	private Date ReadDate;
+	private Date readDate;
 	private String status;
+	private String deleted;
 	private Date createdDate;
 	private Date updatedDate;
 	private int boxNo;

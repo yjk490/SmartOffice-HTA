@@ -16,10 +16,10 @@ a:link { text-decoration:none; }
 <div class="container">
 	<div class="row border me-5">
 		<div class="border-bottom text-center py-3">
-			<a href="/post/list?page=1" class="link-dark fs-3">게시판</a>
+			<a href="/post/list" class="link-dark fs-3">게시판</a>
 		</div>
 		<div class="border-bottom text-center py-3">
-			<a class="btn btn-dark btn-lg" href="/post/register-form">작성하기</a>
+			<a class="btn btn-dark btn-lg" href="/post/register-post">작성하기</a>
 		</div>
 		<div class="list-group p-3">
 		  <a href="/post/notice" class="list-group-item list-group-item-action">알림

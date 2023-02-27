@@ -49,6 +49,7 @@
 			<h1 class="fs-4 border p-2">쪽지 보내기</h1>
 		</div>
 		<form:form modelAttribute="noteRegisterForm" id="note-form" class="border p-3" method="post" action="form" enctype="multipart/form-data">
+			<input type="hidden" value="" name="boxNo" path="boxNo" />
 			<sec:csrfInput />
 			<div class="mb-3 mt-3">
 				<div class="form-check mb-3">
@@ -125,9 +126,9 @@
 					<input type="file" class="form-control" name="upfile" path="upfile" />
 				</div>
 				<div class="text-end mt-4">
-					<button class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="/note/receive">취소</a></button>
-					<button class="w3-button w3-padding-small w3-round-large w3-black"><a class="text-decoration-none" href="/note/draftnote">임시저장</a></button>
-					<button id="submit" type="submit" class="w3-button w3-padding-small w3-round-large w3-blue">보내기</button>
+					<button type="button" class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="/note/receive">취소</a></button>
+					<button id="btn-draft" type="button" class="w3-button w3-padding-small w3-round-large w3-black">임시저장</button>
+					<button id="btn-send" type="button" class="w3-button w3-padding-small w3-round-large w3-blue">보내기</button>
 				</div>
 			</div>
 		</form:form>
@@ -176,7 +177,6 @@ $(function(){
 	
 		let $tbody = $("#table-modal tbody").empty()
 	
-		//select, input 값조회
 		let keyValue = $("#modal-keyword").val();
 		 
 		  
@@ -244,6 +244,18 @@ $(function(){
 		
 		
 		return true;
+	});
+	
+	// 임시저장 버튼을 누르면 쪽지를 임시저장함으로 저장하기
+	$("#btn-draft").click(function(){
+		$("#note-form input[name=boxNo]").val("10003");
+		$("#note-form").submit();
+	});
+	
+	// 보내기 버튼을 누르면 쪽지를 보낸저장함으로 저장하기
+	$("#btn-send").click(function(){
+		$("#note-form input[name=boxNo]").val("10002");
+		$("#note-form").submit();
 	});
 	
 });

@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <title>연락처 추가</title>
 <style>
@@ -29,94 +30,131 @@
 			<div class="w3-container">
 				<h1>연락처 추가</h1>
 			</div>
-		<form:form id="contact-form" method="post" action="register">
-		<table class="table table-bordered">
-			<colgroup>
+			<form:form id="contact-form" method="post" action="register">
+			<table class="table table-bordered">
+				<colgroup>
 					<col width="15%">
 					<col width="35%">
 					<col width="15%">
 					<col width="35%">
-			</colgroup>
-		      <tr>
-		      <th class="w3-light-grey w3-center tdcenter">이름</th>
-		      <td class="w3-center tdcenter"><input class="form-control" name="name" type="text" placeholder=""></td>
-		      <th class="w3-light-grey w3-center tdcenter">공유여부</th>
-		      <td class="w3-center tdcenter"><div class="tdcenter"><input class="w3-section tdcenter" type="radio" name="share" value="public"><label class="w3-margin tdcenter">공유</label> <input class="w3-section tdcenter" type="radio" name="share" value="private"><label class="w3-margin tdcenter">개인</label></div></td>
-		    </tr>
-		    <tr>
-		      <th class="w3-light-grey w3-center tdcenter">전화번호</th>
-		      <td>
-		      	  <div class="input-group">
-				    <input type="text" class="form-control" name="contactTel" placeholder="숫자만 입력해 주세요(- 제외)">
-				    <div class="input-group-btn">
-				      <button class="btn btn-default" type="submit">
-				        <i class="bi bi-plus-square"></i>
-				      </button>
-				    </div>
-				  </div>
-			  </td>
-		      <th class="w3-light-grey w3-center tdcenter">이메일</th>
-		      <td class="w3-center tdcenter"><input class="form-control" name="email" type="text" placeholder=""></td>
-		    </tr>
-		    <tr>
-		      <th class="w3-light-grey w3-center tdcenter">태그</th>
-		      <td>
-		        <label for="browser" class="form-label">태그 단어를 입력하세요(한글ㄴㄴ?)</label>
-				<input class="form-control" list="browsers" name="tag" id="tag">
-				<datalist id="tag">
-				  <option value="가족">
-				  <option value="친구">
-				  <option value="디자인">
-				  <option value="외주">
-				  <option value="태그없음">
-				</datalist>
-				</td>
-		      <th class="w3-light-grey w3-center tdcenter">생일</th>
-		      <td class="tdcenter"><input class="form-control" type="date" id="birth" name="birth"></td>
-		    </tr>
-		    <tr>
-		      <th class="w3-light-grey w3-center tdcenter">회사</th>
-		      <td><input class="form-control" name="company" type="text" placeholder=""></td>
-		      <th class="w3-light-grey w3-center tdcenter">부서/직급</th>
-		      <td><input class="form-control" name="position" type="text" placeholder=""></td>
-		    </tr>
-		    <tr>
-		      <th colspan="1" class="w3-light-grey w3-center tdcenter">주소</td>
-		      <td colspan="3">
-		      	<div class="input-group">
-		      		<input class="form-control" type="text" id="postcode" placeholder="우편번호">
-					<input class="w3-button w3-border" type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
-				</div>
-					<input class="form-control" type="text" id="address" placeholder="주소">
-					<input class="form-control" type="text" id="detailAddress" placeholder="상세주소">
-					<input class="form-control" type="text" id="extraAddress" placeholder="참고항목">
-			</td>
-		    </tr>
-		    <tr>
-		      <th colspan="1" class="w3-light-grey w3-center tdcenter">사진</td>
-		      <td colspan="3"><input class="form-control" name="photo" type="file" placeholder=""></td>
-		    </tr>
-		    <tr>
-		      <th colspan="1" class="w3-light-grey w3-center tdcenter">URL</td>
-		      <td colspan="3"><textarea class="form-control" rows="2" id="url"></textarea></td>
-		    </tr>
-		    <tr>
-		      <th colspan="1" class="w3-light-grey w3-center tdcenter">메모</td>
-		      <td colspan="3"><textarea class="form-control" rows="5" id="memo"></textarea></td>
-		    </tr>
-	  	</table>
-	  	<div class="w3-container">
+				</colgroup>
+				<tr>
+				<!-- 이름 입력 -->
+					<th class="w3-light-grey w3-center tdcenter">이름</th>
+					<td class="w3-center tdcenter"><input class="form-control" name="name" type="text" placeholder=""></td>
+				<!-- 공유여부(Y - 공유, N - 개인) -->
+					<th class="w3-light-grey w3-center tdcenter">공유여부</th>
+					<td class="w3-center tdcenter">
+						<div class="tdcenter">
+							<input class="w3-section tdcenter" id="public" type="radio" name="share" value="Y" checked><label class="w3-margin tdcenter">공유</label>
+							<input class="w3-section tdcenter" id="private" type="radio" name="share" value="N"><label class="w3-margin tdcenter">개인</label>
+						</div>
+					</td>
+				</tr>
+			    <tr>
+			    <!-- 전화번호 -->
+					<th class="w3-light-grey w3-center tdcenter">전화번호</th>
+					<td>
+						<div id="tel1" class="input-group">
+							<input type="text" class="form-control" name="contactTels" placeholder="숫자만 입력해 주세요(- 제외)">
+						    <button class="w3-button w3-white" type="button" onclick="showTel2()">+</button>
+						</div>
+						<div style="display: none" id="tel2" class="input-group">
+							<input type="text" class="form-control" name="contactTels" placeholder="숫자만 입력해 주세요(- 제외)">
+						    <button class="w3-button w3-white" type="button" onclick="showTel3()">+</button>
+						    <button class="w3-button w3-white" type="button" onclick="closeTel2()">-</button>
+						</div>
+						<div style="display: none" id="tel3" class="input-group">
+							<input type="text" class="form-control" name="contactTels" placeholder="숫자만 입력해 주세요(- 제외)">
+						    <button class="w3-button w3-white" type="button" onclick="showTel4()">+</button>
+						    <button class="w3-button w3-white" type="button" onclick="closeTel3()">-</button>
+						</div>
+						<div style="display: none" id="tel4" class="input-group">
+							<input type="text" class="form-control" name="contactTels" placeholder="숫자만 입력해 주세요(- 제외)">
+							<button class="w3-button w3-white" type="button" onclick="closeTel4()">-</button>
+						</div>
+					  </td>
+				<!-- 이메일 -->
+					<th class="w3-light-grey w3-center tdcenter">이메일</th>
+					<td class="w3-center tdcenter"><input class="form-control" name="email" type="text" placeholder="" ></td>
+				</tr>
+			    <!-- 태그 -->
+				<tr>
+					<th class="w3-light-grey w3-center tdcenter">태그</th>
+					<!-- test부분 : script로 onchange때마다 radio 값을 읽어와서 value=Y값인지 N값인지 확인 후, 맞는 datalist를 불러와야한다.  -->
+			   		<td>
+						<div id="public-tag-box">
+							<input class="form-control" list="public-tag-data" name="contactTags" id="publicAddressbook" autocomplete="off" placeholder="태그를 입력하세요.">
+							<datalist id="public-tag-data">
+								<c:forEach var="publicAddressbook" items="${publicAddressbooks }">
+									<option value="${publicAddressbook.addressbookName }">${publicAddressbook.addressbookName }</option>
+								</c:forEach>
+							</datalist>
+						</div>
+			   			<div id="private-tag-box" style="display:none;">
+							<input class="form-control" list="private-tag-data" name="contactTags" id="privateAddressbook" autocomplete="off" placeholder="태그를 입력하세요.">
+							<datalist id="private-tag-data">
+								<c:forEach var="privateAddressbook" items="${privateAddressbooks }">
+									<option value="${privateAddressbook.addressbookName }">${privateAddressbook.addressbookName }</option>
+								</c:forEach>
+							</datalist>
+			   			</div>
+			 		 </td>
+				<!-- 생일 -->
+					<th class="w3-light-grey w3-center tdcenter">생일</th>
+					<td class="tdcenter"><input class="form-control" type="date" id="birth" name="birth"></td>
+				</tr>
+				<tr>
+				<!-- 회사 -->
+					<th class="w3-light-grey w3-center tdcenter">회사</th>
+					<td colspan="3"><input class="form-control" name="company" type="text" placeholder=""></td>
+				</tr>
+				<tr>
+					<th class="w3-light-grey w3-center tdcenter">부서</th>
+					<td><input class="form-control" name="dept" type="text" placeholder=""></td>
+					<th class="w3-light-grey w3-center tdcenter">직급</th>
+					<td><input class="form-control" name="position" type="text" placeholder=""></td>
+				</tr>
+				<tr>
+					<th colspan="1" class="w3-light-grey w3-center tdcenter" >주소</th>
+					<td colspan="3">
+						<div class="input-group">
+				      		<input class="form-control" type="text" id="postcode" placeholder="우편번호"  autocomplete="off">
+							<input class="w3-button w3-border" type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기" ><br>
+						</div>
+						<input class="form-control" type="text" id="address" placeholder="주소"  autocomplete="off">
+						<input class="form-control" type="text" id="detailAddress" placeholder="상세주소"  autocomplete="off">
+						<input class="form-control" type="text" id="extraAddress" placeholder="참고항목"  autocomplete="off">
+					</td>
+				</tr>
+				<tr>
+					<th colspan="1" class="w3-light-grey w3-center tdcenter">사진</td>
+					<td colspan="3"><input class="form-control" name="photo" type="file" placeholder=""  autocomplete="off"></td>
+				</tr>
+				<tr>
+					<th colspan="1" class="w3-light-grey w3-center tdcenter">URL</td>
+					<td colspan="3"><textarea class="form-control" rows="2" id="url"></textarea></td>
+				</tr>
+				<tr>
+					<th colspan="1" class="w3-light-grey w3-center tdcenter">메모</td>
+					<td colspan="3"><textarea class="form-control" rows="5" id="memo"></textarea></td>
+				</tr>
+			</table>
+			<div class="w3-container">
 				<div class="w3-bar">
-				  <button type="submit" class="w3-button w3-white w3-border w3-padding w3-border-green w3-round-large w3-left w3-right littlemg">저장</button>
-				  <a href="../contact/list" class="w3-button w3-white w3-border w3-padding w3-border-red w3-round-large w3-left w3-right littlemg">취소</a>
+					<button type="submit" class="w3-button w3-white w3-border w3-padding w3-border-green w3-round-large w3-left w3-right littlemg">저장</button>
+					<a href="../contact/list" class="w3-button w3-white w3-border w3-padding w3-border-red w3-round-large w3-left w3-right littlemg">취소</a>
 				</div>
 			</div>
-		</div>
 		</form:form>
+	</div>
 </div>
 </body>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+	// 주소 스크립트
     function sample6_execDaumPostcode() {
         new daum.Postcode({
             oncomplete: function(data) {
@@ -164,5 +202,37 @@
             }
         }).open();
     }
+	
+	// 전화번호 압력부 추가/삭제 스크립트
+		function showTel2(){
+			document.getElementById('tel2').style.display=''
+        }
+        function closeTel2(){
+            document.getElementById('tel2').style.display='none'
+        }
+        function showTel3(){
+            document.getElementById('tel3').style.display=''
+        }
+        function closeTel3(){
+            document.getElementById('tel3').style.display='none'
+        }
+        function showTel4(){
+            document.getElementById('tel4').style.display=''
+        }
+        function closeTel4(){
+            document.getElementById('tel4').style.display='none'
+        }
+
+	// 라디오 값에 따라 공유주소록/개인주소록으로 Tag목록을 변경하는 스크립트
+		$(":radio[name=share]").change(function() {
+			var selectedTagType = $(this).val()
+			if (selectedTagType == 'Y') {
+				$("#private-tag-box").hide();
+				$("#public-tag-box").show();
+			} else if (selectedTagType == 'N') {
+				$("#public-tag-box").hide();
+				$("#private-tag-box").show();
+			}
+		});
 </script>
 </html>

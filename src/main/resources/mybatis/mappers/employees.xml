@@ -7,9 +7,9 @@
 			select employees_seq.nextval from dual
 		</selectKey>
 		insert into employees
-			(employee_no, employee_password, employee_name, employee_tel, employee_email, employee_hire_date, dept_no, position_no)
+			(employee_no, employee_password, employee_name, employee_tel, employee_email, employee_photo, employee_hire_date, dept_no, position_no)
 		values
-			(#{no}, #{encryptPassword}, #{name}, #{tel}, #{email}, #{hireDate}, #{departmentNo}, #{positionNo})
+			(#{no}, #{encryptPassword}, #{name}, #{tel}, #{email}, #{photo}, #{hireDate}, #{departmentNo}, #{positionNo})
 	</insert>
 	
 	<update id="updateEmployee" parameterType="Employee">
@@ -19,7 +19,7 @@
 			employee_password = #{encryptPassword},
 			employee_photo = #{photo},
 			employee_status = #{status},
-			employee_update_date = sysdate
+			employee_updated_date = sysdate
 		where
 			employee_no = #{no}
 	</update>
@@ -112,6 +112,78 @@
 		and e.dept_no = d.dept_no
 		and e.position_no = p.position_no
 			
+	</select>
+	
+	<select id="getAllEmployeeTotalRows" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			employees e, departments d
+		where
+			e.dept_no = d.dept_no
+			<if test="opt != null">
+				<choose>
+					<when test="opt == 'empName'">
+						and e.employee_name like '%' || #{keyword} || '%'
+					</when>
+					<when test="opt == 'empNo'">
+						and e.employee_no like '%' || #{keyword} || '%'
+					</when>
+					<when test="opt == 'deptName'">
+						and d.dept_no in (select
+											dept_no
+										from
+											departments
+										where
+											dept_name = #{keyword})	
+					</when>
+				</choose>
+			</if>
+	</select>
+	
+	<select id="getAllEmployees" parameterType="map" resultType="EmployeeListDto">
+		select
+			employee_no			as empNo,
+			employee_name		as empName,
+			employee_tel		as tel,
+			employee_email		as email,
+			dept_name			as deptName,
+			employee_status		as status
+		from(
+			select
+				row_number() over (order by e.employee_no desc) row_numbers,
+				e.employee_no,			
+				e.employee_name,
+				e.employee_tel,
+				e.employee_email,
+				d.dept_name,
+				e.employee_status
+			from
+				employees e, departments d
+			where
+				e.dept_no = d.dept_no
+				<if test="opt != null">
+					<choose>
+						<when test="opt == 'empName'">
+							and e.employee_name like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'empNo'">
+							and e.employee_no like '%' || #{keyword} || '%'
+						</when>
+						<when test="opt == 'deptName'">
+							and d.dept_no in (select
+												dept_no
+											from
+												departments
+											where
+												dept_name = #{keyword})	
+						</when>
+					</choose>
+				</if>
+			order by
+				e.employee_name asc)
+		where
+			row_numbers between #{begin} and #{end}
 	</select>
 	
 </mapper>

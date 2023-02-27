@@ -4,7 +4,6 @@ import java.util.Date;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class Comment {
@@ -20,7 +19,6 @@ public class Comment {
 	
 	@Builder
 	private Comment(int no, int employeeNo, int postNo, String content) {
-		super();
 		this.no = no;
 		this.employeeNo = employeeNo;
 		this.postNo = postNo;
@@ -36,7 +34,7 @@ public class Comment {
 	}
 	
 	public void decreaseRecommendCount() {
-		this.recommendCount += 1;
+		this.recommendCount -= 1;
 	}
 	
 	public void deleteComment() {
