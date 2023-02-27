@@ -68,7 +68,7 @@ public class NoteService {
 		param.put("begin", pagination.getBegin());
 		param.put("end", pagination.getEnd());
 		
-		List<NoteListDto> notes = noteMapper.getRecieveNotesByNo(param);
+		List<NoteListDto> notes = noteMapper.getRecieveNotes(param);
 		
 		Map<String, Object> result = new HashMap<>();
 		result.put("notes", notes);
@@ -328,6 +328,14 @@ public class NoteService {
 			
 		}
 		
+	}
+
+	// 로그인한 사용자 번호로 받은 쪽지 불러오기
+	public List<NoteListDto> getRecieveNotesByNo(int no) {
+		
+		List<NoteListDto> notes = noteMapper.getRecieveNotesByNo(no);
+		
+		return notes;
 	}
 
 }
