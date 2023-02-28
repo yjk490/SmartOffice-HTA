@@ -13,6 +13,7 @@ a:link { text-decoration:none; }
 <title>애플리케이션</title>
 </head>
 <body>
+<sec:authentication property="principal" var="loginUser" />
 <div class="container">
 	<div class="row border me-5">
 		<div class="border-bottom text-center py-3">

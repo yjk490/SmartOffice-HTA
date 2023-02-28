@@ -76,28 +76,26 @@
 			posts
 		<where>
 			<choose>
-				<when test="type == 'title'">
-					post_title like '%' || #{keyword} || '%'
+				<when test="opt.type == 'title'">
+					post_title like '%' || #{opt.keyword} || '%'
 				</when>
-				<when test="type == 'content'">
-					(post_content like '%' || #{keyword} || '%'
-					 or post_title like '%' || #{keyword} || '%')
+				<when test="opt.type == 'content'">
+					(post_content like '%' || #{opt.keyword} || '%'
+					 or post_title like '%' || #{opt.keyword} || '%')
 				</when>
-				<when test="type == 'name'">
+				<when test="opt.type == 'name'">
 					employee_no in (select
 										employee_no
 									from
 										employees
 									where
-										employee_name = #{keyword})	
+										employee_name = #{opt.keyword})	
 				</when>
 			</choose>
-			<!-- 
-			<if test="employeeNo != null">
-				and employee_no = #{employeeNo}
+			<if test="opt.employeeNo != 0">
+				and employee_no = #{opt.employeeNo}
 			</if>
-			 -->
-			and post_deleted = 'N'
+			and post_deleted = #{opt.deleted}
 		</where>
 	</select>
 	
@@ -106,6 +104,7 @@
 		    post_no 				as no,
 		    employee_name 			as name,
 		    post_title 				as title,
+		    post_content			as content,
 		    post_read_count 		as readCount,
 		    post_comment_count		as commentCount,
 		    post_recommend_count 	as recommendCount,
@@ -113,25 +112,26 @@
 		from (
 		     select
 		     	 <choose>
-		     	 	<when test="sort == 'date'">
+		     	 	<when test="opt.sort == 'date'">
 						 row_number() over (order by A.post_created_date desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'recommend'">
+		     	 	<when test="opt.sort == 'recommend'">
 						 row_number() over (order by A.post_recommend_count desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'read'">
+		     	 	<when test="opt.sort == 'read'">
 						 row_number() over (order by A.post_read_count desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'comment'">
+		     	 	<when test="opt.sort == 'comment'">
 						 row_number() over (order by A.post_comment_count desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'scrap'">
+		     	 	<when test="opt.sort == 'scrap'">
 						 row_number() over (order by A.post_scrap_count desc) row_numbers,
 		     	 	</when>
 		     	 </choose>
 		         A.post_no,
 		         B.employee_name,
 		         A.post_title,
+		         A.post_content,
 		         A.post_recommend_count,
 		         A.post_read_count,
 		         A.post_comment_count,
@@ -141,30 +141,63 @@
 		         posts A, employees B
 		     <where>
 		     	<choose>
-		     		<when test="type == 'title'">
-		     			A.post_title like '%' || #{keyword} || '%'
+		     		<when test="opt.type == 'title'">
+		     			A.post_title like '%' || #{opt.keyword} || '%'
 		     		</when>
-		     		<when test="type == 'content'">
-		     			(A.post_content like '%' || #{keyword} || '%'
-		     			 or A.post_title like '%' || #{keyword} || '%')
+		     		<when test="opt.type == 'content'">
+		     			(A.post_content like '%' || #{opt.keyword} || '%'
+		     			 or A.post_title like '%' || #{opt.keyword} || '%')
 		     		</when>
-		     		<when test="type == 'name'">
-		     			B.employee_name like '%' || #{keyword} || '%'
+		     		<when test="opt.type == 'name'">
+		     			B.employee_name like '%' || #{opt.keyword} || '%'
 		     		</when>
 		     	</choose>
-		     	<!-- 
-		     	<if test="employeeNo != null">
-		     		and A.employee_no = #{employeeNo}
+		     	<if test="opt.employeeNo != 0">
+		     		and A.employee_no = #{opt.employeeNo}
 		     	</if>
-		     	 -->
-		         and A.post_deleted = 'N'
+		         and A.post_deleted = #{opt.deleted}
 		         and A.employee_no = B.employee_no
 		     </where>
 		     )
 		where
 		    row_numbers between #{begin} and #{end}
 	</select>
-
+	
+	<select id="getTotalRowsWithMyComment" resultType="int">
+		select
+			count(*)
+		from
+			posts A, post_comments B
+		where
+		    A.post_no = B.post_no 
+		    and B.comment_content like '%' || #{opt.keyword} || '%'
+		    and B.employee_no = #{opt.employeeNo}
+	</select>
+	
+	<select id="getPostListDtoWithMyComment" resultType="com.example.dto.post.MyCommentDto">
+		select
+			post_no					as no,
+		    post_title 				as title,
+		    comment_content 		as comment,
+		    comment_created_date 	as createdDateTime
+		from (
+                select
+                    row_number() over (order by B.comment_created_date desc) row_numbers,
+                    A.post_no,
+                    A.post_title,
+                    B.comment_content,
+                    B.comment_created_date
+                from
+                    posts A, post_comments B
+                where
+                    A.post_no = B.post_no 
+		    		and B.comment_content like '%' || #{opt.keyword} || '%'
+		    		and B.employee_no = #{opt.employeeNo}
+                )
+        where
+            row_numbers between #{begin} and #{end}
+	</select>	
+	
 	<select id="getPostDetailDto" resultType="com.example.dto.post.PostDetailDto">
 		select
 			A.post_no				as no,

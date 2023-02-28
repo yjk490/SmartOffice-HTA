@@ -6,12 +6,14 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.example.dto.post.CommentDto;
+import com.example.dto.post.PostListDtoWithMyComment;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
 import com.example.vo.post.AttachedFile;
 import com.example.vo.post.Comment;
 import com.example.vo.post.Post;
 import com.example.vo.post.Tag;
+import com.example.web.request.PostSearchOption;
 
 @Mapper
 public interface PostMapper {
@@ -24,10 +26,8 @@ public interface PostMapper {
 	void insertComment(Comment comment);
 	void insertCommentRecommend(@Param("commentNo") int commentNo, @Param("employeeNo") int employeeNo);
 	
-	int getTotalRows(@Param("type") String type, @Param("keyword") String keyword);
-	List<PostListDto> getPostListDto(@Param("begin") int beginPage, @Param("end") int endPage,
-									 @Param("sort") String sort,
-									 @Param("type") String type, @Param("keyword") String keyword);
+	int getTotalRows(@Param("opt") PostSearchOption opt);
+	List<PostListDto> getPostListDto(@Param("begin") int beginPage, @Param("end") int endPage, @Param("opt") PostSearchOption opt);
 	PostDetailDto getPostDetailDto(@Param("postNo") int postNo, @Param("employeeNo") int employeeNo);
 	List<AttachedFile> getAttachedFilesByPostNo(int postNo);
 	List<Tag> getTagsByPostNo(int postNo);
@@ -38,6 +38,8 @@ public interface PostMapper {
 	Comment getCommentByNo(int commentNo);
 	int getCommentSequence();
 	List<String> getEmpRolesByEmployeeNo(int empNo);
+	int getTotalRowsWithMyComment(@Param("opt") PostSearchOption opt);
+	List<PostListDtoWithMyComment> getPostListDtoWithMyComment(@Param("begin") int beginPage, @Param("end") int endPage, @Param("opt") PostSearchOption opt);
 	
 	void updatePost(Post post);
 	void updateComment(Comment comment);
