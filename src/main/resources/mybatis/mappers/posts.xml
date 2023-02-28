@@ -174,7 +174,7 @@
 		    and B.employee_no = #{opt.employeeNo}
 	</select>
 	
-	<select id="getPostListDtoWithMyComment" resultType="com.example.dto.post.MyCommentDto">
+	<select id="getPostListDtoWithMyComment" resultType="com.example.dto.post.PostListDtoWithMyComment">
 		select
 			post_no					as no,
 		    post_title 				as title,
