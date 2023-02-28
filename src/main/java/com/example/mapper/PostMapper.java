@@ -48,5 +48,6 @@ public interface PostMapper {
 	void deleteCommentRecommend(@Param("commentNo") int commentNo, @Param("employeeNo") int employeeNo);
 	void deleteFiles(List<String> deleteFileNames);
 	void deleteTags(List<String> deleteTagContents);
+	void deleteComment(int commentNo);
 	
 }

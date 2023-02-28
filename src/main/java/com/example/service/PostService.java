@@ -74,16 +74,13 @@ public class PostService {
 		int postNo = postMapper.getPostSequence();
 		
 		// POST 테이블에 게시글 정보 저장
-		// 빌더패턴으로 객체를 생성할 때, 입력값을 누락했을 경우 어떻게 예외처리 할 수 있는지?
 		Post post = Post.builder()
 					.no(postNo)
 					.employeeNo(employeeNo)
 					.title(form.getTitle())
 					.content(form.getContent())
 					.build();
-		
 		postMapper.insertPost(post);
-		
 		
 		// POST_TAGS 테이블에 태그 정보 저장
 		if (form.getTagContents() != null) {
@@ -154,6 +151,16 @@ public class PostService {
 		Post post = postMapper.getPostByNo(postNo);
 		post.increaseCommentCount();
 		postMapper.updatePost(post);
+	}
+	
+	public void modifyComment(int commentNo, String modifiedContent) {
+		Comment comment = postMapper.getCommentByNo(commentNo);
+		comment.modifyContent(modifiedContent);
+		postMapper.updateComment(comment);
+	}
+	
+	public void deleteComment(int commentNo) {
+		postMapper.deleteComment(commentNo);
 	}
 	
 	public List<CommentDto> getComments(int postNo, int employeeNo) {

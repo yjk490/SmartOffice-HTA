@@ -4,6 +4,7 @@ import java.util.Date;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 // 글 번호, 작성자 번호, 제목, 내용은 필수값이고 글 번호와 작성자 번호는 불변성을 유지해야 한다.
 // 생성자 패턴으로 생성하기에는 매개변수가 많고 자료형이 겹쳐 가독성이 떨어지기 때문에 빌더패턴으로 생성한다.
