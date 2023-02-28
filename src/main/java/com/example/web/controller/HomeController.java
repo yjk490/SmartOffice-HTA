@@ -1,9 +1,13 @@
 package com.example.web.controller;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,14 +15,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.dto.emp.EmployeeDetailDto;
 import com.example.dto.note.NoteListDto;
+import com.example.dto.schedule.ScheduleEvent;
 import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.EmployeeService;
 import com.example.service.NoteService;
+import com.example.service.ScheduleService;
 import com.example.web.request.EmployeePasswordForm;
 
 @Controller
@@ -28,6 +35,8 @@ public class HomeController {
 	private EmployeeService employeeService;
 	@Autowired
 	private NoteService noteService;
+	@Autowired
+	private ScheduleService scheduleService;
 	
 	// 홈 화면 요청
 	@GetMapping("/")
@@ -55,6 +64,20 @@ public class HomeController {
 		}
 	}
 
+	@GetMapping("/home/schedule")
+	@ResponseBody
+	public List<ScheduleEvent> getSchedules(@AuthenticatedUser LoginEmployee loginEmployee, 
+				@RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+				@RequestParam("endDate") @DateTimeFormat(pattern =  "yyyy-MM-dd") Date endDate){
+		System.out.println(startDate);
+		
+		Map<String, Object> param = new HashMap<>();
+		param.put("empNo", loginEmployee.getNo());
+		param.put("startDate", startDate);
+		param.put("endDate", endDate);
+		
+		return scheduleService.getEvents(param);
+	}
 	
 	// 로그인 화면 요청
 	@GetMapping("/login")
