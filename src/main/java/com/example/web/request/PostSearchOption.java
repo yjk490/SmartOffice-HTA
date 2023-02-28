@@ -11,4 +11,6 @@ public class PostSearchOption {
 	private String sort = "date";
 	private String type = "title";
 	private String keyword = "";
+	private String deleted = "N";
+	private int employeeNo = 0;
 }

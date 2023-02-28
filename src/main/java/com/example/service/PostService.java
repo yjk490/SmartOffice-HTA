@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.dto.post.CommentDto;
+import com.example.dto.post.PostListDtoWithMyComment;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
 import com.example.mapper.PostMapper;
@@ -33,12 +34,10 @@ public class PostService {
 	private String directory;
 	
 	public PostSearchResult getPosts(int page, PostSearchOption opt) {
-		int totalRows = postMapper.getTotalRows(opt.getType(), opt.getKeyword());
+		int totalRows = postMapper.getTotalRows(opt);
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
-		List<PostListDto> posts = postMapper.getPostListDto(pagination.getBegin(), pagination.getEnd(),
-															opt.getSort(),
-															opt.getType(), opt.getKeyword());
+		List<PostListDto> posts = postMapper.getPostListDto(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		
@@ -255,6 +254,17 @@ public class PostService {
 		}
 		
 		postMapper.deletePost(postNo);
+	}
+	
+	public PostSearchResult getPostsWithMyComment(int page, PostSearchOption opt) {
+		int totalRows = postMapper.getTotalRowsWithMyComment(opt);
+		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
+		
+		List<PostListDtoWithMyComment> posts = postMapper.getPostListDtoWithMyComment(pagination.getBegin(), pagination.getEnd(), opt);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
 	}
 	
 	public List<String> getEmployeeRoles(int employeeNo) {

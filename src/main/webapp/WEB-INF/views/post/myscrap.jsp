@@ -9,6 +9,7 @@
 </head>
 <body>
 <c:set var="top" value="post" />
+<sec:authentication property="principal" var="loginUser" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row">
@@ -18,7 +19,7 @@
 		<div class="col-9">
 			<div class="row border m-1 mb-2">
 				<p class="fs-1 my-2">게시판 활동내역</p>
-				<p class="fs-5 my-3">OOO님이 스크랩한 게시글</p>
+				<p class="fs-5 my-3">${loginUser.name }님이 스크랩한 게시글</p>
 			</div>
 			<div class="m-1 mb-3 py-4 d-flex justify-content-end border-bottom">
 				<div class="mx-3">

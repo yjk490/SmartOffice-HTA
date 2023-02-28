@@ -220,13 +220,29 @@ public class PostController {
 		return "post/notice";
 	}
 	
+	// mypost 최초 진입 시 쿼리스트링이나 input태그의 hidden속성으로 employeeNo를 넘겨줄 수도 있지만
+	// 서버 내부에서 employeeNo를 전달하는 것이 보안상 더 적절하다
 	@GetMapping("/mypost")
-	public String mypost() {
+	public String mypost(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPosts(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);		
+		
 		return "post/mypost";
 	}
 	
 	@GetMapping("/mycomment")
-	public String mycomment() {
+	public String mycomment(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPostsWithMyComment(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);			
+		
 		return "post/mycomment";
 	}
 	

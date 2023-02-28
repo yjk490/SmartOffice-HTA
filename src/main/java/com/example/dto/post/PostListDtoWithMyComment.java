@@ -1,36 +1,25 @@
 package com.example.dto.post;
 
 import java.time.LocalDateTime;
+
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class PostListDto {
+public class PostListDtoWithMyComment {
 
 	private int no;
-	private String name;
 	private String title;
-	private String content;
-	private int readCount;
-	private int commentCount;
-	private int recommendCount;
+	private String comment;
 	private LocalDateTime createdDateTime;
 	private String createdDateTimeToString;
 	
-	public PostListDto(int no, String name, String title, String content, int readCount, int commentCount, int recommendCount,
-			LocalDateTime createdDateTime) {
+	public PostListDtoWithMyComment(int no, String title, String comment, LocalDateTime createdDateTime) {
 		this.no = no;
-		this.name = name;
 		this.title = title;
-		this.content = content;
-		this.readCount = readCount;
-		this.commentCount = commentCount;
-		this.recommendCount = recommendCount;
+		this.comment = comment;
 		this.createdDateTime = createdDateTime;
 		
 		LocalDateTime now = LocalDateTime.now();
