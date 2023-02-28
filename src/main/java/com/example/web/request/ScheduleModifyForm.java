@@ -20,8 +20,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ScheduleRegisterForm {
-
+public class ScheduleModifyForm {
+	
+	private int no;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date startDate;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -31,17 +32,18 @@ public class ScheduleRegisterForm {
 	private String allDay;
 	@NotBlank(message = "분류는 필수값입니다." )
 	private int categoryNo;
+	private String content;
 	private String title;
+	private String location;
 	
-	//값을 안넘기니까 오류남.왜?
+	//값을 안넘기니까 오류남.왜? ""값이 넘어가서그런거였음.
+	private int roomNo;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date reservationDate;
-	private int roomNo;
 	private List<String> reservationTime;
 	
-	private String location;
-	private List<Integer> attendants;
-	private String content;
+	//private List<Integer> attendants;
+	
 	private MultipartFile upfile;
 	private String filename;
 }

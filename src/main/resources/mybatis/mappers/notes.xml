@@ -88,7 +88,7 @@
 	
 	
 	<!-- 로그인한 사용자가 받은 쪽지함 -->
-	<select id="getRecieveNotesByNo" parameterType="map" resultType="NoteListDto">
+	<select id="getRecieveNotes" parameterType="map" resultType="NoteListDto">
 		select
 			note_no				as noteNo,
 			note_important		as important,
@@ -134,6 +134,39 @@
 				</if>)
 		where
 			row_numbers between #{begin} and #{end}
+	</select>
+	
+	<!-- 로그인한 사용자 번호로 받은 쪽지 읽지 않은 쪽지 5개 출력(홈화면) -->
+	<select id="getRecieveNotesByNo" parameterType="int" resultType="NoteListDto">
+		select
+			note_no				as noteNo,
+			note_important		as important,
+			note_title			as title,
+			employee_name		as senderName,
+			note_send_date		as sendDate,
+			note_status			as status
+		from (
+			select
+				row_number() over (order by n.note_no desc) row_numbers,
+				n.note_no,
+				n.note_important,
+				n.note_title,
+				e.employee_name,
+				n.note_send_date,
+				n.note_status
+			from
+				employee_notes n 
+				inner join employees e on n.sender_employee_no = e.employee_no
+				inner join employee_note_receivers r on n.note_no = r.note_no
+			where
+				r.receive_note_deleted not in ('Y', 'D')
+				and r.box_no = 10001
+				and n.box_no != 10003
+				and n.note_status = 'N'
+				and r.receiver_employee_no = #{value}
+				)
+		where
+			row_numbers between 1 and 5
 	</select>
 	
 	<!-- 보낸 쪽지함 갯수 -->

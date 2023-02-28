@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.TodoMapper">
+
+	<!-- 업무등록하기 -->
+   <insert id="insertTodo" parameterType="Todo">
+   <selectKey keyProperty="todoNo" resultType="int" order="BEFORE">
+		select todo_seq.nextval from dual
+	</selectKey>
+   		insert into todos
+   		(todo_no, todo_important, todo_title, todo_content, todo_start_date, todo_end_date, box_no, employee_no, job_cat_no, receive_employee_no)
+   		values
+   		<choose>
+   			<when test="receiveEmployeeNo == 0">
+		   		(#{todoNo}, #{important}, #{title}, #{content}, #{startDate}, #{endDate}, #{boxNo}, #{employeeNo}, #{jobCatNo}, null)
+   			</when>
+			<otherwise>
+		   		(#{todoNo}, #{important}, #{title}, #{content}, #{startDate}, #{endDate}, #{boxNo}, #{employeeNo}, #{jobCatNo}, #{receiveEmployeeNo})
+			</otherwise>
+		</choose>
+   </insert>
+   
+   <!-- 수신자등록 -->
+   <insert id="insertReceive" parameterType="ReceiveEmployees">
+   		insert into todo_progress_histories
+		(todo_progress_no, todo_no, employee_no, todo_progress_updated_date, receive_employee_no)
+		values
+		(todo_progress_histories_seq.nextval, #{todoNo}, #{empNo}, sysdate, #{receiveEmpNo})
+   </insert>
+   
+   <insert id="insertTodoBox" parameterType="TodoBox">
+   		insert into todo_boxes
+   		(box_no, box_name, employee_no, parent_box_no)
+   		values
+   		(todo_boxes_seq.nextval, #{boxName}, #{empNo}, #{parentBoxNo})
+   </insert>
+   <insert id="addComment" parameterType="TodoComment">
+   		insert into todo_comments
+   		(todo_comment_no, todo_no, todo_content, employee_no)
+   		values
+   		(todo_comments_seq.nextval, #{todoNo}, #{content}, #{employeeNo})
+   </insert>
+   
+   <!-- 업무조회하기 -->
+   <select id="getTodos" parameterType="map" resultType="TodoListDto">
+   		select
+   			todo_no					as todoNo,
+   			todo_important			as important,
+   			box_no				    as boxNo,
+   			box_name			    as boxName,
+   			todo_title				as title,
+   			todo_created_date		as createdDate,
+   			todo_start_date			as startDate,
+   			todo_end_date			as endDate,
+   			todo_progress_status	as progressStatus,
+   			todo_read				as read,
+   			job_cat_no				as jobCatNo,
+   			employee_no				as empNo,
+   			employee_name			as empName,
+   			receive_employee_no		as receiveEmpNo,
+   			receiveEmpName
+   		from
+   			(select
+   				row_number() over (order by A.todo_no desc) row_numbers,
+   				A.todo_no				,
+   				A.todo_important		,
+   				A.job_cat_no			,
+   				C.box_no				,
+   				C.box_name				,
+   				A.todo_title			,
+   				A.employee_no			,
+                B.employee_name			,
+   				A.receive_employee_no	,
+	   			A.todo_created_date		,
+	   			A.todo_start_date		,
+   				A.todo_end_date			,
+   				A.todo_progress_status	,
+   				A.todo_read				,
+   				D.employee_name			as receiveEmpName		
+   			from
+   				todos A, Employees B, todo_Boxes C, Employees D
+   				
+   			<where>
+   				<choose>
+   					<when test="opt == 'title'">
+   						A.todo_title like '%' || #{keyword} || '%' 
+   					</when>
+   					<when test="opt == 'writer'">
+   						B.employee_name like '%' || #{keyword} || '%'
+   					</when>
+   					<when test="opt == 'content'">
+   						A.employee_content like '%' || #{keyword} || '%'
+   					</when>
+   				</choose>
+   				<choose>
+   					<when test='status == "C"'>
+   						and A.todo_progress_status = 'C'
+   					</when>
+   					<when test='status == "D"'>
+   						and A.todo_progress_status = 'D'
+   					</when>
+   					<when test='status == "W"'>
+   						and A.todo_progress_status = 'W'
+   					</when>
+   					<when test='status == "R"'>
+   						and A.todo_progress_status = 'R'
+   					</when>
+   					<when test='status == "A"'>
+   						and A.todo_progress_status = 'A'
+   					</when>
+   				</choose>
+   				<if test='important == "Y"'>
+   					and A.todo_important = 'Y'
+   				</if>
+   				<if test="startDate and endDate != null">
+   					and todo_start_date between #{startDate} and #{endDate}
+   				</if>
+	   				and A.todo_deleted = 'N'
+	   				and A.employee_no = B.employee_no
+	   				and A.receive_employee_no = D.employee_no(+)
+	   				and A.box_no = C.box_no
+	   				and A.job_cat_no = #{category}
+	   				and A.employee_no = #{empNo}
+   			</where>
+   			)
+   		where
+	   		row_numbers between #{begin} and #{end}
+   </select>
+   
+   <select id="getTotalRows" resultType="int">
+		select
+			count(*)
+		from
+			todos
+		where
+			todo_deleted = 'N'
+	</select>
+	
+	<!-- 업무번호로 업무조회하기 -->
+	<select id="getTodoByTodoNo" parameterType="int" resultType="Todo">
+		select
+			A.todo_no				as todoNo,
+			A.todo_important		as important,
+			A.todo_title			as title,
+			A.todo_content			as content,
+			A.todo_progress_status	as progressStatus,
+			A.todo_progress_rate	as progressRate,
+			A.todo_start_date		as startDate,
+			A.todo_end_date			as endDate,
+			A.todo_read				as read,
+			A.todo_deleted			as deleted,
+			A.todo_created_date		as createdDate,
+			A.todo_updated_date		as updatedDate,
+			A.box_no				as boxNo,
+			A.employee_no			as employeeNo,
+			A.job_cat_no			as jobCatNo,
+			A.receive_employee_no	as receiveEmployeeNo,
+			B.employee_name			as receiveEmployeeName
+		from
+			todos A, employees B, employees C
+		where
+			A.employee_no = B.employee_no
+			and A.receive_employee_no = C.employee_no(+)
+			and todo_no = #{todoNo}
+	</select>
+	
+	<!-- 업무번호로 업무상세보기조회 -->
+	<select id="getTodoDetailByTodoNo" parameterType="int" resultType="TodoDetailDto">
+		select
+			A.todo_no					as todoNo,
+   			A.todo_important			as important,
+   			A.todo_content				as content,
+   			C.box_no				    as boxNo,
+   			C.box_name				    as boxName,
+   			A.todo_title				as title,
+   			A.todo_start_date			as startDate,
+   			A.todo_end_date				as endDate,
+   			A.todo_created_date			as createdDate,
+   			A.todo_updated_date			as updatedDate,
+   			A.todo_progress_status		as progressStatus,
+   			B.employee_no				as empNo,
+   			B.employee_name				as empName,
+   			A.receive_employee_no		as receiveEmpNo,
+   			D.employee_name				as receiveEmpName
+   		from
+   			todos A, employees B, todo_Boxes C, Employees D
+   		where
+   			A.employee_no = B.employee_no
+   			and A.receive_employee_no = D.employee_no(+)
+   			and A.box_no = C.box_no
+   			and todo_no = #{todoNo}
+	</select>
+	
+	<!-- 업무유형조회 -->
+	<select id="getCategory" resultType="Category">
+		select
+			job_cat_no	 as no,
+			job_cat_name as name
+		from
+			job_categories
+	</select>
+	
+	<!-- 업무유형번호로 업무유형조회하기 -->
+	<select id="getCategoryByNo" parameterType="int" resultType="Category">
+		select
+			job_cat_no	 as no,
+			job_cat_name as name
+		from
+			job_categories
+		where
+			job_cat_no = #{no}
+	</select>
+	
+	<!-- 사용자가 가진 업무보관함 조회 -->
+	<select id="getTodoBoxByNo" parameterType="int" resultType="TodoBox">
+		select
+			box_no		as boxNo,
+			box_name	as boxName
+		from
+			todo_boxes
+		where
+			employee_no = #{empNo}
+	</select>
+	
+	<select id="getBoxTotalRows" resultType="int">
+		select
+			count(*)
+		from
+			todo_boxes
+		where
+			box_deleted = 'N'
+	</select>
+	
+	<!-- 해당박스의 업무 리스트조회 -->
+	<select id="getTodoByBoxNo" parameterType="map" resultType="TodoBoxListDto">
+   		select
+   			box_no					as boxNo,
+   			box_name				as boxName,
+   			box_created_date		as createdDate,
+   			todo_no					as todoNo,
+   			todo_title				as title,
+   			employee_no				as empNo,	<!-- 등록자 -->
+            employee_name			as empName,
+	   		todo_start_date			as startDate,
+   			todo_end_date			as endDate,
+   			todo_progress_status	as status,
+   			todo_read				as read,
+   			receiveEmpName		<!-- 수신자 -->	
+   		from
+   			(select
+   				row_number() over (order by A.box_no desc) row_numbers,
+   				A.box_no				,
+   				A.box_name				,
+   				A.box_created_date		,
+   				B.todo_no				,
+   				B.todo_title			,
+   				B.employee_no			,	<!-- 등록자 -->
+                C.employee_name			,
+	   			B.todo_start_date		,
+   				B.todo_end_date			,
+   				B.todo_progress_status	,
+   				B.todo_read				,
+   				D.employee_name			as receiveEmpName		<!-- 수신자 -->	
+   			from
+   				todo_boxes A, todos B, employees C, employees D
+   			where
+   				A.box_deleted = 'N'
+   				and A.box_no = B.box_no
+   				and B.employee_no = C.employee_no
+   				and B.receive_employee_no = D.employee_no(+)
+   				and B.box_no = #{boxNo}
+   			)
+   		where
+   			row_numbers between #{begin} and #{end}
+   </select>
+   
+   <!-- 직원번호로 보관함조회 -->
+   <select id="getBoxByEmpNo" parameterType="int" resultType="TodoBox">
+   		select
+   			box_no as boxNo,
+   			box_name as boxName,
+   			employee_no as empNo,
+   			parent_box_no as parentBoxNo
+   		from
+   			todo_boxes
+   		where
+   			employee_no = #{empNo}
+   			or box_no in (100, 101, 102, 103)
+   			and box_deleted = 'N'
+   </select>
+   
+   <!-- 상위보관함번호로 업무보관함 조회 -->
+   <select id="getBoxByParentBoxNo" parameterType="int" resultType="TodoBox">
+   		select
+   			box_no as boxNo,
+   			box_name as boxName,
+   			employee_no as empNo,
+   			parent_box_no as parentBoxNo
+   		from
+   			todo_boxes
+   		where
+   			parent_box_no = #{parentBoxNo}
+   			and box_deleted = 'N'
+   </select>
+   
+   <!-- detail 페이지조회 (하나의 업무에 여러 처리내역조회) -->
+   <resultMap type="TodoDetailDto" id="ReceiveEmployeeList">
+   		<id column="todo_no" property="todoNo"/>
+   		<result column="todo_title" property="title"/>
+   		<result column="todo_content" property="content"/>
+   		<result column="todo_progress_status" property="progressStatus"/>
+   		<result column="employee_no" property="empNo"/>
+   		<result column="employee_name" property="empName"/>
+   		<result column="position_name" property="positionName"/>
+   		<result column="box_name" property="boxName"/>
+   		<result column="todo_created_date" property="createdDate"/>
+   		<result column="todo_updated_date" property="updatedDate"/>
+   		<result column="todo_start_date" property="startDate"/>
+   		<result column="todo_end_date" property="endDate"/>
+   		<collection property="receiveEmp" ofType="ReceiveEmployees">
+   			<result column="receive_employee_no" property="receiveEmpNo"/>
+   			<result column="receive_employee_name" property="receiveEmpName"/>
+   			<result column="receive_position_name" property="positionName"/>
+   			<result column="todo_progress_updated_date" property="progressUpdatedDate"/>
+   			<result column="todo_progress_rate" property="progressRate"/>
+   			<result column="todo_progress_content" property="progressContent"/>
+   		</collection>
+   </resultMap>
+   <select id="detailDtos" parameterType="int" resultMap="ReceiveEmployeeList">
+   		select
+   			A.todo_no,
+   			A.todo_title,
+   			A.todo_content,
+   			A.todo_progress_status,
+   			A.employee_no,
+   			B.employee_name,
+   			F.position_name,
+   			E.box_name,
+   			A.todo_created_date,
+   			A.todo_updated_date,
+   			A.todo_start_date,
+   			A.todo_end_date,
+   			C.receive_employee_no,
+			D.employee_name as receive_employee_name,
+   			G.position_name as receive_position_name,
+			C.todo_progress_updated_date,
+			C.todo_progress_rate,
+			C.todo_progress_content
+			
+		from
+			todos A, employees B, todo_progress_histories C, employees D, todo_Boxes E, employee_positions F, employee_positions G 
+		where
+			C.employee_no = B.employee_no
+			and B.position_no = F.position_no
+			and C.receive_employee_no = D.employee_no
+			and D.position_no = G.position_no
+			and C.todo_no = A.todo_no
+			and A.box_no = E.box_no
+			and C.todo_no = #{todoNo}
+   </select>
+   
+   <!-- 해당업무에 수신자 수 -->
+   <select id="getReceiverCount" parameterType="int" resultType="int">
+   		select count(*)
+   		from
+   			todo_progress_histories
+   		where
+   			todo_no = #{todoNo}
+   </select>
+	
+	<select id="getTodoReceiveSelect" resultType="TodoReceiveSelect">
+		select
+			A.employee_no		as employeeNo,
+			A.employee_name		as employeeName,
+			A.position_no		as positionNo,
+			B.position_name		as positionName
+		from
+			employees A, employee_positions B
+		where
+			A.position_no = B.position_no
+	</select>
+	
+	<!-- 해당업무의 댓글 조회하기 -->
+	<select id="commentList" parameterType="int" resultType="TodoComment">
+		select
+			A.todo_comment_no as commentNo,
+			A.todo_no as todoNo,
+			A.todo_content as content,
+			A.todo_comment_created_date as createdDate,
+			A.employee_no as employeeNo,
+			B.employee_name as employeeName,
+			C.position_name as positionName
+		from
+			todo_comments A, employees B, employee_positions C
+		where
+			A.employee_no = B.employee_no
+			and B.position_no = C.position_no
+			and todo_no = #{todoNo}
+			and todo_comment_deleted = 'N'
+	</select>
+	 
+	 <!-- 댓글번호로 댓글조회하기 -->
+	 <select id="getCommentByCommentNo" parameterType="int" resultType="TodoComment">
+	 	select
+	 		*
+	 	from
+	 		todo_comments
+	 	where
+	 		todo_comment_no = #{commentNo}
+	 </select>
+	 
+	<!-- 수신업무 화면조회 -->
+	<select id="getReceiveTodos" parameterType="int" resultType="TodoListDto">
+		select
+	   		todo_no					as todoNo,
+	   		todo_important			as important,
+	   		todo_title				as title,
+	   		todo_created_date		as createdDate,
+	   		todo_start_date			as startDate,
+	   		todo_end_date			as endDate,
+	   		todo_progress_status	as progressStatus,
+	   		todo_progress_read		as read,
+	   		job_cat_no				as jobCatNo,
+	   		job_cat_name			as jobCatName,
+	   		employee_no				as empNo,
+	   		employee_name			as empName
+	   	from
+			(select
+				row_number() over (order by A.todo_no desc) row_numbers,
+				A.todo_no					,
+		  		A.todo_important			,
+		 		A.todo_title				,
+		  		A.todo_created_date			,
+		  		A.todo_start_date			,
+		  		A.todo_end_date				,
+		  		A.todo_progress_status		,
+		  		C.todo_progress_read		,
+		   		A.job_cat_no				,
+		   		E.job_cat_name				,
+		   		A.employee_no				,
+		   		B.employee_name				
+		   	from
+		   		todos A, employees B, todo_progress_histories C, job_categories E
+		   	<where>
+   				<choose>
+   					<when test="opt == 'title'">
+   						A.todo_title like '%' || #{keyword} || '%' 
+   					</when>
+   					<when test="opt == 'writer'">
+   						B.employee_name like '%' || #{keyword} || '%'
+   					</when>
+   					<when test="opt == 'content'">
+   						A.employee_content like '%' || #{keyword} || '%'
+   					</when>
+   				</choose>
+   				<choose>
+   					<when test='status == "C"'>
+   						and A.todo_progress_status = 'C'
+   					</when>
+   					<when test='status == "D"'>
+   						and A.todo_progress_status = 'D'
+   					</when>
+   					<when test='status == "W"'>
+   						and A.todo_progress_status = 'W'
+   					</when>
+   					<when test='status == "R"'>
+   						and A.todo_progress_status = 'R'
+   					</when>
+   					<when test='status == "A"'>
+   						and A.todo_progress_status = 'A'
+   					</when>
+   				</choose>
+   				<if test='important == "Y"'>
+   					and A.todo_important = 'Y'
+   				</if>
+   				<if test="startDate and endDate != null">
+   					and todo_start_date between #{startDate} and #{endDate}
+   				</if>
+			   		and A.todo_no = C.todo_no
+			   		and A.employee_no = B.employee_no
+			   		and C.receive_employee_no = #{receiveEmpNo}
+			   		and A.job_cat_no = E.job_cat_no
+   				</where>
+			   	)
+			where
+	   			row_numbers between #{begin} and #{end}
+	</select>
+	
+	<!-- 업무처리번호 조회하기 -->
+	<select id="getProgressNoByNums" parameterType="int" resultType="int">
+		select
+		    todo_progress_no
+		from
+		    todo_progress_histories
+		where
+		    todo_no = #{todoNo}
+		    and receive_employee_no = #{receiveEmpNo}
+	</select>
+	
+	<select id="getProgressHistoryByNums" parameterType="int" resultType="TodoProgressDto">
+		select
+		    todo_progress_no as progressNo,
+		    todo_no as todoNo,
+		    todo_progress_rate as progressRate,
+		    todo_progress_content as content,
+		   	todo_progress_read as progressRead,
+		   	receive_employee_no as receiveEmpNo 
+		from
+		    todo_progress_histories
+		where
+		    todo_no = #{todoNo}
+		    and receive_employee_no = #{receiveEmpNo}
+	</select>
+	
+	<!-- 확인하지 않은 업무 -->
+	<select id="getUnreadCount" parameterType="int" resultType="int">
+		select
+			count(*)
+		from
+			todo_progress_histories
+		where
+			todo_progress_read = 'N'
+			and receive_employee_no = #{receiveEmpNo}
+	</select>
+	
+	<!-- 업무 수정하기 -->
+	<update id="updateTodo" parameterType="Todo">
+		update todos
+		set
+			todo_important = #{important},
+			todo_title = #{title},
+			todo_content = #{content},
+			todo_progress_status = #{progressStatus},
+			todo_progress_rate = #{progressRate},
+			todo_start_date = #{startDate},
+			todo_end_date = #{endDate},
+			todo_read = #{read},
+			box_no = #{boxNo},
+			todo_deleted = #{deleted},
+			todo_updated_date = sysdate
+		where
+			todo_no = #{todoNo}
+	</update>
+	
+	<update id="updateProgress" parameterType="TodoProgressDto">
+		update todo_progress_histories
+		set
+			todo_progress_read = #{progressRead},
+			todo_progress_rate = #{progressRate},
+			todo_progress_content = #{content},
+			todo_progress_updated_date = sysdate
+		where
+			todo_progress_no = #{progressNo}
+	</update>
+	
+	<!-- 댓글삭제하기 -->
+	<delete id="deleteComment" parameterType="int">
+		delete
+		from todo_comments
+		where todo_comment_no = #{commentNo}
+	</delete>
+</mapper>

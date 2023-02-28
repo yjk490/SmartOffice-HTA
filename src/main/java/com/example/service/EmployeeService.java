@@ -40,6 +40,7 @@ public class EmployeeService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	// 사원의 디테일 정보 가져오기
 	public EmployeeDetailDto getEmplDetail(int no) {
 		Employee employee = employeeMapper.getEmployeeByNo(no);
 		List<EmployeeRole> employeeRoles = employeeRoleMapper.getEmpRolesByEmployeeNo(no);
@@ -94,6 +95,7 @@ public class EmployeeService {
 		return employeeDetailDto;
 	}
 
+	// 모든 사원정보 가져오기
 	public Map<String, Object> getAllEmployees(Map<String, Object> param) {
 		int totalRows = employeeMapper.getAllEmployeeTotalRows(param);
 		int page = (Integer)param.get("page");
@@ -145,6 +147,7 @@ public class EmployeeService {
 		
 	}
 
+	// 비밀번호 바꾸기
 	public void changePassword(int empNo, String oldPassword, String password) {
 		Employee employee = employeeMapper.getEmployeeByNo(empNo);
 		
@@ -186,6 +189,7 @@ public class EmployeeService {
 		
 	}
 	
+	// 임시비밀번호 발급
 	public String getTemporaryPassword() {
 		char[] charSet = new char[] {'0','1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
 				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
