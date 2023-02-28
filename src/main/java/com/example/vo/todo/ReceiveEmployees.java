@@ -17,7 +17,8 @@ public class ReceiveEmployees {
 	private int empNo;
 	private int receiveEmpNo;
 	private String receiveEmpName;
+	private String positionName;
+	private Date progressUpdatedDate;
 	private int progressRate;
 	private String progressContent; 
-	private Date progressUpdatedDate;
 }

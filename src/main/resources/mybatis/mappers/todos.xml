@@ -10,7 +10,14 @@
    		insert into todos
    		(todo_no, todo_important, todo_title, todo_content, todo_start_date, todo_end_date, box_no, employee_no, job_cat_no, receive_employee_no)
    		values
-   		(#{todoNo}, #{important}, #{title}, #{content}, #{startDate}, #{endDate}, #{boxNo}, #{employeeNo}, #{jobCatNo}, #{receiveEmployeeNo})
+   		<choose>
+   			<when test="receiveEmployeeNo == 0">
+		   		(#{todoNo}, #{important}, #{title}, #{content}, #{startDate}, #{endDate}, #{boxNo}, #{employeeNo}, #{jobCatNo}, null)
+   			</when>
+			<otherwise>
+		   		(#{todoNo}, #{important}, #{title}, #{content}, #{startDate}, #{endDate}, #{boxNo}, #{employeeNo}, #{jobCatNo}, #{receiveEmployeeNo})
+			</otherwise>
+		</choose>
    </insert>
    
    <!-- 수신자등록 -->
@@ -33,6 +40,7 @@
    		values
    		(todo_comments_seq.nextval, #{todoNo}, #{content}, #{employeeNo})
    </insert>
+   
    <!-- 업무조회하기 -->
    <select id="getTodos" parameterType="map" resultType="TodoListDto">
    		select
@@ -111,7 +119,7 @@
 	   				and A.employee_no = B.employee_no
 	   				and A.receive_employee_no = D.employee_no(+)
 	   				and A.box_no = C.box_no
-	   				and job_cat_no = #{category}
+	   				and A.job_cat_no = #{category}
 	   				and A.employee_no = #{empNo}
    			</where>
    			)
@@ -131,25 +139,29 @@
 	<!-- 업무번호로 업무조회하기 -->
 	<select id="getTodoByTodoNo" parameterType="int" resultType="Todo">
 		select
-			todo_no					as todoNo,
-			todo_important			as important,
-			todo_title				as title,
-			todo_content			as content,
-			todo_progress_status	as progressStatus,
-			todo_progress_rate		as progressRate,
-			todo_start_date			as startDate,
-			todo_end_date			as endDate,
-			todo_read				as read,
-			todo_deleted			as deleted,
-			todo_created_date		as createdDate,
-			todo_updated_date		as updatedDate,
-			box_no					as boxNo,
-			employee_no				as employeeNo,
-			job_cat_no				as jobCatNo
+			A.todo_no				as todoNo,
+			A.todo_important		as important,
+			A.todo_title			as title,
+			A.todo_content			as content,
+			A.todo_progress_status	as progressStatus,
+			A.todo_progress_rate	as progressRate,
+			A.todo_start_date		as startDate,
+			A.todo_end_date			as endDate,
+			A.todo_read				as read,
+			A.todo_deleted			as deleted,
+			A.todo_created_date		as createdDate,
+			A.todo_updated_date		as updatedDate,
+			A.box_no				as boxNo,
+			A.employee_no			as employeeNo,
+			A.job_cat_no			as jobCatNo,
+			A.receive_employee_no	as receiveEmployeeNo,
+			B.employee_name			as receiveEmployeeName
 		from
-			todos
+			todos A, employees B, employees C
 		where
-			todo_no = #{todoNo}
+			A.employee_no = B.employee_no
+			and A.receive_employee_no = C.employee_no(+)
+			and todo_no = #{todoNo}
 	</select>
 	
 	<!-- 업무번호로 업무상세보기조회 -->
@@ -299,18 +311,22 @@
    		<result column="todo_progress_status" property="progressStatus"/>
    		<result column="employee_no" property="empNo"/>
    		<result column="employee_name" property="empName"/>
+   		<result column="position_name" property="positionName"/>
+   		<result column="box_name" property="boxName"/>
    		<result column="todo_created_date" property="createdDate"/>
    		<result column="todo_updated_date" property="updatedDate"/>
    		<result column="todo_start_date" property="startDate"/>
    		<result column="todo_end_date" property="endDate"/>
    		<collection property="receiveEmp" ofType="ReceiveEmployees">
-   			<result column="receiveEmpName" property="recieveEmpName"/>
-   			<result column="updatedDate" property="updatedDate"/>
-   			<result column="progressRate" property="progressRate"/>
-   			<result column="progressContent" property="progressContent"/>
+   			<result column="receive_employee_no" property="receiveEmpNo"/>
+   			<result column="receive_employee_name" property="receiveEmpName"/>
+   			<result column="receive_position_name" property="positionName"/>
+   			<result column="todo_progress_updated_date" property="progressUpdatedDate"/>
+   			<result column="todo_progress_rate" property="progressRate"/>
+   			<result column="todo_progress_content" property="progressContent"/>
    		</collection>
    </resultMap>
-   <select id="progressTodo" parameterType="int" resultMap="ReceiveEmployeeList">
+   <select id="detailDtos" parameterType="int" resultMap="ReceiveEmployeeList">
    		select
    			A.todo_no,
    			A.todo_title,
@@ -318,38 +334,39 @@
    			A.todo_progress_status,
    			A.employee_no,
    			B.employee_name,
+   			F.position_name,
+   			E.box_name,
    			A.todo_created_date,
    			A.todo_updated_date,
    			A.todo_start_date,
    			A.todo_end_date,
-			C.todo_progress_updated_date as progressUpdatedDate,
-			A.todo_progress_rate		as progressRate,
-			C.todo_progress_content 	as progressContent,
-			D.employee_name				as receiveEmpName
+   			C.receive_employee_no,
+			D.employee_name as receive_employee_name,
+   			G.position_name as receive_position_name,
+			C.todo_progress_updated_date,
+			C.todo_progress_rate,
+			C.todo_progress_content
+			
 		from
-			todos A, employees B, todo_progress_histories C, employees D
+			todos A, employees B, todo_progress_histories C, employees D, todo_Boxes E, employee_positions F, employee_positions G 
 		where
 			C.employee_no = B.employee_no
-			and C.employee_no = B.employee_no
+			and B.position_no = F.position_no
 			and C.receive_employee_no = D.employee_no
-			and C.todo_no = A.todo_no 
+			and D.position_no = G.position_no
+			and C.todo_no = A.todo_no
+			and A.box_no = E.box_no
 			and C.todo_no = #{todoNo}
    </select>
    
-	<select id="receiveTodo" parameterType="int" resultType="ReceiveEmployees">
-		select
-			A.todo_No 				as todoNo,
-			A.employee_no			as empNo,
-			B.employee_name			as empName,
-			C.todo_progress_rate	as progressRate,
-			A.todo_progress_content as progressContent
-		from
-			todo_progress_histories A, employees B, todos C
-		where
-			A.employee_no = B.employee_no
-			and A.todo_no = C.todo_no 
-			and A.employee_no = #{empNo}
-	</select>
+   <!-- 해당업무에 수신자 수 -->
+   <select id="getReceiverCount" parameterType="int" resultType="int">
+   		select count(*)
+   		from
+   			todo_progress_histories
+   		where
+   			todo_no = #{todoNo}
+   </select>
 	
 	<select id="getTodoReceiveSelect" resultType="TodoReceiveSelect">
 		select
@@ -362,19 +379,37 @@
 		where
 			A.position_no = B.position_no
 	</select>
+	
 	<!-- 해당업무의 댓글 조회하기 -->
 	<select id="commentList" parameterType="int" resultType="TodoComment">
 		select
+			A.todo_comment_no as commentNo,
+			A.todo_no as todoNo,
 			A.todo_content as content,
 			A.todo_comment_created_date as createdDate,
-			B.employee_name as employeeName
+			A.employee_no as employeeNo,
+			B.employee_name as employeeName,
+			C.position_name as positionName
 		from
-			todo_comments A, employees B
+			todo_comments A, employees B, employee_positions C
 		where
 			A.employee_no = B.employee_no
+			and B.position_no = C.position_no
 			and todo_no = #{todoNo}
-			and todo_comment_deleted = 'N' 
+			and todo_comment_deleted = 'N'
 	</select>
+	 
+	 <!-- 댓글번호로 댓글조회하기 -->
+	 <select id="getCommentByCommentNo" parameterType="int" resultType="TodoComment">
+	 	select
+	 		*
+	 	from
+	 		todo_comments
+	 	where
+	 		todo_comment_no = #{commentNo}
+	 </select>
+	 
+	<!-- 수신업무 화면조회 -->
 	<select id="getReceiveTodos" parameterType="int" resultType="TodoListDto">
 		select
 	   		todo_no					as todoNo,
@@ -384,8 +419,9 @@
 	   		todo_start_date			as startDate,
 	   		todo_end_date			as endDate,
 	   		todo_progress_status	as progressStatus,
-	   		todo_read				as read,
+	   		todo_progress_read		as read,
 	   		job_cat_no				as jobCatNo,
+	   		job_cat_name			as jobCatName,
 	   		employee_no				as empNo,
 	   		employee_name			as empName
 	   	from
@@ -398,13 +434,13 @@
 		  		A.todo_start_date			,
 		  		A.todo_end_date				,
 		  		A.todo_progress_status		,
-		  		A.todo_read					,
+		  		C.todo_progress_read		,
 		   		A.job_cat_no				,
+		   		E.job_cat_name				,
 		   		A.employee_no				,
 		   		B.employee_name				
 		   	from
-		   		todos A, employees B, todo_progress_histories C
-		   		
+		   		todos A, employees B, todo_progress_histories C, job_categories E
 		   	<where>
    				<choose>
    					<when test="opt == 'title'">
@@ -440,14 +476,53 @@
    				<if test="startDate and endDate != null">
    					and todo_start_date between #{startDate} and #{endDate}
    				</if>
-			   		A.todo_no = C.todo_no
+			   		and A.todo_no = C.todo_no
 			   		and A.employee_no = B.employee_no
 			   		and C.receive_employee_no = #{receiveEmpNo}
+			   		and A.job_cat_no = E.job_cat_no
    				</where>
 			   	)
 			where
 	   			row_numbers between #{begin} and #{end}
 	</select>
+	
+	<!-- 업무처리번호 조회하기 -->
+	<select id="getProgressNoByNums" parameterType="int" resultType="int">
+		select
+		    todo_progress_no
+		from
+		    todo_progress_histories
+		where
+		    todo_no = #{todoNo}
+		    and receive_employee_no = #{receiveEmpNo}
+	</select>
+	
+	<select id="getProgressHistoryByNums" parameterType="int" resultType="TodoProgressDto">
+		select
+		    todo_progress_no as progressNo,
+		    todo_no as todoNo,
+		    todo_progress_rate as progressRate,
+		    todo_progress_content as content,
+		   	todo_progress_read as progressRead,
+		   	receive_employee_no as receiveEmpNo 
+		from
+		    todo_progress_histories
+		where
+		    todo_no = #{todoNo}
+		    and receive_employee_no = #{receiveEmpNo}
+	</select>
+	
+	<!-- 확인하지 않은 업무 -->
+	<select id="getUnreadCount" parameterType="int" resultType="int">
+		select
+			count(*)
+		from
+			todo_progress_histories
+		where
+			todo_progress_read = 'N'
+			and receive_employee_no = #{receiveEmpNo}
+	</select>
+	
 	<!-- 업무 수정하기 -->
 	<update id="updateTodo" parameterType="Todo">
 		update todos
@@ -467,4 +542,21 @@
 			todo_no = #{todoNo}
 	</update>
 	
+	<update id="updateProgress" parameterType="TodoProgressDto">
+		update todo_progress_histories
+		set
+			todo_progress_read = #{progressRead},
+			todo_progress_rate = #{progressRate},
+			todo_progress_content = #{content},
+			todo_progress_updated_date = sysdate
+		where
+			todo_progress_no = #{progressNo}
+	</update>
+	
+	<!-- 댓글삭제하기 -->
+	<delete id="deleteComment" parameterType="int">
+		delete
+		from todo_comments
+		where todo_comment_no = #{commentNo}
+	</delete>
 </mapper>

@@ -22,6 +22,7 @@ public class TodoListDto {
 	private String empName;
 	private String receiveEmpName;
 	private int jobCatNo;
+	private String jobCatName;
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date createdDate;
 	@DateTimeFormat(pattern="yyyy-MM-dd")

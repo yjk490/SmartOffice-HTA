@@ -30,5 +30,6 @@ public class Todo {
 	private int boxNo;
 	private int employeeNo;
 	private int receiveEmployeeNo;
+	private String receiveEmployeeName;
 	private int jobCatNo;
 }

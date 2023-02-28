@@ -25,7 +25,10 @@ public class TodoDetailDto {
 	private String progressStatus;
 	private int empNo;
 	private String empName;
+	private String positionName;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date createdDate;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date updatedDate;
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date StartDate;

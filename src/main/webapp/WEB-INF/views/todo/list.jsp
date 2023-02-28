@@ -27,7 +27,7 @@ tr button {
 		<div class="col-10">
 			<div class="row">
 				<div class="col-12">
-					<form id="list" class="mb-3" method="post" action="list">
+					<form id="list" class="mb-3" method="post" action="list?category=${category.no }">
 					<sec:csrfInput />
 					<input type="hidden" name="category" value="${category.no }"/>
 					<input type="hidden" name="page" value="${pagination.page }" />
@@ -45,14 +45,8 @@ tr button {
 								<h3 class="heading fw-bold">나의 업무일지</h3>
 							</c:when>
 							<c:when test="${category.name eq '수신 업무 요청' }">
-								<h3 class="heading fw-bold">수신 업무요청</h3>
+								<h3 class="heading fw-bold">수신 업무</h3>
 							</c:when>
-							<c:when test="${category.name eq '수신 업무 보고' }">
-								<h3 class="heading fw-bold">수신 업무보고</h3>
-							</c:when>
-							<c:otherwise>
-								<h3 class="heading fw-bold">수신 업무일지</h3>
-							</c:otherwise>
 						</c:choose>
 					</div>
 				</div>
@@ -142,7 +136,7 @@ tr button {
 								<col width="10%">
 								<c:choose>
 									<c:when test="${category.name eq '나의 할 일' || category.name eq '업무 일지' || category.name eq '수신 업무 일지'}">
-										<col width="15%">
+										<col width="10%">
 									</c:when>
 									<c:otherwise>
 										<col width="10%">
@@ -156,7 +150,14 @@ tr button {
 									<th><input type="checkbox" id="allCheck"></th>
 									<th class="text-center">번호</th>
 									<th class="text-center">중요</th>
-									<th class="text-center">업무보관함</th>
+									<c:choose>
+										<c:when test="${category.name eq '나의 할 일' || category.name eq '업무 요청' || category.name eq '업무 보고' }">
+											<th class="text-center">업무보관함</th>
+										</c:when>
+										<c:otherwise>
+											<th class="text-center">업무유형</th>
+										</c:otherwise>
+									</c:choose>
 									<th class="text-center">제목</th>
 									<c:if test="${category.name eq '업무 요청' }">
 										<th class="text-center">담당자</th>
@@ -200,13 +201,23 @@ tr button {
 												<td><input type="checkbox" name="checklist" value=${todo.todoNo } /></td>
 												<td id="no" class="text-center">${todo.todoNo }</td>
 												<td class="text-center"><i class="${todo.important eq 'Y' ?  'fas fa-star w3-text-amber' : 'far fa-star w3-text-amber'} "></i></td>
-												<td class="text-center">${todo.boxName }</td>
+												<c:choose>
+													<c:when test="${category.name eq '나의 할 일' || category.name eq '업무 요청' || category.name eq '업무 보고' || category.name eq '업무 일지'}">
+														<td class="text-center">${todo.boxName }</td>
+													</c:when>
+													<c:otherwise>
+														<td class="text-center">${todo.jobCatName }</td>
+													</c:otherwise>
+												</c:choose>
 												<td class="text-center"><a href="read?todoNo=${todo.todoNo }&category=${category.no}">${todo.title }</a></td>
 												<c:if test="${category.name eq '업무 요청' || category.name eq '업무 보고' || category.name eq '업무 일지' }">
 													<td class="text-center">${todo.receiveEmpName }</td>
 												</c:if>
 												<c:if test="${category.name eq '수신 업무 요청' || category.name eq '수신 업무 보고' || category.name eq '수신 업무 일지' }">
 													<td class="text-center">${todo.empName }</td>
+												</c:if>
+												<c:if test="${category.name eq '나의 할 일' }">
+													<td></td>
 												</c:if>
 												<c:if test="${category.name eq '업무 일지' || category.name eq '수신 업무 일지'}">
 													<td class="text-center"><fmt:formatDate	value="${todo.createdDate }" /></td>
@@ -230,16 +241,28 @@ tr button {
 														</c:otherwise>
 													</c:choose>
 												</c:if>
-												<c:if test="${category.name ne '나의 할 일' }">
-													<c:choose>
-														<c:when test="${todo.read eq 'N' }">
-															<td class="text-center"><button type="button" class="text-black fw-bold btn btn-light btn-outline-secondary btn-sm" disabled>안읽음</button></td>
-														</c:when>
-														<c:otherwise>
-															<td class="text-center"><button type="button" class="text-white fw-bold btn btn-success btn-sm" disabled>읽음확인</button></td>
-														</c:otherwise>
-													</c:choose>
-												</c:if>
+												<c:choose>
+													<c:when test="${category.name eq '업무 요청' || category.name eq '업무 보고' || category.name eq '업무 일지'}">
+														<c:choose>
+															<c:when test="${todo.read eq 'N' }">
+																<td class="text-center"><button type="button" class="text-black fw-bold btn btn-light btn-outline-secondary btn-sm" >안읽음</button></td>
+															</c:when>
+															<c:otherwise>
+																<td class="text-center"><button type="button" class="text-white fw-bold btn btn-success btn-sm" >읽음확인</button></td>
+															</c:otherwise>
+														</c:choose>
+													</c:when>
+													<c:when test="${category.no eq '104' }">
+														<c:choose>
+															<c:when test="${todo.read eq 'N' }">
+																<td class="text-center"><button type="button" class="text-black fw-bold btn btn-light btn-outline-secondary btn-sm" >안읽음</button></td>
+															</c:when>
+															<c:otherwise>
+																<td class="text-center"><button type="button" class="text-white fw-bold btn btn-success btn-sm" >읽음확인</button></td>
+															</c:otherwise>
+														</c:choose>
+													</c:when> 
+												</c:choose>
 											</tr>
 										</c:forEach>
 									</c:otherwise>
@@ -262,11 +285,10 @@ tr button {
 			</c:if>
 			<div class="row">
 				<div class="col-12 text-end">
-					<%--
-					 	<a href="sample" class="btn btn-dark btn-sm">s</a>
-					--%>
 					<a href="insert?category=${category.no }" class="btn btn-dark btn-sm">업무등록</a>
-					<a id="boxSelect"class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modal-form-todoBox">보관함지정</a>
+					<c:if test="${category.name ne '수신 업무 요청' }">
+						<a id="boxSelect"class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modal-form-todoBox">보관함지정</a>
+					</c:if>
 					<a href="" class="btn btn-outline-dark btn-sm fw-bold">업무완료</a>
 					<a id="delete" href="list?category=${category.no }" class="btn btn-outline-dark btn-sm">삭제</a>
 				</div>
@@ -278,8 +300,8 @@ tr button {
 <!-- 업무를 보관함에 넣기 -->
 <div class="modal" tabindex="-1" id="modal-form-todoBox">
 	<div class="modal-dialog">
-		<form id="form-add-todoBox" class="p-3" method="post" action="insert-todoBox">
-		<sec:csrfInput />
+		<form id="form-add-todoBox" class="p-3" method="get" action="todo-In-TodoBox">
+		<input type="hidden" name="category" value="${category.no }"/>
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title fw-bold">보관함 선택</h5>
@@ -291,7 +313,7 @@ tr button {
 						<div class="mb-2">
 							<label class="form-label fw-bold">등록할 보관함을 선택해 주세요.</label>
 							<div>
-								<select class="form-select form-select-xs" name="boxlist">
+								<select class="form-select form-select-xs" name="boxNo">
 								<c:forEach var="box" items="${todoBoxes }">
 									<option value="${box.boxNo }" > ${box.boxName }</option>
 								</c:forEach>
@@ -356,15 +378,38 @@ $(document).ready(function() {
 		}
 	})
 	
-	// 업무보관함 지정하기
-	$('#boxSelect').click(function() {
-		if($('input[name=checklist]:checked').val() == null) {
-			alert("업무를 체크하세요.")
-			return false;
+	$('#form-add-todoBox').submit(function() {
+		if (confirm('등록하시겠습니까?')) {
+			
+			var noArray = [];
+			$("input[name=checklist]:checked").each(function() {
+				let td = $(this).val();
+				noArray.push(td);
+			});
+			
+			if(noArray.length == 0) {
+				alert("등록할 업무를 체크하세요")
+				event.preventDefault();
+			} else {
+				
+				var param = noArray.map(function(no) {
+					return "no=" + no;
+				}).join("&");
+				
+				$.ajax({
+					url: 'todo-In-TodoBox',
+					type: 'get',
+					data: param, 
+					dataType: 'text',
+					function(response) {
+						console.log(response);
+					}
+				});
+			}
 		} else {
-			return true;
+			return false;
 		}
-	}) 		
+	})
 	
 	// n개씩보기 설정할때마다 page번호 1로 변경
 	$("#changeRows").change(function() {

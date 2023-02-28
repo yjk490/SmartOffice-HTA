@@ -12,11 +12,12 @@ public class TodoProgressDto {
 
 	// 수신자(처리내역)
 	private int progressNo;
-	private int TodoNo;
-	private int empNo;
+	private int todoNo;
+	private int receiveEmpNo;
 	private int progressRate;
-	private String Content;
-	private String FileName;
-	private String CreatedDate;
-	private String UpdatedDate;
+	private String progressRead;
+	private String content;
+	private String fileName;
+	private String createdDate;
+	private String updatedDate;
 }

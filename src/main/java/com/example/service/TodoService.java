@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.dto.todo.TodoBoxListDto;
 import com.example.dto.todo.TodoDetailDto;
 import com.example.dto.todo.TodoListDto;
+import com.example.dto.todo.TodoProgressDto;
 import com.example.dto.todo.TodoReceiveSelect;
 import com.example.dto.todo.TodoSearchOpt;
 import com.example.mapper.TodoMapper;
@@ -94,6 +95,7 @@ public class TodoService {
 		
 		return result;
 	}
+	
 	// 수신 업무 조회(list)
 	public Map<String, Object> ReceiveTodos(int page, TodoSearchOpt opt, int receiveEmpNo) {
 		int totalRows = todoMapper.getTotalRows(); // empNo 넣어야함
@@ -116,7 +118,11 @@ public class TodoService {
 		
 		return result;
 	}
-		
+	// 상세화면 조회
+	public TodoDetailDto detailDtos(int todoNo) {
+		return  todoMapper.detailDtos(todoNo);
+	}
+	
 	// 업무유형 조회
 	public List<Category> getCategory() {
 		List<Category> categories = todoMapper.getCategory();
@@ -134,6 +140,23 @@ public class TodoService {
 		TodoDetailDto todoDetailDto = todoMapper.getTodoDetailByTodoNo(todoNo);
 		
 		return todoDetailDto;
+	}
+	// 해당업무에 몇명의 수신자가 있는지 조회하기
+	public int getReceiverCount(int todoNo) {
+		int count = todoMapper.getReceiverCount(todoNo);
+		return count; 
+	}
+	
+	public String receiveEmployee(int todoNo) {
+		Todo todo = todoMapper.getTodoByTodoNo(todoNo);
+		String receiveName = todo.getReceiveEmployeeName();
+		return receiveName;
+	}
+	
+	// 업무번호로 업무조회하기
+	public Todo getTodoByTodoNo(int todoNo) {
+		Todo todo = todoMapper.getTodoByTodoNo(todoNo);
+		return todo;
 	}
 	
 	// 업무 수정하기
@@ -207,9 +230,35 @@ public class TodoService {
 	}
 
 	// 읽음확인표시
-	public void Reading(int todoNo) {
+	public void reading(int todoNo) {
 		Todo todo = todoMapper.getTodoByTodoNo(todoNo);
 		todo.setRead("Y");
 		todoMapper.updateTodo(todo);
+	}
+
+	// 댓글삭제
+	public void deleteComment(int commentNo) {
+		todoMapper.deleteComment(commentNo);
+	}
+
+	// 업무처리하기
+	public void todoProgress(TodoProgressDto dto) {
+		int progressNo = todoMapper.getProgressNoByNums(dto.getTodoNo(), dto.getReceiveEmpNo());
+		System.out.println("progressNo: " + progressNo);
+		dto.setProgressNo(progressNo);
+		todoMapper.updateProgress(dto);
+	}
+	
+	// 수신업무 읽음처리
+	public void receiveReading(int todoNo, int receiveEmpNo) {
+		TodoProgressDto dto = todoMapper.getProgressHistoryByNums(todoNo, receiveEmpNo);
+		dto.setProgressRead("Y");
+		todoMapper.updateProgress(dto);
+	}
+	
+	// 읽지않은 업무 수
+	public int getUnreadCount(int receiveEmpNo) {
+		int unread = todoMapper.getUnreadCount(receiveEmpNo);
+		return unread;
 	}
 }

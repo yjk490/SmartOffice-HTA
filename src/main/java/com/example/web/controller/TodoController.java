@@ -1,6 +1,6 @@
 package com.example.web.controller;
 
-import java.io.File;     
+import java.io.File;       
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.dto.todo.TodoDetailDto;
+import com.example.dto.todo.TodoProgressDto;
 import com.example.dto.todo.TodoReceiveSelect;
 import com.example.dto.todo.TodoSearchOpt;
 import com.example.exception.ApplicationException;
@@ -30,6 +31,7 @@ import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.TodoService;
 import com.example.vo.todo.Category;
+import com.example.vo.todo.Todo;
 import com.example.vo.todo.TodoBox;
 import com.example.vo.todo.TodoComment;
 import com.example.web.request.TodoModifyForm;
@@ -48,15 +50,15 @@ public class TodoController {
 	
 	private final String directory = "c:/files";
 	
-	// 나의 할일 화면요청
+	// 리스트 화면요청
 	@GetMapping("/list")
 	public String todo(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
 						@RequestParam(name = "category", required = false, defaultValue = "100") int categoryNo,
 						@AuthenticatedUser LoginEmployee loginEmployee,
 						TodoSearchOpt opt,
 						Model model) {
+		// 나의 할 일(개인), 업무 요청 및 보고
 		if (categoryNo == 100 || categoryNo == 101 || categoryNo == 102 ||categoryNo == 103) {
-			
 			Map<String, Object> result = todoService.getTodos(page, opt, loginEmployee.getNo());
 			model.addAttribute("todos", result.get("todos"));
 			model.addAttribute("pagination", result.get("pagination"));
@@ -67,6 +69,10 @@ public class TodoController {
 			
 			List<TodoBox> todoBoxes = todoService.getBoxByEmpNo(loginEmployee.getNo());
 			model.addAttribute("todoBoxes", todoBoxes);
+			
+			int unread = todoService.getUnreadCount(loginEmployee.getNo());
+			model.addAttribute("unread", unread);
+			
 		// 수신업무
 		} else {
 			Map<String, Object> result = todoService.ReceiveTodos(page, opt, loginEmployee.getNo());
@@ -76,47 +82,96 @@ public class TodoController {
 			
 			Category cat = todoService.getCategoryByNo(categoryNo);
 			model.addAttribute("category", cat);
+			
+			int unread = todoService.getUnreadCount(loginEmployee.getNo());
+			model.addAttribute("unread", unread);
 		}
 		
 		return "todo/list";
 	}
 	
+	// 조건별 검색
 	@PostMapping("/list")
 	public String todoSearch(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
 			@RequestParam(name = "category", required = false, defaultValue = "100") int categoryNo,
 			@AuthenticatedUser LoginEmployee loginEmployee,
 			TodoSearchOpt opt,
 			Model model) {
-		Map<String, Object> result = todoService.getTodos(page, opt, loginEmployee.getNo());
-		model.addAttribute("todos", result.get("todos"));
-		model.addAttribute("pagination", result.get("pagination"));
-		model.addAttribute("opt", opt);
-		
-		Category cat = todoService.getCategoryByNo(categoryNo);
-		model.addAttribute("category", cat);
+		if (categoryNo == 100 || categoryNo == 101 || categoryNo == 102 ||categoryNo == 103) {
+			Map<String, Object> result = todoService.getTodos(page, opt, loginEmployee.getNo());
+			model.addAttribute("todos", result.get("todos"));
+			model.addAttribute("pagination", result.get("pagination"));
+			model.addAttribute("opt", opt);
+			
+			Category cat = todoService.getCategoryByNo(categoryNo);
+			model.addAttribute("category", cat);
+			
+		} else {
+			Map<String, Object> result = todoService.ReceiveTodos(page, opt, loginEmployee.getNo());
+			model.addAttribute("todos", result.get("todos"));
+			model.addAttribute("pagination", result.get("pagination"));
+			model.addAttribute("opt", opt);
+			
+			Category cat = todoService.getCategoryByNo(categoryNo);
+			model.addAttribute("category", cat);
+		}
 		return "todo/list";
 	}
 	
+	// 읽음확인
 	@GetMapping("/read")
-	public String read(@RequestParam("todoNo") int todoNo, @RequestParam("category")int category) {
-		todoService.Reading(todoNo);
+	public String read(@AuthenticatedUser LoginEmployee loginEmployee, 
+						@RequestParam("todoNo") int todoNo, @RequestParam("category")int categoryNo, Model model) {
+		if(categoryNo != 104) {
+			todoService.reading(todoNo);
+		} else {
+			todoService.receiveReading(todoNo, loginEmployee.getNo());
+		}
 		
-		return "redirect:detail?todoNo=" + todoNo + "&category=" + category;
-	}	
+		return "redirect:detail?todoNo=" + todoNo + "&category=" + categoryNo;
+	}
+	
 	// 나의 할일 상세화면 요청
 	@GetMapping("/detail")
-	public String todoDetail(@RequestParam("todoNo") int todoNo, @RequestParam("category") int categoryNo, Model model) {
-		TodoDetailDto todoDetailDto = todoService.getTodoDetail(todoNo);
-		model.addAttribute("todos", todoDetailDto);
+	public String todoDetail(@RequestParam("todoNo") int todoNo, @RequestParam("category") int categoryNo, 
+							@AuthenticatedUser LoginEmployee loginEmployee, Model model) {
+		
+		if(categoryNo == 100) {
+			TodoDetailDto todoDetailDto = todoService.getTodoDetail(todoNo);
+			model.addAttribute("dto", todoDetailDto);
+			
+		} else {
+			
+			TodoDetailDto dto = todoService.detailDtos(todoNo);
+			model.addAttribute("dto", dto);
+		}
 		
 		Category cat = todoService.getCategoryByNo(categoryNo);
 		model.addAttribute("category", cat);
 		
 		List<TodoComment> comments = todoService.CommentList(todoNo);
 		model.addAttribute("comments",comments);
+		
+		int login = loginEmployee.getNo();
+		model.addAttribute("loginUserNo", login);
+		
+		String receiveName = todoService.receiveEmployee(todoNo);
+		model.addAttribute("receiveName", receiveName);
+		
+		int count = todoService.getReceiverCount(todoNo);
+		model.addAttribute("count", count);
+		
+		int unread = todoService.getUnreadCount(loginEmployee.getNo());
+		model.addAttribute("unread", unread);
+		
 		return "todo/detail";
 	}
 	
+	@PostMapping("/complete")
+	public String todoComplete(TodoProgressDto dto, @RequestParam("progressRate") String rate, int category) {
+		todoService.todoProgress(dto);
+		return "redirect:detail?todoNo=" + dto.getTodoNo() + "&category=" + category;
+	}
 	// 댓글 등록하기
 	@PostMapping("/addComment")
 	public String addComment(@AuthenticatedUser LoginEmployee loginEmployee, 
@@ -127,9 +182,10 @@ public class TodoController {
 		return "redirect:detail?todoNo=" + todoComment.getTodoNo() + "&category=" + category;
 	}
 	
-	@GetMapping("/deleteComment")
-	public String deleteComment(int CommentNo) {
-		return"";
+	@GetMapping("/delete-comment")
+	public String deleteComment(int category, int commentNo, int todoNo) {
+		todoService.deleteComment(commentNo);
+		return "redirect:detail?todoNo=" + todoNo + "&category=" + category;
 	}
 	
 	// 수정화면 요청
@@ -233,6 +289,20 @@ public class TodoController {
 		// 로그인정보 필요 TodoBox todoBox = todoService.getBoxByEmpNo(empNo);
 		//model.addAttribute("todoBox", todoBox);
 		return "todo/todoBox";
+	}
+	
+	// 선택 업무 보관함에 설정하기
+	@GetMapping("/todo-In-TodoBox")
+	@ResponseBody
+	public String todoInTodoBox(@RequestParam("boxNo") int boxNo, @RequestParam("no") List<Integer> todoNo,
+								@RequestParam("category") int category) {
+		for(int no : todoNo) {
+			System.out.println(no);
+			
+			Todo todo = todoService.getTodoByTodoNo(no);
+			todo.setBoxNo(boxNo);
+		}
+		return "";
 	}
 	
 	@GetMapping("/sample")

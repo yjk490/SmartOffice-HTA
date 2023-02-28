@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import com.example.dto.todo.TodoBoxListDto;
 import com.example.dto.todo.TodoDetailDto;
 import com.example.dto.todo.TodoListDto;
+import com.example.dto.todo.TodoProgressDto;
 import com.example.dto.todo.TodoReceiveSelect;
 import com.example.vo.todo.Category;
 import com.example.vo.todo.ReceiveEmployees;
@@ -48,11 +49,24 @@ public interface TodoMapper {
 	void updateTodo(Todo todo);
 	// 수신자등록하기
 	void insertReceive(ReceiveEmployees receiveEmployee);
+	// 수신자 조회하기
+	TodoDetailDto detailDtos(int todoNo);
+	// 해당업무에 몇명의 수신자가 있는지 조회하기
+	int getReceiverCount(int todoNo);
 	
 	// 댓글 등록하기
 	void addComment(TodoComment todoComment);
 	// 해당 업무 댓글 조회하기
 	List<TodoComment> commentList(int todoNo);
+	// 댓글번호로 댓글 조회하기
+	TodoComment getCommentByCommentNo(int commentNo);
+	// 댓글삭제하기
+	void deleteComment(int commentNo);
+	
+	// 업무처리하기
+	void updateProgress(TodoProgressDto dto);
+	// 확인하지 않은 업무 수
+	int getUnreadCount(int receiveEmpNo);
 	
 	//업무보관함 List조회
 	int getBoxTotalRows();
@@ -61,5 +75,8 @@ public interface TodoMapper {
 	List<TodoBox> getBoxByEmpNo(int empNo);
 	// 상위보관함번호로 하위보관함 찾기
 	List<TodoBox> getBoxByParentBoxNo(int parentBoxNo);
+	
+	int getProgressNoByNums(int todoNo, int receiveEmpNo);
+	TodoProgressDto getProgressHistoryByNums(int todoNo, int receiveEmpNo);
 	
 }
