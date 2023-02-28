@@ -17,6 +17,7 @@ public class NoteRegisterForm {
 	private String content;
 	private String filename;
 	private MultipartFile upfile;
+	private int boxNo;
 	
 	
 

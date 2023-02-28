@@ -35,15 +35,15 @@
 						<input class="w3-input w3-border" name="password" type="password" placeholder="비밀번호">
 					</div>
 				</div>
-				<div class="w3-center">
+				<div class="w3-center mb-5">
 					<button type="submit" class="w3-button w3-block w3-section w3-black"><b>로그인</b></button>
 				</div>
-				<div class="w3-row w3-margin">
-					<div class="w3-center w3-text-gray">
-						<a href="" class="text-decoration-none">비밀번호 찾기</a>
-					</div>
-				</div>
 			</form>
+			<div class="w3-row w3-margin">
+				<div class="w3-center w3-text-gray">
+					<a href="/help" class="text-decoration-none">비밀번호 찾기</a>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

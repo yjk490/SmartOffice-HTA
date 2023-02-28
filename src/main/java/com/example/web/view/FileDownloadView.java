@@ -26,7 +26,8 @@ public class FileDownloadView extends AbstractView {
 		// 서버에 저장된 파일이름에서 앞의 36자리(uuid)를 제거한 후, 응답메세지의 헤더부에 다운로드되는 첨부파일의 이름으로 설정한다.
 		String originalFilename = file.getName();
 		if (originalFilename.length() > 36) {
-			originalFilename = file.getName().substring(36);
+
+			originalFilename = originalFilename.substring(36);			
 		}
 		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(originalFilename, "utf-8"));
 		

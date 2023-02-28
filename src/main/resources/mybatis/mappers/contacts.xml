@@ -12,7 +12,7 @@
 		insert into contacts
 			(contact_no, contact_name, contact_share, contact_email, contact_birth, contact_company, contact_dept, contact_position, contact_address, contact_photo, contact_url, contact_memo)
 		values
-			(#{contactNo}, #{name}, #{share}, #{email}, #{birth}, #{company}, #{dept}, #{position}, #{address}, #{photo}, #{url}, #{memo})
+			(#{contactNo}, #{name}, #{share}, #{email}, #{birth,jdbcType=DATE}, #{company,jdbcType=VARCHAR}, #{dept,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{photo,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR})
 	</insert>
 	
 	<!-- 
@@ -22,7 +22,7 @@
 		insert into contact_tels
 			(contact_no, contact_tel)
 		values
-			(#{contactNo}, #{tel})
+			(#{contactNo}, #{contactTel})
 	</insert>
 	
 	<!-- 
@@ -75,9 +75,22 @@
 		select
 			count(*)
 		from
-			contacts
-		where
-			contact_share = 'Y'
+			contacts A, contact_tags B, addressbooks C, contact_tels D
+		<where>
+			A.contact_share = 'Y'
+			and A.contact_no = B.contact_no
+			and A.contact_no = D.contact_no
+			and C.addressbook_no = B.addressbook_no
+			<if test="initial != null">
+				
+			</if>
+			<if test="keyword != null">
+				and (A.contact_name like '%' || #{keyword} || '%'
+					or A.contact_email like '%' || #{keyword} || '%'
+					or C.addressbook_name like '%' || #{keyword} || '%'
+					or D.contact_tel like '%' || #{keyword} || '%')
+			</if>
+		</where>
 	</select>
 	
 	<!-- 
@@ -87,9 +100,73 @@
 		select
 			count(*)
 		from
-			contacts
+			contacts A, contact_tags B, addressbooks C, contact_tels D
+		<where>
+			A.contact_share = 'N'
+			and A.contact_no = B.contact_no
+			and A.contact_no = D.contact_no
+			and C.addressbook_no = B.addressbook_no
+			<if test="initial != null">
+				
+			</if>
+			<if test="keyword != null">
+				and (A.contact_name like '%' || #{keyword} || '%'
+					or A.contact_email like '%' || #{keyword} || '%'
+					or C.addressbook_name like '%' || #{keyword} || '%'
+					or D.contact_tel like '%' || #{keyword} || '%')
+			</if>
+		</where>
+	</select>
+	
+	<!-- 연락처 목록 조회 -->
+	<select id="getContacts" resultType="ContactListDto">
+		select
+			contact_no				as contactNo,
+			contact_name			as name,
+			contact_tel				as contactTel,
+			contact_email			as email,
+			contact_created_date	as createdDate,
+			addressbook_no			as addressbookNo,
+			addressbook_name		as addressbookName
+		from (
+			select
+			<choose>
+				<when test="sort == 'name' or sort == '' or sort == null">
+					row_number() over (order by A.contact_name desc) row_numbers,
+				</when>
+				<when test="sort == 'tel'">
+					row_number() over (order by B.contact_tel desc) row_numbers,
+				</when>
+				<when test="sort == 'email'">
+					row_number() over (order by A.contact_email desc) row_numbers,
+				</when>
+			</choose>
+				A.contact_no,
+				A.contact_name,
+				B.contact_tel,
+				A.contact_email,
+				A.contact_created_date,
+				C.addressbook_no,
+				C.addressbook_name
+			from
+				contacts A, contact_tels B, addressbooks C, contact_tags D
+			<where>
+				A.contact_share = 'Y'
+				and A.contact_no = B.contact_no
+				and A.contact_no = D.contact_no
+				and C.addressbook_no = D.addressbook_no
+				<choose>
+					<when test="keyword != null">
+					and (A.contact_name like '%' || #{keyword} || '%'
+						or A.contact_email like '%' || #{keyword} || '%'
+						or C.addressbook_name like '%' || #{keyword} || '%'
+						or B.contact_tel like '%' || #{keyword} || '%')
+					</when>
+				</choose>
+		</where>
+		)
 		where
-			contact_share = 'N'
+			row_numbers between #{begin} and #{end}
 	</select>
 	
 	<!-- 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.PostMapper">
-
 	
 	<insert id="insertPost" parameterType="com.example.vo.post.Post">
 		insert into posts
@@ -9,23 +8,64 @@
 		values
 			(#{no}, #{employeeNo}, #{title}, #{content})
 	</insert>
-
-	<insert id="insertTag" parameterType="com.example.vo.post.Tag">
-		insert into post_tags
-			(post_no, tag_content)
-		values
-			(#{postNo}, #{content})
+	
+	<insert id="insertTags" parameterType="java.util.List">
+	    insert all 
+	    <foreach item="tag" collection="list">
+	        into post_tags 
+	        	(post_no, tag_content) 
+	        values 
+	        	(#{tag.postNo}, #{tag.content})
+	    </foreach>
+	    select 1 from dual
 	</insert>
 	
-	<insert id="insertAttachedFile" parameterType="com.example.vo.post.AttachedFile">
-		insert into post_attached_files
-			(file_no, post_no, post_original_filename, post_saved_filename)
+	<insert id="insertAttachedFiles" parameterType="java.util.List">
+		insert all
+		<foreach item="attachedFile" collection="list">
+			into post_attached_files
+				(post_no, post_original_filename, post_saved_filename)
+			values
+				(#{attachedFile.postNo}, #{attachedFile.originalName}, #{attachedFile.savedName})
+		</foreach>
+		select 1 from dual
+	</insert>
+	
+	<insert id="insertComment" parameterType="com.example.vo.post.Comment">
+		insert into post_comments
+			(COMMENT_NO, EMPLOYEE_NO, POST_NO, COMMENT_CONTENT)
 		values
-			(post_attached_files_seq.nextval, #{postNo}, #{originalName}, #{savedName})	
+			(#{no}, #{employeeNo}, #{postNo}, #{content})
+	</insert>
+	
+	<insert id="insertPostScrap">
+		insert into post_scraps
+			(post_no, employee_no)
+		values
+			(#{postNo}, #{employeeNo})
+	</insert>
+	
+	<insert id="insertPostRecommend">
+		insert into post_recommends
+			(post_no, employee_no)
+		values
+			(#{postNo}, #{employeeNo})
+	</insert>
+	
+	<insert id="insertCommentRecommend">
+		insert into post_comment_recommends
+			(comment_no, employee_no)
+		values
+			(#{commentNo}, #{employeeNo})
 	</insert>
 	
 	<select id="getPostSequence" resultType="int">
 		select posts_seq.nextval
+		from dual
+	</select>
+	
+	<select id="getCommentSequence" resultType="int">
+		select post_comments_seq.nextval
 		from dual
 	</select>
 
@@ -52,6 +92,11 @@
 										employee_name = #{keyword})	
 				</when>
 			</choose>
+			<!-- 
+			<if test="employeeNo != null">
+				and employee_no = #{employeeNo}
+			</if>
+			 -->
 			and post_deleted = 'N'
 		</where>
 	</select>
@@ -64,10 +109,26 @@
 		    post_read_count 		as readCount,
 		    post_comment_count		as commentCount,
 		    post_recommend_count 	as recommendCount,
-		    post_created_date 		as createdDate
+		    post_created_date 		as createdDateTime
 		from (
 		     select
-				 row_number() over (order by A.post_no desc) row_numbers,
+		     	 <choose>
+		     	 	<when test="sort == 'date'">
+						 row_number() over (order by A.post_created_date desc) row_numbers,
+		     	 	</when>
+		     	 	<when test="sort == 'recommend'">
+						 row_number() over (order by A.post_recommend_count desc) row_numbers,
+		     	 	</when>
+		     	 	<when test="sort == 'read'">
+						 row_number() over (order by A.post_read_count desc) row_numbers,
+		     	 	</when>
+		     	 	<when test="sort == 'comment'">
+						 row_number() over (order by A.post_comment_count desc) row_numbers,
+		     	 	</when>
+		     	 	<when test="sort == 'scrap'">
+						 row_number() over (order by A.post_scrap_count desc) row_numbers,
+		     	 	</when>
+		     	 </choose>
 		         A.post_no,
 		         B.employee_name,
 		         A.post_title,
@@ -91,32 +152,20 @@
 		     			B.employee_name like '%' || #{keyword} || '%'
 		     		</when>
 		     	</choose>
+		     	<!-- 
+		     	<if test="employeeNo != null">
+		     		and A.employee_no = #{employeeNo}
+		     	</if>
+		     	 -->
 		         and A.post_deleted = 'N'
 		         and A.employee_no = B.employee_no
 		     </where>
-			 <choose>
-				<when test="sort == 'date'">
-					order by A.post_created_date desc
-				</when> 
-				<when test="sort == 'recommend'">
-					order by A.post_recommend_count desc
-				</when> 
-				<when test="sort == 'read'">
-					order by A.post_read_count desc
-				</when> 
-				<when test="sort == 'comment'">
-					order by A.post_comment_count desc
-				</when> 
-				<when test="sort == 'scrap'">
-					order by A.post_scrap_count desc
-				</when> 
-			 </choose>
 		     )
 		where
 		    row_numbers between #{begin} and #{end}
 	</select>
 
-	<select id="getPostDetailDto" parameterType="int" resultType="com.example.dto.post.PostDetailDto">
+	<select id="getPostDetailDto" resultType="com.example.dto.post.PostDetailDto">
 		select
 			A.post_no				as no,
 			A.employee_no			as employeeNo,
@@ -126,34 +175,70 @@
 			A.post_read_count 		as readCount,
 			A.post_recommend_count 	as recommendCount,
 			A.post_scrap_count 		as scrapCount,
-			A.post_created_date 	as createdDate
+			A.post_created_date 	as createdDateTime,
+			nvl((select 'true' from post_scraps where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as scrapped ,
+			nvl((select 'true' from post_recommends where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as recommended
 		from
 			posts A, employees B
 		where
 			A.employee_no = B.employee_no
-			and A.post_no	= #{value} 				
+			and A.post_no	= #{postNo}
 	</select>
 	
-	<select id="getCommentsByPostNo" parameterType="int" resultType="com.example.dto.post.CommentListDto">
+	<select id="getCommentsByPostNo" resultType="com.example.dto.post.CommentDto">
 		select
 			A.comment_no				as no,
 			A.employee_no				as employeeNo,
 			B.employee_name				as name,
 			A.comment_content			as content,
 			A.comment_recommend_count	as recommendCount,
-			A.comment_created_date		as createdDate
+			A.comment_created_date		as createdDateTime,
+			nvl((select 'true' from post_comment_recommends where employee_no = #{employeeNo} and  comment_no = A.comment_no ), 'false') as recommended
 		from
 			post_comments A, employees B
 		where
 			A.employee_no = B.employee_no
-			and A.post_no	= #{value} 	
+			and A.post_no	= #{postNo}
+		order by A.comment_created_date desc	
+	</select>
+	
+	<select id="getCommentDtoByCommentNo" resultType="com.example.dto.post.CommentDto">
+		select
+			A.comment_no				as no,
+			A.employee_no				as employeeNo,
+			B.employee_name				as name,
+			A.comment_content			as content,
+			A.comment_recommend_count	as recommendCount,
+			A.comment_created_date		as createdDate,
+			nvl((select 'true' from post_comment_recommends where comment_no = #{commentNo} and employee_no = #{employeeNo}), 'false') as recommended
+		from
+			post_comments A, employees B
+		where
+			A.employee_no = B.employee_no
+			and A.comment_no = #{commentNo}
+	</select>
+	
+	<select id="getCommentByNo" parameterType="int" resultType="com.example.vo.post.Comment">
+		select
+			COMMENT_NO 					as no,
+			EMPLOYEE_NO 				as employeeNo,
+			POST_NO						as postNo,
+			COMMENT_CONTENT 			as content,
+			COMMENT_RECOMMEND_COUNT 	as recommendCount,
+			COMMENT_DELETED 			as deleted,
+			COMMENT_CREATED_DATE 		as createdDate,
+			COMMENT_UPDATED_DATE 		as updatedDate
+		from
+			post_comments
+		where
+			comment_no = #{value}
 	</select>
 	
 	<select id="getAttachedFilesByPostNo" parameterType="int" resultType="com.example.vo.post.AttachedFile">
 		select
 			POST_NO					as postNo,
-			POST_ORIGINAL_FILENAME	as originalName,
-			POST_SAVED_FILENAME 	as savedName
+			POST_SAVED_FILENAME 	as savedName,
+			POST_ORIGINAL_FILENAME	as originalName
 		from
 			POST_ATTACHED_FILES
 		where
@@ -169,18 +254,47 @@
 		where
 			post_no = #{value}	
 	</select>
+	
+	<select id="getPostByNo" parameterType="int" resultType="com.example.vo.post.Post">
+		select
+			 post_no 				as no,
+			 employee_no 			as employeeNo,
+			 post_title 			as title,
+			 post_content 			as content,
+			 post_read_count 		as readCount,
+			 post_recommend_count 	as recommendCount,
+			 post_comment_count 	as commentCount,
+			 post_scrap_count 		as scrapCount,
+			 post_deleted 			as deleted,
+			 post_created_date 		as createdDate,
+			 post_updated_date 		as updatedDate
+		from
+			posts
+		where
+			post_no = #{value}
+	</select>
+
+	<select id="getEmpRolesByEmployeeNo" parameterType="int" resultType="String">
+		select
+			employee_role_name		as roleName
+		from
+			employee_roles
+		where
+			employee_no = #{value}
+	</select>
 
 	<update id="updatePost" parameterType="com.example.vo.post.Post">
 		update
 			posts
 		set
-			post_title = #{title},
-			post_content = #{content},
-			post_read_count = #{readCount},
-			post_recommend_count = #{recommendCount},
-			post_comment_count = #{commentCount},
-			post_deleted = #{deleted},
-			post_updated_date = sysdate
+			post_title 				= #{title},
+			post_content 			= #{content},
+			post_read_count 		= #{readCount},
+			post_recommend_count 	= #{recommendCount},
+			post_comment_count 		= #{commentCount},
+			post_scrap_count 		= #{scrapCount},
+			post_deleted 			= #{deleted},
+			post_updated_date 		= sysdate
 		where
 			post_no = #{no}
 	</update>
@@ -190,12 +304,60 @@
 			post_comments
 		set
 			comment_content = #{content},
-			comment_read_count = #{readCount},
 			comment_recommend_count = #{recommendCount},
-			post_deleted = #{deleted},
-			post_updated_date = sysdate
+			comment_deleted = #{deleted},
+			comment_updated_date = sysdate
 		where
 			comment_no = #{no}
 	</update>
+	
+	<delete id="deletePost" parameterType="int">
+		delete from
+			posts
+		where
+			post_no = #{value}
+	</delete>
+	
+	<delete id="deletePostScrap">
+		delete from
+			post_scraps
+		where
+			post_no = #{postNo}
+			and employee_no = #{employeeNo}
+	</delete>
+	
+	<delete id="deletePostRecommend">
+		delete from
+			post_recommends
+		where
+			post_no = #{postNo}
+			and employee_no = #{employeeNo}
+	</delete>
+	
+	<delete id="deleteCommentRecommend">
+		delete from
+			post_comment_recommends
+		where
+			comment_no = #{commentNo}
+			and employee_no = #{employeeNo}
+	</delete>
+	
+	<delete id="deleteFiles" parameterType="java.util.List">
+		delete from
+			post_attached_files
+		where
+	    	<foreach item="item" collection="list" separator="or">
+			post_saved_filename = #{item}
+			</foreach>
+	</delete>
+	
+  	<delete id="deleteTags" parameterType="java.util.List">
+		delete from 
+			post_tags
+		where
+	    	<foreach item="item" collection="list" separator="or">
+		    tag_content = #{item}
+	    	</foreach>
+  	</delete>
 	
 </mapper>

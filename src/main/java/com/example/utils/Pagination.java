@@ -1,5 +1,10 @@
 package com.example.utils;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Pagination {
 
 	private int currentPage;   // 요청한 페이지 번호

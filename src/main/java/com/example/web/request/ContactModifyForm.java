@@ -1,6 +1,7 @@
 package com.example.web.request;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +23,9 @@ public class ContactModifyForm {
 	private String memo;
 	private Date createdDate;
 	private Date updatedDate;
+	
+	private List<String> contactTels;
+	
+	private List<String> contactTags;
 
 }

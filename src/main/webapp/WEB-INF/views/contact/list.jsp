@@ -69,6 +69,13 @@
   border-radius: 5px;
 }
 
+.sort-button {
+	background-color: white;
+	outline: none;
+  	box-shadow: none;
+  	border: none;
+}
+
 .tdcenter {
 	vertical-align: middle;
 }
@@ -114,7 +121,7 @@
 		
 		<div class="col-9">
 			<div class="w3-container">
-				<h1>공유주소록</h1>
+				<h1>${opt.type eq 'public' ? '공유' : '개인'}주소록</h1>
 			</div>
 			
 			<div class="w3-panel">
@@ -123,44 +130,46 @@
 			
 			<!-- 검색창 -->
 			<div class="w3-container w3-section" style="width: 25%">
-				<form>
+				<form id="contactSearchForm" method="GET" action="list">
+				<input type="hidden" name="type" value="${opt.type }">
+				<input type="hidden" name="tag" value="${opt.tag }">
+				<input type="hidden" name="page" value="${pagination.page }">
 				  <div class="input-group">
-				    <input type="text" class="form-control" value="" placeholder="연락처 검색..">
-				    <div class="input-group-btn">
-				      <button class="btn btn-default" type="submit">
+				    <input type="text" name="keyword" class="form-control" value="${opt.keyword }" placeholder="연락처 검색..">
+					<button id="keyword" type="button" class="btn btn-default">
 				        <i class="w3-text-grey bi bi-search"></i>
-				      </button>
-				    </div>
+					</button>
 				  </div>
-				</form>
-			</div>
+				</div>
 			
 			<!-- 가~9 이름으로 찾기 -->
 			<div class="w3-container rest">
 				<div class="tab w-auto">
-					<button class="tablinks active">ALL</button>
-					<button class="tablinks">가</button>
-					<button class="tablinks">나</button>
-					<button class="tablinks">다</button>
-					<button class="tablinks">라</button>
-					<button class="tablinks">마</button>
-					<button class="tablinks">바</button>
-					<button class="tablinks">사</button>
-					<button class="tablinks">아</button>
-					<button class="tablinks">자</button>
-					<button class="tablinks">차</button>
-					<button class="tablinks">카</button>
-					<button class="tablinks">타</button>
-					<button class="tablinks">파</button>
-					<button class="tablinks">하</button>
-					<button class="tablinks">A-Z</button>
-					<button class="tablinks">0~9</button>					
+					<!-- tablinks 클래스의 버튼을 눌렀을 때 button의 value가 [name:initial] input의 value로 들어가야 함 -->
+					<input type="hidden" id="initial" name="initial" value="${opt.initial }">
+					<button class="tablinks" value="ALL">ALL</button>
+					<button class="tablinks" value="가">가</button>
+					<button class="tablinks" value="나">나</button>
+					<button class="tablinks" value="다">다</button>
+					<button class="tablinks" value="라">라</button>
+					<button class="tablinks" value="마">마</button>
+					<button class="tablinks" value="바">바</button>
+					<button class="tablinks" value="사">사</button>
+					<button class="tablinks" value="아">아</button>
+					<button class="tablinks" value="자">자</button>
+					<button class="tablinks" value="차">차</button>
+					<button class="tablinks" value="카">카</button>
+					<button class="tablinks" value="타">타</button>
+					<button class="tablinks" value="파">파</button>
+					<button class="tablinks" value="하">하</button>
+					<button class="tablinks" value="A">A-Z</button>
+					<button class="tablinks" value="0">0~9</button>					
 				</div>
 				<div class="w3-container w3-right rest">
-					<select class="form-select form-select-xs" name="rows">
-						<option>10개씩</option>
-						<option>20개씩</option>
-						<option>50개씩</option>
+					<select id="opt-rows" class="form-select form-select-xs" name="rows">
+						<option value="10" ${opt.rows eq 10 ? 'selected' : ''}>10개씩</option>
+						<option value="20" ${opt.rows eq 20 ? 'selected' : ''}>20개씩</option>
+						<option value="50" ${opt.rows eq 50 ? 'selected' : ''}>50개씩</option>
 					</select>
 				</div>
 			</div>
@@ -180,135 +189,128 @@
 					<tr style="border-bottom: 1px solid gray;">
 						<th class="w3-center"><input type="checkbox"></th>
 						<th class="w3-center">중요</th>
-						<th class="text-left">이름 <a class="text-decoration-none" href="">▼</a></th>
-						<th class="text-left">전화번호 <a class="text-decoration-none" href="">▼</a></th>
-						<th class="text-left">이메일 <a class="text-decoration-none" href="">▼</a></th>
+						<!-- sort-button 클래스의 버튼을 onclick 했을 때 [name=sort] input에 button값이 들어가야 함 -->
+							<input class="sort-opt" id="sort" type="hidden" name="sort" value="${opt.sort }">
+							<th class="text-left">이름 <button id ="sort-button" class="sort-button" value="name">▼</button></th>
+							<th class="text-left">전화번호 <button id ="sort-button" class="sort-button" value="tel">▼</button></th>
+							<th class="text-left">이메일 <button id ="sort-button" class="sort-button" value="email">▼</button></th>
 						<th class="text-left">태그</th>
 					</tr>
+				</form>
 				</thead>
 				<tbody>
-
+				<form>
+					<c:choose>
+						<c:when test="${empty contacts }">
 							<tr>
 								<td colspan="9" class="text-center" >등록된 연락처가 없습니다.</td>
 							</tr>
-								
+						</c:when>
+						<c:otherwise>
+							<c:forEach var="contact" items="contacts">
 								<tr>
 									<td class="w3-center tdcenter"><input type="checkbox"></td>
 									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="../contact/detail" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
+									<td class="text-left tdcenter"><a href="../contact/detail" class="text-decoration-none">${contact.name }</a></td>
+									<td class="text-left tdcenter">${contact.tel }</td>
+									<td class="text-left tdcenter">${contact.email }</td>
+									<td class="text-left tdcenter"><button class="tagbtn"></button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
 								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star-fill"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star-fill"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star-fill"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr>
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
-								<tr   style="border-bottom: 1px solid gray;">
-									<td class="w3-center tdcenter"><input type="checkbox"></td>
-									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="" class="text-decoration-none">김진철</a></td>
-									<td class="text-left tdcenter">010-1111-2222</td>
-									<td class="text-left tdcenter">kimjc@aa.aa</td>
-									<td class="text-left tdcenter"><button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
-								</tr>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
 				</tbody>
-			</table>
+				</table>
 			</div>
 			
 			<!-- 페이지네이션 -->
+			<c:if test="${not empty contacts }">
 			<div class="w3-center">
 				<div class="w3-bar">
-				  <a href="#" class="w3-button w3-hover-light-grey">«</a>
-				  <a href="#" class="w3-button w3-hover-light-grey">1</a>
-				  <a href="#" class="w3-button w3-hover-light-grey active">2</a>
-				  <a href="#" class="w3-button w3-hover-light-grey">3</a>
-				  <a href="#" class="w3-button w3-hover-light-grey">4</a>
-				  <a href="#" class="w3-button w3-hover-light-grey">»</a>
+					<a href="${pagination.prevPage }" class="w3-button w3-hover-light-grey ${pagination.first ? 'disabled' : '' }">«</a>
+					<c:forEach var="number" begin="${pagination.beginPage }" end="${pagination.endPage }">
+						<a href="list?page=${num }" class="w3-button w3-hover-light-grey ${pagination.page eq num ? 'active' : '' }">${num }</a>
+					</c:forEach>
+					<a href="${pagination.nextPage }" class="w3-button w3-hover-light-grey ${pagination.last ? 'disabled' : '' }">»</a>
 				</div>
 			</div>
+			</c:if>
 			
 			<!-- 버튼 모음 -->
-			<div class="w3-container"   style="border-top: 1px solid gray; border-bottom: 1px solid gray;">
+			<div class="w3-container" style="border-top: 1px solid gray; border-bottom: 1px solid gray;">
 				<div class="w3-bar">
-				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small littlemg">내보내기</a>
-				  <a href="../contact/form" class="w3-button w3-white w3-border w3-hover-light-grey w3-padding-small w3-border-green w3-round-large w3-left w3-small w3-right littlemg">등록</a>
-				  <button href="" onclick="document.getElementById('delete01').style.display='block'" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-red w3-round-large w3-left w3-small w3-right littlemg">삭제</button>
-				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small w3-right littlemg">개인 주소록에 추가</a>
-				  <a href="" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small w3-right littlemg">쪽지</a>
+					<a class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small littlemg">내보내기</a>
+					<a href="../contact/form" class="w3-button w3-white w3-border w3-hover-light-grey w3-padding-small w3-border-green w3-round-large w3-left w3-small w3-right littlemg">등록</a>
+					<button onclick="document.getElementById('delete01').style.display='block'" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-red w3-round-large w3-left w3-small w3-right littlemg">삭제</button>
+					<a href="#" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small w3-right littlemg">개인 주소록에 추가</a>
+					<a href="#" class="w3-button w3-white w3-border w3-padding-small w3-hover-light-grey w3-border-grey w3-round-large w3-left w3-small w3-right littlemg">쪽지</a>
 				</div>
-			</div>			
+			</div>
+		</form>			
 
-	<!-- 연락처 삭제 -->
-  	<div id="delete01" class="w3-modal">
-    	<div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:500px">
-	<div class="w3-margin"><br>
-        <span onclick="document.getElementById('delete01').style.display='none'" class="w3-button w3-xlarge w3-hover-red w3-display-topright" title="Close Modal">&times;</span>
-        <h2>연락처 삭제</h2>
-	</div>
-        <div class="w3-margin w3-center w3-padding">
-          <h5><span class="w3-text-red"><b>"김진철"</b></span> 님을 삭제하시겠습니까?</h5>
-        </div>
-      <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
-        <button onclick="document.getElementById('delete01').style.display='none'" type="submit" class="w3-button w3-right w3-border-red w3-text-red">삭제</button>
-        <button onclick="document.getElementById('delete01').style.display='none'" type="button" class="w3-button w3-right w3-text-grey">취소</button>
-      </div>
-    </div>
-  </div>
+			<!-- 연락처 삭제 -->
+		  	<div id="delete01" class="w3-modal">
+		    	<div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:500px">
+					<div class="w3-margin"><br>
+				        <span onclick="document.getElementById('delete01').style.display='none'" class="w3-button w3-xlarge w3-hover-red w3-display-topright" title="Close Modal">&times;</span>
+				        <h2>연락처 삭제</h2>
+					</div>
+					<div class="w3-margin w3-center w3-padding">
+						<h5><span class="w3-text-red"><b>"김진철"</b></span> 님을 삭제하시겠습니까?</h5>
+					</div>
+					<div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+				        <button onclick="document.getElementById('delete01').style.display='none'" type="submit" class="w3-button w3-right w3-border-red w3-text-red">삭제</button>
+				        <button onclick="document.getElementById('delete01').style.display='none'" type="button" class="w3-button w3-right w3-text-grey">취소</button>
+					</div>
+				</div>
+			</div>
 			
 		</div>
 	</div>
 </div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+	// 제이쿼리 매개변수가 여러 개일 때 제대로 들어가는지 확인 필요 > 현재 안 들어감
+	// page, form값 제출
+	function ContactSearchForm(type, tag, page) {
+		$(":input[name=type]").val(type);
+		$(":input[name=tag]").val(tag);
+		$(":input[name=page]").val(page);
+		$("#contactSearchForm").submit()
+	}
+	
+	// sort 버튼 클릭 시 해당 값으로 input값 변경하여 제출(데이터갯수는 변동되지 않으니, page값 그대로)
+	$(".sort-button").click(function(){
+		var sort = $(this).val();
+		$(":input[name=sort]").attr("value", sort);
+		$(":input[name=type]").val(type);
+		$(":input[name=tag]").val(tag);
+		$(":input[name=page]").val(page);
+		ContactSearchForm(type, tag, page)
+	});
+	
+	// rows값 제출(한 페이지에 들어가는 데이터갯수가 변동되니, page값 1로 초기화)
+	// list?type=public&tag=%ED%83%9C%EA%B7%B8%EC%97%86%EC%9D%8C:707 Uncaught ReferenceError: type is not defined 타입, 태그값이 들어가 있는데 못 찾는다?
+	$("#opt-rows").change(function() {
+		$(":input[name=type]").val(type);
+		$(":input[name=tag]").val(tag);
+		ContactSearchForm(type, tag, 1);
+	})
+	
+	// initial값 제출 (데이터갯수가 변동되니, page값 1로 초기화)
+	$(".tablinks").click(function() {
+		var initial = $(this).val();
+		$(":input[name=initial]").attr("value", initial);
+		$(":input[name=type]").val(type);
+		$(":input[name=tag]").val(tag);
+		ContactSearchForm(type, tag, page);
+	})
+	
+	// keyword값 제출
+	$("#keyword").click(function() {
+		$(":input[name=type]").val(type);
+		$(":input[name=tag]").val(tag);
+		ContactSearchForm(type, tag, 1);
+	})
+</script>

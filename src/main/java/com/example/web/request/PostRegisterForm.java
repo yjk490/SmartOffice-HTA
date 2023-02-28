@@ -1,8 +1,7 @@
 package com.example.web.request;
 
 import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +12,7 @@ public class PostRegisterForm {
 
 	private String title;
 	private String content;
-	private List<String> tags;
-	private List<String> savedFilenames;
+	private List<String> tagContents;
+	private Map<String, String> fileNamesMap;
+	
 }

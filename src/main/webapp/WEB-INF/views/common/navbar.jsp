@@ -29,7 +29,7 @@
 			</sec:authorize>
 		<ul class="navbar-nav">
 			<sec:authorize access="isAuthenticated()">
-				<li class="nav-item"><a class="nav-link ${top eq 'employee' ? 'active' : '' }" href="/profile">내정보 보기</a></li>
+				<li class="nav-item"><a class="nav-link ${top eq 'employee' ? 'active' : '' }" href="/employee/profile">내정보 보기</a></li>
 				<li class="nav-item"><a class="nav-link" href="/logout" onclick="logout(event)">로그아웃</a></li>
 			</sec:authorize>
 			<sec:authorize access="!isAuthenticated()">
