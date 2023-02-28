@@ -151,18 +151,25 @@ $(function () {
 									let modifyOrDeleteBtn = ""
 									if (comment.employeeNo == loginEmployeeNo) {
 										modifyOrDeleteBtn = `
-															<button type="button" class="btn btn-outline-primary btn-sm">수정</button>
-															<button type="button" class="btn btn-outline-danger btn-sm">삭제</button>
+															<button type="button" class="btn btn-outline-primary btn-sm" data-comment-event="modifyComment">수정</button>
+															<button type="button" class="btn btn-outline-danger btn-sm"  data-comment-event="deleteComment">삭제</button>
 															`
 									} else if (hasAdmin) {
-										modifyOrDeleteBtn = `<button type="button" class="btn btn-danger btn-sm">삭제</button>`
+										modifyOrDeleteBtn = `<button type="button" class="btn btn-danger btn-sm" data-comment-event="deleteComment">삭제</button>`
 									}
 									
 									let filledIcon = (comment.recommended == false) ? 'd-none' : '' 
 									let unFilledIcon = (comment.recommended == true) ? 'd-none' : '' 
 											
 									let commentBox = `
-													<div class="my-3 border-bottom">
+													<div class="my-3 border-bottom" data-comment-event="commentBox">
+													<p hidden 
+														data-comment-name="\${comment.name }"
+														data-comment-date="\${comment.createdDateTimeToString }"
+														data-comment-content="\${comment.content }"
+														data-comment-no="\${comment.no }"
+														data-emp-no="\${comment.employeeNo }">
+													</p>
 														<div class="row mb-3">
 															<div>
 																<span>\${comment.name }</span>
@@ -210,6 +217,69 @@ $(function () {
 		
 		clickedElement.children('i').toggleClass('d-none')
 	}
+
+	$commentListBox.on('click', 'button[data-comment-event=modifyComment]', function() {
+		let $commentBox = $(this).parents('div[data-comment-event=commentBox]')
+		let commentName = $commentBox.find('p').data('comment-name')
+		let commentDate = $commentBox.find('p').data('comment-date')
+		let commentContent = $commentBox.find('p').data('comment-content')		
+		let commentNo = $commentBox.find('p').data('comment-no')
+		let employeeNo = $commentBox.find('p').data('emp-no')
+		let originalCommentBoxHtml = $commentBox.html()
+		
+		let modifyCommentBox = `
+								<div class="row mb-3">
+									<div>
+										<span>\${commentName }</span>
+									</div>
+									<div>
+										<span>\${commentDate }</span>
+									</div>
+								</div>		
+								<div class="mb-3">
+		  							<textarea class="form-control" name="modifiedContent" rows="3" placeholder="내용을 입력해주세요.">\${commentContent}</textarea>
+									<div class="invalid-feedback">
+										<span class="ps-2">댓글 내용을 입력해주세요.</span>
+									</div>
+								</div>
+								<div class="mb-3 text-end">
+									<button type="button" data-comment-event="modifyCommentCancel" class="btn btn-outline-secondary">취소</button>
+									<button type="button" data-comment-event="modifyCommentComplete" class="btn btn-outline-primary">수정완료</button>
+								</div>		
+							   `
+		$commentBox.html(modifyCommentBox)
+		
+		$('button[data-comment-event=modifyCommentCancel]').click(function () {
+			$commentBox.html(originalCommentBoxHtml)
+		})
+		
+		$('button[data-comment-event=modifyCommentComplete]').click(function () {
+		    $.post("/post/modify-comment",
+		    		{
+						commentNo: commentNo,
+						employeeNo: employeeNo,
+						modifiedContent: $commentBox.find('textarea[name=modifiedContent]').val()
+		    		})
+		    		.done(function () {
+						$commentListBox.empty()
+						getCommentList()		    			
+		    		})
+		})
+	})
+	
+	
+	
+	$commentListBox.on('click', 'button[data-comment-event=deleteComment]', function(event) {
+		let $commentBox = $(this).parents('div[data-comment-event=commentBox]')
+		$.get("/post/delete-comment",
+				{
+					commentNo:  $commentBox.find('p').data('comment-no'),
+					employeeNo:  $commentBox.find('p').data('emp-no')
+				})
+				.done(function () {
+					$commentBox.remove()
+				})
+	})
 	
 	$commentListBox.on('click', 'a', function(event) {
 		event.preventDefault();

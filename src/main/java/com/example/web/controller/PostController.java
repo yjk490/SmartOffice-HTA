@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostDetailDto;
+import com.example.exception.ApplicationException;
 import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.PostService;
@@ -89,6 +90,10 @@ public class PostController {
 	public String detail(@RequestParam("postNo") int postNo, @AuthenticatedUser LoginEmployee loginEmployee, Model model) {
 		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, loginEmployee.getNo());
 		
+		if (postDetailDto == null) {
+			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
+		}
+		
 		model.addAttribute("post", postDetailDto);
 		
 		return "post/detail";
@@ -97,9 +102,11 @@ public class PostController {
 	@GetMapping("/download")
 	public ModelAndView fileDownload(@RequestParam("filename") String filename) {
 		File file = new File(directory, filename);
-//		if (!file.exists()) {
-//			throw new ApplicationException("["+filename+"] 파일이 존재하지 않습니다.");
-//		}
+		
+		if (!file.exists()) {
+			String originalFilename = filename.substring(36);
+			throw new ApplicationException("["+originalFilename+"] 파일이 존재하지 않습니다.");
+		}
 		
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("file", file);
@@ -126,6 +133,20 @@ public class PostController {
 		postService.registerComment(postNo, content, loginEmployee.getNo());
 	}
 	
+	@PreAuthorize("#employeeNo == principal.no")
+	@PostMapping("/modify-comment")
+	@ResponseBody
+	public void modifyComment(@RequestParam("commentNo") int commentNo, @RequestParam("employeeNo") int employeeNo, @RequestParam("modifiedContent") String modifiedContent) {
+		postService.modifyComment(commentNo, modifiedContent);
+	}
+	
+	@PreAuthorize("#employeeNo == principal.no or hasRole('ROLE_ADMIN')")
+	@GetMapping("/delete-comment")
+	@ResponseBody
+	public void deleteComment(@RequestParam("commentNo") int commentNo, @RequestParam("employeeNo") int employeeNo) {
+		postService.deleteComment(commentNo);
+	}
+	
 	@GetMapping("/comment-list")
 	@ResponseBody
 	public List<CommentDto> commentList(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {
@@ -144,10 +165,15 @@ public class PostController {
 	public String modifyForm(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo, Model model) {
 		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, employeeNo);
 		
+		if (postDetailDto == null) {
+			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
+		}		
+		
 		model.addAttribute("modifyPost", postDetailDto);
 		
 		return "post/modify-form";
 	}
+	
 	@PreAuthorize("#form.employeeNo == principal.no")
 	@PostMapping("/modify-post")
 	public String modifyPost(List<MultipartFile> uploadFiles, PostModifyForm form) throws FileNotFoundException, IOException {
@@ -181,7 +207,6 @@ public class PostController {
 	
 	// 사용자 또는 관리자에 의한 영구삭제, 사용자가 직접 게시글을 삭제하거나 관리자가 임시보관함에 있는 게시글을 삭제할 때 이 요청핸들러가 실행된다.
 	// 게시글과 관련된 모든 정보가 DB에서 삭제된다.
-	// 요청핸들러가 실행되기 전에 현재 로그인된 사용자번호와 게시글 작성자 번호를 체크하므로  @AuthenticatedUser를 통한 유효성 검사를 할 필요가 없는거 맞는지??
 	@PreAuthorize("#employeeNo == principal.no or hasRole('ROLE_ADMIN')")
 	@GetMapping("/delete-post")
 	public String deletePost(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {

@@ -360,4 +360,11 @@
 	    	</foreach>
   	</delete>
 	
+	<delete id="deleteComment" parameterType="int">
+		delete from
+			post_comments
+		where
+			comment_no = #{value}
+	</delete>
+	
 </mapper>
