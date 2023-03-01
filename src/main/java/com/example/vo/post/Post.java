@@ -75,7 +75,7 @@ public class Post {
 		this.scrapCount -= 1;
 	}
 	
-	public void deletePost() {
+	public void removePost() {
 		this.deleted = "Y";
 	}
 	

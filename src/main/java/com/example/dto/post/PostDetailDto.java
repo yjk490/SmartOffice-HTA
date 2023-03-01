@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
+import com.example.utils.DateTimeToString;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class PostDetailDto {
 	private int recommendCount;
 	private int scrapCount;
 	private LocalDateTime createdDateTime;
+	private String deleted;
 	private String createdDateTimeToString;
 	private Map<String, String> fileNamesMap;
 	private List<String> tagContents;
@@ -30,7 +32,7 @@ public class PostDetailDto {
 	private boolean recommended;
 	
 	public PostDetailDto(int no, int employeeNo, String name, String title, String content, int readCount,
-			int recommendCount, int scrapCount, LocalDateTime createdDateTime) {
+			int recommendCount, int scrapCount, LocalDateTime createdDateTime, String deleted) {
 		this.no = no;
 		this.employeeNo = employeeNo;
 		this.name = name;
@@ -40,20 +42,8 @@ public class PostDetailDto {
 		this.recommendCount = recommendCount;
 		this.scrapCount = scrapCount;
 		this.createdDateTime = createdDateTime;
-		
-		LocalDateTime now = LocalDateTime.now();
-		long diffHours = ChronoUnit.HOURS.between(this.createdDateTime, now);
-		long diffMinutes = ChronoUnit.MINUTES.between(this.createdDateTime, now);
-		if (diffMinutes == 0) {
-			this.createdDateTimeToString = "방금 전";
-		} else if (diffMinutes < 60)	{
-			this.createdDateTimeToString = diffMinutes + "분 전";
-		} else if (diffHours < 12) {
-			this.createdDateTimeToString = "약 " + diffHours + "시간 전";
-		} else {
-			String date = this.createdDateTime.format(DateTimeFormatter.ofPattern("yyyy. MM. dd."));
-			this.createdDateTimeToString = date;
-		}
+		this.deleted = deleted;
+		this.createdDateTimeToString = DateTimeToString.LocalDateTimeToString(createdDateTime);
 	}
 	
 	

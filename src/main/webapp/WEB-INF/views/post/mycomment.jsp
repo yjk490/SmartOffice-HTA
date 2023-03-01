@@ -55,12 +55,12 @@
 									<a href="/post/detail?postNo=${post.no }" class="link-dark">${post.title }</a>
 								</div>
 								<div class="col-6 text-end">
-									<span>${post.createdDateTimeToString }</span>
+									<span>${post.commentCreatedDateTimeToString }</span>
 								</div>
 							</div>
 							<div class="row">
-								<div>
-									<span>${post.comment }</span>
+								<div class="col-6 text-truncate">
+									<span>${post.commentContent }</span>
 								</div>
 							</div>
 						</div>

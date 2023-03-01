@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostListDtoWithMyComment;
+import com.example.dto.post.PostListDtoWithMyScrap;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
 import com.example.vo.post.AttachedFile;
@@ -30,8 +31,10 @@ public interface PostMapper {
 	List<PostListDto> getPostListDto(@Param("begin") int beginPage, @Param("end") int endPage, @Param("opt") PostSearchOption opt);
 	PostDetailDto getPostDetailDto(@Param("postNo") int postNo, @Param("employeeNo") int employeeNo);
 	List<AttachedFile> getAttachedFilesByPostNo(int postNo);
+	List<List<AttachedFile>> getAttachedFilesListByPostNoList(List<Integer> postNoList);
 	List<Tag> getTagsByPostNo(int postNo);
 	Post getPostByNo(int postNo);
+	List<Post> getPostsByNoList(List<Integer> postNoList);
 	int getPostSequence();
 	List<CommentDto> getCommentsByPostNo(@Param("postNo") int postNo, @Param("employeeNo") int employeeNo);
 	CommentDto getCommentDtoByCommentNo(@Param("commentNo") int commentNo, @Param("employeeNo") int employeeNo);
@@ -40,11 +43,15 @@ public interface PostMapper {
 	List<String> getEmpRolesByEmployeeNo(int empNo);
 	int getTotalRowsWithMyComment(@Param("opt") PostSearchOption opt);
 	List<PostListDtoWithMyComment> getPostListDtoWithMyComment(@Param("begin") int beginPage, @Param("end") int endPage, @Param("opt") PostSearchOption opt);
+	int getTotalRowsWithMyScrap(@Param("opt") PostSearchOption opt);
+	List<PostListDtoWithMyScrap> getPostListDtoWithMyScrap(@Param("begin") int beginPage, @Param("end") int endPage, @Param("opt") PostSearchOption opt);
+	
 	
 	void updatePost(Post post);
+	void updatePosts(List<Post> posts);
 	void updateComment(Comment comment);
 	
-	void deletePost(int postNo);
+	void deletePosts(List<Integer> postNoList);
 	void deletePostScrap(@Param("postNo")int postNo, @Param("employeeNo")int employeeNo);
 	void deletePostRecommend(@Param("postNo")int postNo, @Param("employeeNo")int employeeNo);
 	void deleteCommentRecommend(@Param("commentNo") int commentNo, @Param("employeeNo") int employeeNo);

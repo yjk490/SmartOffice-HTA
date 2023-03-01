@@ -9,7 +9,7 @@ public class PostSearchOption {
 
 	private int rows = 10;
 	private String sort = "date";
-	private String type = "title";
+	private String type = "content";
 	private String keyword = "";
 	private String deleted = "N";
 	private int employeeNo = 0;

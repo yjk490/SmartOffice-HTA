@@ -108,7 +108,8 @@
 		    post_read_count 		as readCount,
 		    post_comment_count		as commentCount,
 		    post_recommend_count 	as recommendCount,
-		    post_created_date 		as createdDateTime
+		    post_created_date 		as createdDateTime,
+		    post_has_file 			as hasAttachedFile
 		from (
 		     select
 		     	 <choose>
@@ -136,7 +137,8 @@
 		         A.post_read_count,
 		         A.post_comment_count,
 		         A.post_scrap_count,
-		         A.post_created_date
+		         A.post_created_date,
+		         nvl((select distinct 'true' from post_attached_files where post_no = A.post_no), 'false') as post_has_file
 		     from
 		         posts A, employees B
 		     <where>
@@ -178,10 +180,10 @@
 		select
 			post_no					as no,
 		    post_title 				as title,
-		    comment_content 		as comment,
-		    comment_created_date 	as createdDateTime
+		    comment_content 		as commentContent,
+		    comment_created_date 	as commentCreatedDateTime
 		from (
-                select
+              	select
                     row_number() over (order by B.comment_created_date desc) row_numbers,
                     A.post_no,
                     A.post_title,
@@ -193,10 +195,45 @@
                     A.post_no = B.post_no 
 		    		and B.comment_content like '%' || #{opt.keyword} || '%'
 		    		and B.employee_no = #{opt.employeeNo}
-                )
+             )
         where
             row_numbers between #{begin} and #{end}
 	</select>	
+	
+	<select id="getTotalRowsWithMyScrap" resultType="int">
+		select
+			count(*)
+		from
+			posts A, post_scraps B
+		where
+		    A.post_no = B.post_no 
+		    and A.post_content like '%' || #{opt.keyword} || '%'
+		    and B.employee_no = #{opt.employeeNo}
+	</select>
+	
+	<select id="getPostListDtoWithMyScrap" resultType="com.example.dto.post.PostListDtoWithMyScrap">
+		select
+			post_no					as no,
+		    post_title 				as title,
+		    post_content 			as content,
+		    scrap_created_date 		as scrapCreatedDateTime
+		from (
+              	select
+                    row_number() over (order by B.scrap_created_date desc) row_numbers,
+                    A.post_no,
+                    A.post_title,
+                    A.post_content,
+                    B.scrap_created_date
+                from
+                    posts A, post_scraps B
+                where
+                    A.post_no = B.post_no
+                    and A.post_content like '%' || #{opt.keyword} || '%'
+                    and B.employee_no = #{opt.employeeNo}
+             )
+        where
+            row_numbers between #{begin} and #{end}	
+	</select>
 	
 	<select id="getPostDetailDto" resultType="com.example.dto.post.PostDetailDto">
 		select
@@ -209,6 +246,7 @@
 			A.post_recommend_count 	as recommendCount,
 			A.post_scrap_count 		as scrapCount,
 			A.post_created_date 	as createdDateTime,
+			A.post_deleted			as deleted,
 			nvl((select 'true' from post_scraps where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as scrapped ,
 			nvl((select 'true' from post_recommends where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as recommended
 		from
@@ -278,6 +316,20 @@
 			post_no = #{value}
 	</select>
 	
+	<select id="getAttachedFilesListByPostNoList" parameterType="java.util.List" resultType="com.example.vo.post.AttachedFile">
+		select
+			POST_NO					as postNo,
+			POST_SAVED_FILENAME 	as savedName,
+			POST_ORIGINAL_FILENAME	as originalName
+		from
+			POST_ATTACHED_FILES
+		where
+			post_no in
+		<foreach collection="list" item="no" open="(" separator="," close=")">
+			#{no}
+		</foreach>
+	</select>
+	
 	<select id="getTagsByPostNo" parameterType="int" resultType="com.example.vo.post.Tag">
 		select
 			post_no		as postNo,
@@ -306,6 +358,27 @@
 		where
 			post_no = #{value}
 	</select>
+	
+	<select id="getPostsByNoList" parameterType="java.util.List" resultType="com.example.vo.post.Post">
+		select
+			post_no 				as no,
+			employee_no 			as employeeNo,
+			post_title 				as title,
+			post_content 			as content,
+			post_read_count 		as readCount,
+			post_recommend_count 	as recommendCount,
+			post_comment_count 	as commentCount,
+			post_scrap_count 		as scrapCount,
+			post_deleted 			as deleted,
+			post_created_date 		as createdDate,
+			post_updated_date 		as updatedDate		
+		from
+			posts
+		where post_no in
+		<foreach item="postNo" collection="list" open="(" separator="," close=")">
+			#{postNo}
+		</foreach>
+	</select>
 
 	<select id="getEmpRolesByEmployeeNo" parameterType="int" resultType="String">
 		select
@@ -332,6 +405,24 @@
 			post_no = #{no}
 	</update>
 	
+	<update id="updatePosts" parameterType="java.util.List">
+		<foreach collection="list" item="post" separator=";" open="DECLARE BEGIN" close="; END;">
+			update
+				posts
+			set
+				post_title 				= #{post.title},
+				post_content 			= #{post.content},
+				post_read_count 		= #{post.readCount},
+				post_recommend_count 	= #{post.recommendCount},
+				post_comment_count 		= #{post.commentCount},
+				post_scrap_count 		= #{post.scrapCount},
+				post_deleted 			= #{post.deleted},
+				post_updated_date 		= sysdate
+			where 
+				post_no = #{post.no}
+		</foreach>
+	</update>
+	
 	<update id="updateComment" parameterType="com.example.vo.post.Comment">
 		update
 			post_comments
@@ -344,11 +435,14 @@
 			comment_no = #{no}
 	</update>
 	
-	<delete id="deletePost" parameterType="int">
+	<delete id="deletePosts" parameterType="java.util.List">
 		delete from
 			posts
 		where
-			post_no = #{value}
+			post_no in
+		<foreach collection="list" item="no" open="(" separator="," close=")">
+			#{no}
+		</foreach>
 	</delete>
 	
 	<delete id="deletePostScrap">
@@ -379,8 +473,8 @@
 		delete from
 			post_attached_files
 		where
-	    	<foreach item="item" collection="list" separator="or">
-			post_saved_filename = #{item}
+	    	<foreach item="name" collection="list" separator="or">
+			post_saved_filename = #{name}
 			</foreach>
 	</delete>
 	
