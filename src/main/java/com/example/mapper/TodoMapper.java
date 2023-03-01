@@ -79,4 +79,8 @@ public interface TodoMapper {
 	int getProgressNoByNums(int todoNo, int receiveEmpNo);
 	TodoProgressDto getProgressHistoryByNums(int todoNo, int receiveEmpNo);
 	
+	
+	// 사원번호로 TodoListDto 조회하기
+	List<TodoListDto> getTodoListDtoByNo(int empNo);
+	
 }

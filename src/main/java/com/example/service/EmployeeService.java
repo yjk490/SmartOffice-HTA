@@ -16,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dto.emp.EmployeeDetailDto;
 import com.example.dto.emp.EmployeeListDto;
+import com.example.dto.todo.TodoListDto;
 import com.example.exception.AlreadyRegisteredEmailException;
 import com.example.exception.ApplicationException;
 import com.example.mapper.EmployeeMapper;
 import com.example.mapper.EmployeeRoleMapper;
+import com.example.mapper.TodoMapper;
 import com.example.utils.Pagination;
 import com.example.vo.employee.Employee;
 import com.example.vo.employee.EmployeeRole;
@@ -38,7 +40,11 @@ public class EmployeeService {
 	@Autowired
 	private EmployeeRoleMapper employeeRoleMapper;
 	@Autowired
+	private TodoMapper todoMapper;
+	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	// 로그인 한 사원으로 Todo 정보 리스트 가져오기
 	
 	// 사원의 디테일 정보 가져오기
 	public EmployeeDetailDto getEmplDetail(int no) {
@@ -202,6 +208,12 @@ public class EmployeeService {
 		}
 		return str;
 		
+	}
+
+	// 사원 번호로 TodoListDto 조회하기
+	public List<TodoListDto> getTodoListDtoByNo(int empNo) {
+		
+		return todoMapper.getTodoListDtoByNo(empNo);
 	}
 
 
