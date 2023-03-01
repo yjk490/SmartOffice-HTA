@@ -143,8 +143,8 @@ public class PostController {
 	@PreAuthorize("#employeeNo == principal.no or hasRole('ROLE_ADMIN')")
 	@GetMapping("/delete-comment")
 	@ResponseBody
-	public void deleteComment(@RequestParam("commentNo") int commentNo, @RequestParam("employeeNo") int employeeNo) {
-		postService.deleteComment(commentNo);
+	public void deleteComment(@RequestParam("postNo") int postNo, @RequestParam("commentNo") int commentNo, @RequestParam("employeeNo") int employeeNo) {
+		postService.deleteComment(postNo, commentNo);
 	}
 	
 	@GetMapping("/comment-list")
@@ -196,23 +196,42 @@ public class PostController {
 		return "redirect:detail?postNo=" + form.getNo();
 	}
 	
+	
+	
 	// 관리자에 의한 삭제, 임시보관함에 저장되어 DB에서 삭제되지는 않는다.
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@GetMapping("/remove-post")
+	@GetMapping("/remove-post-by-admin")
 	public String removePost(@RequestParam("postNo") int postNo) {
 		postService.removePost(postNo);
 		
 		return "redirect:list";
 	}
 	
-	// 사용자 또는 관리자에 의한 영구삭제, 사용자가 직접 게시글을 삭제하거나 관리자가 임시보관함에 있는 게시글을 삭제할 때 이 요청핸들러가 실행된다.
-	// 게시글과 관련된 모든 정보가 DB에서 삭제된다.
-	@PreAuthorize("#employeeNo == principal.no or hasRole('ROLE_ADMIN')")
-	@GetMapping("/delete-post")
-	public String deletePost(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {
-		postService.deletePost(postNo);
+	// 사용자에 의한 삭제, 임시보관함에 저장되어 DB에서 삭제되지는 않는다.
+	@PreAuthorize("#employeeNo == principal.no")
+	@GetMapping("/remove-post-by-user")
+	public String removePost(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {
+		postService.removePost(postNo);
 		
 		return "redirect:list";
+	}
+	
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping("/recover-post")
+	public String recoverPost(@RequestParam("postNo") List<Integer> postNoList) {
+		postService.recoverPost(postNoList);
+		
+		return "redirect:removed-post-list";
+	}
+	
+	// 관리자에 의한 영구삭제
+	// 게시글과 관련된 모든 정보가 DB에서 삭제된다.
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping("/delete-post")
+	public String deletePost(@RequestParam("postNo") List<Integer> postNoList) {
+		postService.deletePost(postNoList);
+		
+		return "redirect:removed-post-list";
 	}
 	
 	@GetMapping("/notice")
@@ -221,7 +240,7 @@ public class PostController {
 	}
 	
 	// mypost 최초 진입 시 쿼리스트링이나 input태그의 hidden속성으로 employeeNo를 넘겨줄 수도 있지만
-	// 서버 내부에서 employeeNo를 전달하는 것이 보안상 더 적절하다
+	// 서버 내부에서 employeeNo를 전달하는 것이 보안상 더 적절하다.
 	@GetMapping("/mypost")
 	public String mypost(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
 		opt.setEmployeeNo(loginEmployee.getNo());
@@ -247,13 +266,28 @@ public class PostController {
 	}
 	
 	@GetMapping("/myscrap")
-	public String myscrap() {
+	public String myscrap(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPostsWithMyScrap(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);				
+		
 		return "post/myscrap";
 	}
 	
-	@GetMapping("/myfile")
-	public String myflie() {
-		return "post/myfile";
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping("/removed-post-list")
+	public String removedPost(@RequestParam(name = "page", required = false, defaultValue = "1") int page, PostSearchOption opt, Model model) {
+		opt.setDeleted("Y");
+		PostSearchResult result = postService.getPosts(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);				
+		
+		return "post/removed-post";
 	}
 	
 	@GetMapping("/role")

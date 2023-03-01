@@ -59,7 +59,7 @@
 								</div>
 							</div>
 							<div class="row">
-								<div class="col-6">
+								<div class="col-6 text-truncate">
 									<span>${post.content }</span>
 								</div>
 							</div>

@@ -20,7 +20,7 @@
 			<sec:authorize access="hasRole('ADMIN')">
 				<div class="row border m-1 mb-2 text-danger">
 					<p class="fs-1 my-2">자유 게시판</p>
-					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글을 삭제할 수 있습니다.</p>
+					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글과 댓글을 삭제할 수 있습니다.</p>
 				</div>
 			</sec:authorize>
 			<sec:authorize access="hasRole('EMPLOYEE')">
@@ -70,7 +70,7 @@
 							<div class="col py-3">
 								<c:forEach var="tag" items="${post.tagContents }">
 									<a href="/post/list?type=content&keyword=${tag }" >
-									<span class="badge text-bg-success">${tag }</span>
+										<span class="badge text-bg-success">${tag }</span>
 									</a>
 								</c:forEach>
 							</div>
@@ -78,16 +78,23 @@
 							<sec:authorize access="hasRole('ADMIN')">
 								<div class="d-inline me-4">
 									<c:if test="${post.employeeNo eq loginUser.no }">
-									<a href="/post/modify-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-primary">수정</a>
+										<a href="/post/modify-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-primary">수정</a>
 									</c:if>
-									<a href="/post/remove-post?postNo=${post.no }" class="btn btn-danger">삭제</a>
+									<c:choose>
+										<c:when test="${post.deleted eq 'N' }">
+											<a href="/post/remove-post-by-admin?postNo=${post.no }" class="btn btn-outline-danger">삭제</a>
+										</c:when>
+										<c:otherwise>
+											<span class="text-danger">이미 삭제 처리된 게시글입니다.</span>
+										</c:otherwise>
+									</c:choose>
 								</div>
 							</sec:authorize>
 							<sec:authorize access="hasRole('EMPLOYEE')">
 							<c:if test="${post.employeeNo eq loginUser.no }">
 								<div class="d-inline me-4">
 									<a href="/post/modify-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-outline-primary">수정</a>
-									<a href="/post/delete-post?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-outline-danger">삭제</a>
+									<a href="/post/remove-post-by-user?postNo=${post.no }&employeeNo=${post.employeeNo }" class="btn btn-outline-danger">삭제</a>
 								</div>
 							</c:if>
 							</sec:authorize>
@@ -155,7 +162,7 @@ $(function () {
 															<button type="button" class="btn btn-outline-danger btn-sm"  data-comment-event="deleteComment">삭제</button>
 															`
 									} else if (hasAdmin) {
-										modifyOrDeleteBtn = `<button type="button" class="btn btn-danger btn-sm" data-comment-event="deleteComment">삭제</button>`
+										modifyOrDeleteBtn = `<button type="button" class="btn btn-outline-danger btn-sm" data-comment-event="deleteComment">삭제</button>`
 									}
 									
 									let filledIcon = (comment.recommended == false) ? 'd-none' : '' 
@@ -273,6 +280,7 @@ $(function () {
 		let $commentBox = $(this).parents('div[data-comment-event=commentBox]')
 		$.get("/post/delete-comment",
 				{
+					postNo: postNo,
 					commentNo:  $commentBox.find('p').data('comment-no'),
 					employeeNo:  $commentBox.find('p').data('emp-no')
 				})

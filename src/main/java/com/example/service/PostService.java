@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostListDtoWithMyComment;
+import com.example.dto.post.PostListDtoWithMyScrap;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
 import com.example.mapper.PostMapper;
@@ -158,8 +159,12 @@ public class PostService {
 		postMapper.updateComment(comment);
 	}
 	
-	public void deleteComment(int commentNo) {
+	public void deleteComment(int postNo, int commentNo) {
 		postMapper.deleteComment(commentNo);
+		
+		Post post = postMapper.getPostByNo(postNo);
+		post.decreaseCommentCount();
+		postMapper.updatePost(post);
 	}
 	
 	public List<CommentDto> getComments(int postNo, int employeeNo) {
@@ -182,9 +187,17 @@ public class PostService {
 		}
 	}
 
+	public void recoverPost(List<Integer> postNoList) {
+		List<Post> posts = postMapper.getPostsByNoList(postNoList);
+		for (Post post : posts) {
+			post.recoverPost();
+		}
+		postMapper.updatePosts(posts);
+	}
+	
 	public void removePost(int postNo) {
 		Post post = postMapper.getPostByNo(postNo);
-		post.deletePost();
+		post.removePost();
 		postMapper.updatePost(post);
 	}
 	
@@ -242,18 +255,33 @@ public class PostService {
 		
 	}
 	
-	public void deletePost(int postNo) {
-		// Post의 deleted가 Y인지 확인하고 그렇지 않을 경우 예외처리!
-		List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
-		for (AttachedFile uploadfile : attachedFiles) {
-			String filename = uploadfile.getSavedName();
-			File file = new File(directory, filename);
-			if (file.exists()) {
-				file.delete();
+//	public void deletePost(List<Integer> postNoList) {
+//		for (int postNo : postNoList) {
+//			List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
+//			for (AttachedFile uploadfile : attachedFiles) {
+//				String filename = uploadfile.getSavedName();
+//				File file = new File(directory, filename);
+//				if (file.exists()) {
+//					file.delete();
+//				}
+//			}
+//			
+//			postMapper.deletePost(postNo);
+//		}
+//	}
+	public void deletePost(List<Integer> postNoList) {
+		List<List<AttachedFile>> attachedFilesList = postMapper.getAttachedFilesListByPostNoList(postNoList);
+		for (List<AttachedFile> attachedFiles : attachedFilesList) {
+			for (AttachedFile attachedfile : attachedFiles) {
+				String fileName = attachedfile.getSavedName();
+				File file = new File(directory, fileName);
+				if (file.exists()) {
+					file.delete();
+				}
 			}
 		}
 		
-		postMapper.deletePost(postNo);
+		postMapper.deletePosts(postNoList);
 	}
 	
 	public PostSearchResult getPostsWithMyComment(int page, PostSearchOption opt) {
@@ -261,6 +289,17 @@ public class PostService {
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
 		List<PostListDtoWithMyComment> posts = postMapper.getPostListDtoWithMyComment(pagination.getBegin(), pagination.getEnd(), opt);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
+	}
+	
+	public PostSearchResult getPostsWithMyScrap(int page, PostSearchOption opt) {
+		int totalRows = postMapper.getTotalRowsWithMyScrap(opt);
+		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
+		
+		List<PostListDtoWithMyScrap> posts = postMapper.getPostListDtoWithMyScrap(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		
