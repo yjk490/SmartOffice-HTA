@@ -28,8 +28,7 @@
 			</div>
 			<div class="mt-3">
 					<a class="w3-bar-item w3-button ${left eq 'calendar' ? 'w3-border w3-border-gray w3-round-large ' : ''}" style="${left eq 'calendar' ? 'text-decoration: underline;font-weight: bold;' : '' }"}" href="/schedule/schedule">일정 보기</a>
-			       	<a class="w3-bar-item w3-button" href="#">일정 가져오기</a>
-			        <a class="w3-bar-item w3-button" href="#">일정 내보내기</a>
+			       	<a class="w3-bar-item w3-button ${left eq 'excel' ? 'w3-border w3-border-gray w3-round-large ' : ''}" style="${left eq 'excel' ? 'text-decoration: underline;font-weight: bold;' : '' }"}" href="/schedule/excel">일정 가져오기/내보내기</a>
 			        <a class="w3-bar-item w3-button" href="#">휴일 등록하기</a>
 			        <a class="w3-bar-item w3-button" href="#">설정하기</a>
 			</div>

@@ -142,11 +142,9 @@
 					<div class="col-6">
 					  <input class="form-control" style="width:20%" type="text" list="employees" id="attendant-tag" />
 					  <datalist id ="employees">
-					    <option value="10015" label="홍길동"/>
-					    <option value="10016" label="김유신"/>
-					    <option value="10017" label="강감찬"/>
-					    <option value="10018" label="이서연"/>
-					    <option value="10019" label="이준서"/>
+						  <c:forEach var="emp" items="${emps}">
+						    <option value="${emp.no }" label="${emp.name}"/>
+						  </c:forEach>
 					  </datalist>
 					</div>
 					<div class="col-4">
@@ -340,16 +338,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
 $(function() {
-	let $tagInput = $("#attendant-tag");
-	let $tagBtnBox = $("#tag-btn-box");
-	let $tagBox = $("#tag-box");
 	
 	//모달창에서 입력하는 것들.
 	let $reservationDate = $("input[name='reservationDate']");
 	let $roomNo = $("input[name='roomNo']");
 	let $reservationTimeList = $("input[name='reservationTime']");
 	
-	
+	//태그 관련 	
+	let $tagInput = $("#attendant-tag");
+	let $tagBtnBox = $("#tag-btn-box");
+	let $tagBox = $("#tag-box");
 	
 	//태그추가하기
 	$("#attendant-tag").keydown(function(event) {
@@ -361,12 +359,13 @@ $(function() {
 				return false;
 			}
 			let tagBtn = `
-				<small class="border rounded bg-primary p-1 text-white">#\${label} 
-				<a href="" class="text-white text-decoration-none"><i class="bi bi-x"></i></a>
+				<small id="tag-label" class="border rounded bg-primary p-1 text-white">#\${label} 
+					<a href="" class="text-white text-decoration-none"><i class="bi bi-x"></i></a>
+					<input type="hidden" name="attendants" value="\${value}">
 				</small>
 			`;
 			let tag = `
-				<input type="hidden" name="attendants" value="\${value}">
+				
 			`
 			$tagBtnBox.append(tagBtn);
 			$tagBox.append(tag);
@@ -377,13 +376,22 @@ $(function() {
 		return true;
 	});
 	
+	
+	
 	//태그 클릭하면 지우기. 나중에 수정하기.
-	$tagBtnBox.on("click",'', function(event){
+	
+	$(document).on("click","#tag-label",function(event){
 		event.preventDefault();
-		$(this).remove();
+		
+		alert("클릭한값: "+ $(this).text());
+		$(this).empty();
+		
+		$(this).detach();
 	})
 	
 	
+	
+	//미팅룸예약버튼눌렀을때 이벤트. 
 	$("#RoomReservationBtn").click(function(){
 		let modalReservationDate = $("#modalReservationDate").val();
 		let modalRoomNo = $("input[name='modalRoomNo']:checked").val();
@@ -410,7 +418,7 @@ $(function() {
 			alert("예약일자, 회의실, 시간 모두를 선택해주셔야합니다.");
 		}
 		
-		//alert(modalReservationDate);		
+		//alert(modalReservationDate);
 		//alert(modalRoomNo);
 		//alert(timeArray);
 		
@@ -429,9 +437,9 @@ $(function() {
 	let $endTime = $("select[name='endTime']");
 	
 
-	//빈칸이면 안되는 곳 체크하기.
+	//빈칸이면 안되는 곳 체크하기.		
 	//만약 올데이가 체크되면 시작시간 종료시간이 disabled 되게하기. 완료
-	//분류는 꼭 선택, 제목 꼭 입력	
+	//분류는 꼭 선택, 제목 꼭 입력
 	//회의실 꼭 셋 다 입력되어있어야하기 (이건 아마 회의실버튼누르는데서 하는게 좋을듯)	완료
 	//+ 회의실 선택된 시간의 경우에는 표시하기(글씨색을 바꾸든지해야될듯?)	
 	//참여자 중복될 경우 안들어가게 하기
@@ -461,7 +469,14 @@ $(function() {
 		}
 	})
 	
-	
+	//종료날짜가 시작날짜보다 빠르면 시작날짜로 설정되게하기.
+	$endDate.change(function(event){
+		if($startDate.val() >= $endDate.val()){
+			event.preventDefault();
+			alert("종료일자가 시작일자보다 이른 날짜면 안됩니다.");
+			$endDate.val($startDate.val());
+		}
+	})
 	
 });
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.example.dto.schedule.ScheduleDetailDto;
 import com.example.dto.schedule.ScheduleEvent;
@@ -32,5 +33,13 @@ public interface ScheduleMapper {
 	void deleteMeetingReservationByNo(int no);
 
 	int countAttendantsByNo(int no);
+
+	void insertSchedules(Schedule schedules);
+
+	List<Map<String, Object>> getAllSchedulesForMap(int empNo);
+
+	List<Schedule> getAllScheduleOnly(int empNo);
+	
+	
 	
 }

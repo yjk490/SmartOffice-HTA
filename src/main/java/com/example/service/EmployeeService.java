@@ -216,5 +216,9 @@ public class EmployeeService {
 		return todoMapper.getTodoListDtoByNo(empNo);
 	}
 
-
+	//일정등록 참석자에서 리스트띄우기용.
+		public List<Employee> getAllEmployeesNameNo(){
+			return employeeMapper.getAllEmployeesNameNo();
+		}
+	
 }
