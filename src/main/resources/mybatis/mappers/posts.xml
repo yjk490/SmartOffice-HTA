@@ -174,6 +174,7 @@
 		    A.post_no = B.post_no 
 		    and B.comment_content like '%' || #{opt.keyword} || '%'
 		    and B.employee_no = #{opt.employeeNo}
+		    and A.post_deleted = #{opt.deleted}
 	</select>
 	
 	<select id="getPostListDtoWithMyComment" resultType="com.example.dto.post.PostListDtoWithMyComment">
@@ -195,6 +196,7 @@
                     A.post_no = B.post_no 
 		    		and B.comment_content like '%' || #{opt.keyword} || '%'
 		    		and B.employee_no = #{opt.employeeNo}
+		    		and A.post_deleted = #{opt.deleted}
              )
         where
             row_numbers between #{begin} and #{end}
@@ -209,6 +211,7 @@
 		    A.post_no = B.post_no 
 		    and A.post_content like '%' || #{opt.keyword} || '%'
 		    and B.employee_no = #{opt.employeeNo}
+		    and A.post_deleted = #{opt.deleted}
 	</select>
 	
 	<select id="getPostListDtoWithMyScrap" resultType="com.example.dto.post.PostListDtoWithMyScrap">
@@ -230,9 +233,107 @@
                     A.post_no = B.post_no
                     and A.post_content like '%' || #{opt.keyword} || '%'
                     and B.employee_no = #{opt.employeeNo}
+                    and A.post_deleted = #{opt.deleted}
              )
         where
             row_numbers between #{begin} and #{end}	
+	</select>
+	
+	<select id="getTotalRowsWithNotice" resultType="int">
+		select 
+    		count(*)
+		from 
+    		(select C.employee_name, A.post_title as content, 'postRecommend' as type, A.post_no, B.RECOMMEND_CREATED_DATE as notice_created_date
+			from posts A, post_recommends B, employees C
+			where A.employee_no = #{opt.employeeNo}
+			and A.post_no = B.post_no
+			and B.employee_no = C.employee_no
+			and B.employee_no not in (#{opt.employeeNo})
+			and A.post_deleted = 'N'
+			union
+
+			select C.employee_name, A.post_title as content, 'postScrap' as type, A.post_no, B.SCRAP_CREATED_DATE as notice_created_date
+			from posts A, post_scraps B, employees C
+			where A.employee_no = #{opt.employeeNo}
+			and A.post_no = B.post_no
+			and B.employee_no = C.employee_no
+			and B.employee_no not in (#{opt.employeeNo})
+			and A.post_deleted = 'N'
+			union
+			
+			select C.employee_name, B.comment_content as content, 'comment' as type, A.post_no, B.COMMENT_CREATED_DATE as notice_created_date
+			from posts A, post_comments B, employees C
+			where A.employee_no = #{opt.employeeNo}
+			and A.post_no = B.post_no
+			and B.employee_no = C.employee_no
+			and  B.employee_no not in (#{opt.employeeNo})
+			and A.post_deleted = 'N'
+			union
+			
+			select C.employee_name, A.comment_content as content,  'commentRecommend' as type, D.post_no, B.COMMENT_RECOMMEND_CREATED_DATE as notice_created_date
+			from post_comments A, post_comment_recommends B, employees C, posts D
+			where A.employee_no = #{opt.employeeNo}
+			and A.comment_no = B.comment_no
+			and B.employee_no = C.employee_no
+			and D.post_no = A.post_no
+			and B.employee_no not in (#{opt.employeeNo})
+			and D.post_deleted = 'N')
+	</select>
+	
+	<select id="getPostListDtoWithNotice" resultType="com.example.dto.post.PostListDtoWithNotice">
+		select
+		    employee_name 		as employeeName,
+		    content 			as content,
+		    type 				as type,
+		    post_no 			as postNo,
+		    notice_created_date as noticeCreatedDateTime
+		from
+			(select 
+			    row_number() over (order by notice_created_date desc) as row_numbers,
+			    employee_name,
+			    content,
+			    type,
+			    post_no,
+			    notice_created_date
+			from 
+		    	(select C.employee_name, A.post_title as content, 'postRecommend' as type, A.post_no, B.RECOMMEND_CREATED_DATE as notice_created_date
+				from posts A, post_recommends B, employees C
+				where A.employee_no = #{opt.employeeNo}
+				and A.post_no = B.post_no
+				and B.employee_no = C.employee_no
+				and B.employee_no not in (#{opt.employeeNo})
+				and A.post_deleted = 'N'
+				union
+		
+				select C.employee_name, A.post_title as content, 'postScrap' as type, A.post_no, B.SCRAP_CREATED_DATE as notice_created_date
+				from posts A, post_scraps B, employees C
+				where A.employee_no = #{opt.employeeNo}
+				and A.post_no = B.post_no
+				and B.employee_no = C.employee_no
+				and B.employee_no not in (#{opt.employeeNo})
+				and A.post_deleted = 'N'
+				union
+		
+				select C.employee_name, B.comment_content as content, 'comment' as type, A.post_no, B.COMMENT_CREATED_DATE as notice_created_date
+				from posts A, post_comments B, employees C
+				where A.employee_no = #{opt.employeeNo}
+				and A.post_no = B.post_no
+				and B.employee_no = C.employee_no
+				and  B.employee_no not in (#{opt.employeeNo})
+				and A.post_deleted = 'N'
+				union
+		
+				select C.employee_name, A.comment_content as content,  'commentRecommend' as type, D.post_no, B.COMMENT_RECOMMEND_CREATED_DATE as notice_created_date
+				from post_comments A, post_comment_recommends B, employees C, posts D
+				where A.employee_no = #{opt.employeeNo}
+				and A.comment_no = B.comment_no
+				and B.employee_no = C.employee_no
+				and D.post_no = A.post_no
+				and B.employee_no not in (#{opt.employeeNo})
+				and D.post_deleted = 'N')
+			)
+			where
+		    	row_numbers between #{begin} and #{end}
 	</select>
 	
 	<select id="getPostDetailDto" resultType="com.example.dto.post.PostDetailDto">

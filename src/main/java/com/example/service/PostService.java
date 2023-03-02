@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostListDtoWithMyComment;
 import com.example.dto.post.PostListDtoWithMyScrap;
+import com.example.dto.post.PostListDtoWithNotice;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
 import com.example.mapper.PostMapper;
@@ -255,29 +256,28 @@ public class PostService {
 		
 	}
 	
-//	public void deletePost(List<Integer> postNoList) {
-//		for (int postNo : postNoList) {
-//			List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
-//			for (AttachedFile uploadfile : attachedFiles) {
-//				String filename = uploadfile.getSavedName();
-//				File file = new File(directory, filename);
-//				if (file.exists()) {
-//					file.delete();
-//				}
-//			}
-//			
-//			postMapper.deletePost(postNo);
-//		}
-//	}
 	public void deletePost(List<Integer> postNoList) {
+		/*
 		List<List<AttachedFile>> attachedFilesList = postMapper.getAttachedFilesListByPostNoList(postNoList);
 		for (List<AttachedFile> attachedFiles : attachedFilesList) {
 			for (AttachedFile attachedfile : attachedFiles) {
 				String fileName = attachedfile.getSavedName();
 				File file = new File(directory, fileName);
+				if (!file.exists()) {
+					file.delete();
+				}
+			}
+		}
+		 */
+		for (int postNo : postNoList) {
+			List<AttachedFile> files = postMapper.getAttachedFilesByPostNo(postNo);
+			for (AttachedFile attachedFile : files) {
+				String fileName = attachedFile.getSavedName();
+				File file = new File(directory, fileName);
 				if (file.exists()) {
 					file.delete();
 				}
+				
 			}
 		}
 		
@@ -300,6 +300,17 @@ public class PostService {
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
 		List<PostListDtoWithMyScrap> posts = postMapper.getPostListDtoWithMyScrap(pagination.getBegin(), pagination.getEnd(), opt);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
+	}
+	
+	public PostSearchResult getPostsWtihNotice(int page, PostSearchOption opt) {
+		int totalRows = postMapper.getTotalRowsWithNotice(opt);
+		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
+		
+		List<PostListDtoWithNotice> posts = postMapper.getPostListDtoWithNotice(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		
