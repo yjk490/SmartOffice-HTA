@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +48,10 @@ public class PostController {
 	FileDownloadView fileDownloadView;
 	@Value("${file.directory}")
 	private String directory;
+	@Value("${spring.servlet.multipart.max-file-size}")
+	private int maxFileSize;
+	@Value("${spring.servlet.multipart.max-request-size}")
+	private int maxTotalFileSize;
 	
 	@GetMapping("/list")
 	public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page, PostSearchOption opt, Model model) {
@@ -66,7 +70,7 @@ public class PostController {
 	}
 	
 	@PostMapping("/register-post")
-	public String registerPost(@AuthenticatedUser LoginEmployee loginEmployee, List<MultipartFile> uploadFiles, PostRegisterForm form) throws IOException { // 매개변수로 loginUser객체 추가되어야 함. 추후 수정 계획 
+	public String registerPost(@AuthenticatedUser LoginEmployee loginEmployee, List<MultipartFile> uploadFiles, PostRegisterForm form) throws IOException {
 		// 브라우저에서 파일 업로드
 		Map<String, String> fileNamesMap = new HashMap<String, String>();
 		for (MultipartFile file : uploadFiles) {
@@ -86,13 +90,24 @@ public class PostController {
 		return "redirect:list";
 	}
 	
+	// 조회수 중복 방지 쿠키 vs 세션
+	// 쿠키 장점
+	/*
+	 	조회수 중복 방지 로직
+	 	쿠키 
+	 		- 쿠키는 브라우저에 존재하기 때문에 서버 부하를 줄일 수 있다. 그러나 사용자가 조작하기 쉽다.
+	 		- 브라우저마다 만들 수 있는 쿠키의 개수가 정해져 있기 때문에 그 개수보다 클릭한 게시글 종류가 많으면 조회수 중복을 막을 수 없다.
+	 	세션 
+	 		- 서버에 저장되기 때문에 보안에 유리하다. 세션양이 많아지면 서버의 부하가 증가한다.
+	 		
+	 */
 	@GetMapping("/detail")
 	public String detail(@RequestParam("postNo") int postNo, @AuthenticatedUser LoginEmployee loginEmployee, Model model) {
 		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, loginEmployee.getNo());
 		
-		if (postDetailDto == null) {
-			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
-		}
+	//	if (postDetailDto == null || "Y".equals(postDetailDto.getDeleted())) {
+	//		throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
+	//	}
 		
 		model.addAttribute("post", postDetailDto);
 		
@@ -165,7 +180,7 @@ public class PostController {
 	public String modifyForm(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo, Model model) {
 		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, employeeNo);
 		
-		if (postDetailDto == null) {
+		if (postDetailDto == null || "Y".equals(postDetailDto.getDeleted())) {
 			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
 		}		
 		
@@ -235,7 +250,14 @@ public class PostController {
 	}
 	
 	@GetMapping("/notice")
-	public String notice() {
+	public String notice(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPostsWtihNotice(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("notice", result.getPosts());
+		model.addAttribute("opt", opt);	
+		
 		return "post/notice";
 	}
 	
