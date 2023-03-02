@@ -13,7 +13,7 @@ public class ContactSearchOption {
 	private String keyword = "";
 	private int rows = 10;
 	private String sort = "name";
-	private String initial = "ALL";
+	private String initial = "";
 	private String tag = "";
 	
 }

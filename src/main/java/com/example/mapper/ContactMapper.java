@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.example.dto.contact.ContactDetailDto;
 import com.example.dto.contact.ContactListDto;
+import com.example.dto.contact.ContactTagDto;
 import com.example.vo.contact.Contact;
 import com.example.vo.contact.ContactTag;
 import com.example.vo.contact.ContactTel;
@@ -24,7 +25,7 @@ public interface ContactMapper {
 	void deleteContactTel(ContactTel contactTel);
 	
 	void insertContactTag(ContactTag contactTag);
-	List<ContactTag> getContactTagsByNo(int contactNo);
+	List<ContactTagDto> getContactTagsByNo(int contactNo);
 	void deleteContactTag(ContactTag contactTag);
 	
 	int getPublicRows(@Param("keyword") String keyword, @Param("initial") String initial, @Param("tag") String tag);
@@ -40,6 +41,6 @@ public interface ContactMapper {
 	List<Contact> getPrivateContact(String share);
 	
 	List<ContactTag> getTagsByNo(int contactNo);
-	List<ContactListDto> getContacts(@Param("begin") int beginPage, @Param("end") int endPage, @Param("sort") String sort, @Param("type") String type, @Param("keyword") String keyword);
+	List<ContactListDto> getContacts(@Param("begin") int beginPage, @Param("end") int endPage, @Param("sort") String sort, @Param("keyword") String keyword, @Param("initial") String initial);
 
 }

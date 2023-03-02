@@ -52,13 +52,15 @@
 				<tr>
 			      <td class="w3-center tdcenter w3-jumbo"><i class="w3-center tdcenter bi bi-person-bounding-box" style="width: 100%"></i></td>
 			      <td class="">
-			      	<h2 class="">김진철</h2>
+			      	<h2 class="">${contact.name }</h2>
 			      	<h3><br/></h3>
-			      	<h4><i class="bi bi-telephone"></i> 010-1215-1111 <i class="bi bi-envelope-paper"></i> kimjc@aa.aa</h4>
+			      	<h4><i class="bi bi-telephone"></i> <c:forEach var="tel" items="${contact.contactTels }">${tel }</c:forEach> <i class="bi bi-envelope-paper"></i> ${contact.email }</h4>
 			      	<h4><br /></h4>
-			      	<button class="tagbtn">외주</button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button>
+			      	<c:forEach var="tag" items="${contact.contactTags }">
+			      		<a href="/contact/list?tag=${tag }" class="tagbtn">${tag }</a>
+			      	</c:forEach>
 			      </td>
-			      <td class=""><p class="w3-right w3-small w3-text-grey">최근수정일: 2022년 3월 22일</p></td>
+			      <td class=""><p class="w3-right w3-small w3-text-grey">최근수정일: <fmt:formatDate pattern="yyyy. MM. dd" value="${contact.createdDate }" /></p></td>
 			    </tr>
 			    </table>
 		</div>
@@ -74,35 +76,39 @@
 				</tr>
 				<tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">전화번호</th>
-			      <td class=""><p class="tdcenter">010-1111-1111</p></td>
+			      <td class=""><p class="tdcenter"><c:forEach var="tel" items="${contact.contactTels }">${tel }</c:forEach></p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">메일</th>
-			      <td class=""><p class="tdcenter">sojin@work.com</p></td>
+			      <td class=""><p class="tdcenter">${contact.email }</p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">회사</th>
-			      <td class=""><p class="tdcenter">그린스페이스</p></td>
+			      <td class=""><p class="tdcenter">${contact.company }</p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
-			      <th class="w3-center tdcenter w3-border-right w3-light-grey">부서/직급</th>
-			      <td class=""><p class="tdcenter">마케팅부 대리</p></td>
+			      <th class="w3-center tdcenter w3-border-right w3-light-grey">부서</th>
+			      <td class=""><p class="tdcenter">${contact.dept }</p></td>
+			    </tr>
+			    <tr class="w3-border-bottom">
+			      <th class="w3-center tdcenter w3-border-right w3-light-grey">직급</th>
+			      <td class=""><p class="tdcenter">${contact.position }</p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">주소</th>
-			      <td class=""><p class="tdcenter">서울 종로구 oo로 00-0 1101호</p></td>
+			      <td class=""><p class="tdcenter">${contact.address }</p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">URL</th>
-			      <td class=""><p class="tdcenter">www.sample.co.kr</p></td>
+			      <td class=""><p class="tdcenter">${contact.url }</p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">생일</th>
-			      <td class=""><p class="tdcenter">1993년 3월 29일</p></td>
+			      <td class=""><p class="tdcenter">${contact.birth }</p></td>
 			    </tr>
 			    <tr class="w3-border-bottom">
 			      <th class="w3-center tdcenter w3-border-right w3-light-grey">메모</th>
-			      <td class=""><p class="tdcenter">SNS 마케팅 주력 회사(카드뉴스, 영상)</p></td>
+			      <td class=""><p class="tdcenter">${contact.memo }</p></td>
 			    </tr>
 			    </table>
 		</div>
