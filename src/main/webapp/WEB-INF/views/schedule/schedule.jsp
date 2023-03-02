@@ -8,6 +8,19 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <title>애플리케이션</title>
+<style>
+	/* 일요일 날짜 빨간색 */
+	.fc-day-sun a {
+	  color: red;
+	  text-decoration: none;
+	}
+	
+	/* 토요일 날짜 파란색 */
+	.fc-day-sat a {
+	  color: blue;
+	  text-decoration: none;
+	}
+</style>
 </head>
 <body>
 <c:set var="top" value="schedule" />
@@ -34,8 +47,8 @@
 							<option value="5">휴가 일정</option>
 						</select>
 					</div>
-					<div class="col-5 w3-border w3-border-black w3-center w3-round-xlarge">
-						<p>2023-01</p>
+					<div class="col-5">
+						
 					</div>
 					<div class="col-3 w3-padding">
 					</div>
@@ -61,7 +74,7 @@
 			<div class="modal-body">
 				<div class="card">
 					<div class="card-body">
-						<form action="modify" method="post" enctype="multipart/form-data" class="row g-3">
+						<form name="schedule-form" action="modify" method="post" enctype="multipart/form-data" class="row g-3">
 						<sec:csrfInput />
 						<input hidden name="no" val="">
 							<div class="col-sm-4">
@@ -174,9 +187,8 @@
 							</div>
 							<div class="col-sm-12">
 								<label  class="form-label">첨부파일</label>
-								<a href=""></a>
+								<a href="download?filename=" class="btn btn-outline-dark btn-sm" name="attachedFile" disabled="disabled">${file.filename } <i class="bi bi-download ms-2"></i></a>
 							</div>
-						
 					</div>
 				</div>
 			</div>
@@ -348,6 +360,11 @@
 <script src="https://momentjs.com/downloads/moment.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function(){
+	//태그창
+	let $tagInput = $("#attendant-tag");
+	let $tagBtnBox = $("#tag-btn-box");
+	let $tagBox = $("#tag-box");
+	
 	//회의실 모달창에서 입력하는 것들.
 	let $reservationDate = $("input[name='reservationDate']");
 	let $roomNo = $("input[name='roomNo']");
@@ -398,7 +415,7 @@ $(function(){
 		
 	});	//회의실 예약function 종료.
 	
-	//올데이 체크하면 시간 disabled되게 하기. 이거 좀 되ㅣ게 해보자
+	//올데이 체크하면 시간 disabled되게 하기. 
 	let flag = $allDay.val();
 	
 	$allDay.click(function(){
@@ -413,6 +430,23 @@ $(function(){
 			$endTime.prop('disabled',false);
 		}
 	})
+	
+	//시작날짜보다 끝날짜가 더 앞이면 안되게 + 시작날짜 선택하면 끝날짜도 바뀌게
+	
+	$startDate.change(function(){
+		if($startDate.val() <= $endDate.val()){
+			$endDate.val($(this).val());
+		}
+	})
+	
+	$endDate.change(function(event){
+		if($startDate.val() >= $endDate.val()){
+			event.preventDefault();
+			alert("종료일자가 시작일자보다 이른 날짜면 안됩니다.");
+			$endDate.val($startDate.val());
+		}
+	})
+	
 	
 })
 
@@ -443,6 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	    selectable: true,
 	    locale: 'ko',
 	    initialView: 'dayGridMonth',
+	    firstDay: 1,
 	    headerToolbar: {
 	      left: 'prev,next today',
 	      center: 'title',
@@ -462,7 +497,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	    dateClick: function(info) {
 	      alert('clicked ' + info.dateStr);
 	      let clickedDate = info.dateStr;
-	      //openTodoModal(clickedDate);
+	     
+	      document.querySelector("form[name='schedule-form']").action="register";
+	      openRegisterModal(info,clickedDate);
 	    },
 	    eventClick: function(info){
 	    	//let clickedEvent = calendar.getEventById(events.no);	//클릭한걸 지정하려면 어떻게??
@@ -479,12 +516,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		    let startDate = moment(event.startStr).format("YYYY-MM-DD");
 		    let endDate = moment(event.endStr).format("YYYY-MM-DD");
 		    
-		    
-		    alert('분류' + categoryNo);
 		    alert('id' + id);
-	    	alert('끝시간' + endStr);
-	    	
-		    
+
+	    	document.querySelector("form[name='schedule-form']").action="modify";
 		    openTodoModal(event);
 		    
 	    }
@@ -498,8 +532,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //일정 수정 모달을 표시한다.
 function openTodoModal(event) {	
+	console.log($("form[name='schedule-form']").prop("action"));
+	document.querySelector("form[name='schedule-form']").action="modify";
+	console.log($("form[name='schedule-form']").prop("action"));
 	//스케줄번호 히든필드에 넣기.
-		
 	$(":input[name=no]").val(event.id);
 	
 	//일단 그냥 가져올 수 있는 값들 넣기.
@@ -514,6 +550,7 @@ function openTodoModal(event) {
 	let roomNo = event.extendedProps.roomNo;
 	let reservationTime = event.extendedProps.reservationTime;
 	let attendants = event.extendedProps.employeeNames;
+	let filename = event.extendedProps.filename;
 	
 	console.log("id: " + event.id)
 	console.log("시작시간: " + startTime);
@@ -548,12 +585,6 @@ function openTodoModal(event) {
 	
 	$(":input[name=content]").val(content);	
 	
-	//올데이 체크하면 시간 disabled되게 하기. 이거 좀 되ㅣ게 해보자
-	
-	
-	
-	//let allDayChecked = $(":select[name=allDay] option").prop("selected");
-	
 	//회의실부분 값 넣기
 	if(roomNo != 0){
 		$(":input[name=reservationDate]").prop("disabled",false);
@@ -571,20 +602,39 @@ function openTodoModal(event) {
 	if(attendants[0] != null && attendants.length >= 1){
 		$(":input[name=attendants]").prop("disabled",false);
 		$(":input[name=attendants]").val(attendants);
-		console.log("true: " + attendants.length)
+		
 	}else{
 		$(":input[name=attendants]").prop("disabled",true);
-		console.log("false: " + attendants.length)
+		
 	}
 	
+	//파일 다운로드되게하기.
+	if(filename != null){
+		$("a[name=attachedFile]").prop("diabled",false);
+		$("a[name=attachedFile]").prop("href", "download?filename="+filename);
+		$("a[name=attachedFile]").text(filename);
+	}else{
+		$("a[name=attachedFile]").prop("diabled",false);
+		$("a[name=attachedFile]").prop("href", "");
+		$("a[name=attachedFile]").text("첨부된 파일이 없습니다.");
+	}
 	
 	scheduleInfoModal.show();
 };
 
-	
-	
-	
 
+//날짜클릭시 일정등록창 띄우기
+function openRegisterModal(info,clickedDate){
+	document.querySelector("form[name='schedule-form']").action="register";
+	$(":input[name=startDate]").val(clickedDate);
+	$(":input[name=endDate]").val(clickedDate);
+	$(":input[name=startTime]").prop("disabled",false);
+	$(":input[name=endTime]").prop("disabled",false);
+	
+	scheduleInfoModal.show();
+}
+
+//ScheduleEvent들 가져오기
 function refreshEvents(info, successCallback) {
 	let startDate = moment(info.start).format("YYYY-MM-DD");
 	let endDate = moment(info.end).format("YYYY-MM-DD");
