@@ -14,13 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.dto.contact.ContactDetailDto;
 import com.example.dto.contact.ContactListDto;
+import com.example.security.AuthenticatedUser;
+import com.example.security.LoginEmployee;
 import com.example.service.ContactService;
 import com.example.vo.contact.Addressbook;
 import com.example.web.request.AddressbookModifyForm;
 import com.example.web.request.ContactRegisterForm;
 import com.example.web.request.ContactSearchOption;
-import com.example.web.request.PostSearchOption;
+import com.example.web.response.ContactListResult;
 
 @Controller
 public class ContactController {
@@ -43,9 +46,9 @@ public class ContactController {
 	// 연락처 메인화면(공유주소록)
 	@GetMapping("/contact/list")
 	public String contact(@RequestParam(name = "page", required = false, defaultValue = "1") int page, ContactSearchOption opt, Model model) {
-		Map<String, Object> result = contactService.getContacts(page, opt);
-		model.addAttribute("Contacts", result);
-		model.addAttribute("Pagination", result);
+		ContactListResult result = contactService.getContacts(page, opt);
+		model.addAttribute("contacts", result.getContacts());
+		model.addAttribute("pagination", result.getPagination());
 		model.addAttribute("opt", opt);
 					
 		return "contact/list";
@@ -53,7 +56,11 @@ public class ContactController {
 		
 	// 연락처 상세화면
 		@GetMapping("/contact/detail")
-		public String detail() {
+		public String detail(@RequestParam("contactNo") int contactNo, Model model) {
+			ContactDetailDto contactDetailDto = contactService.getContactDetailDto(contactNo);
+			
+			model.addAttribute("contact", contactDetailDto);
+			
 			return "contact/detail";
 		}
 		
