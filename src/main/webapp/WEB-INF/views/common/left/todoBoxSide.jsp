@@ -17,28 +17,40 @@
 		</div>
 		<ul class="tree border py-3 text-dark">
 			<li>
-				<span class="caret caret-down"><a class="text-decoration-none text-dark" >나의 할일</a></span>
+				<span class="caret caret-down"><a href="todoBox?boxNo=100" class="text-decoration-none text-dark" >나의 할일</a></span>
 				<ul class="nested active">
 				<!-- c:forEach -->
-					<li><a href="" class="text-decoration-none text-dark">나의 할 일 보관함 1</a></li>
-					<li><a href="" class="text-decoration-none text-dark">나의 할 일 보관함 2</a></li>
+				<c:forEach var="todoBox" items="${myTodo }">
+					<li><a href="todoBox?boxNo=${todoBox.boxNo }" class="text-decoration-none text-dark">${todoBox.boxName }</a></li>
+				</c:forEach>
 				</ul>
 			</li>
 			<li>
-				<span class="caret"><a  class="text-decoration-none text-dark">업무 요청보관함</a></span>
-			</li>
-			<li>
-				<span class="caret caret-down"><a class="text-decoration-none text-dark">업무 보고보관함</a></span>
-			</li>
-			<li>
-				<span class="caret caret-down"><a class="text-decoration-none text-dark">업무 일지</a></span>
+				<span class="caret"><a href="todoBox?boxNo=101" class="text-decoration-none text-dark">업무 요청보관함</a></span>
 				<ul class="nested active">
-					<li><a href="" class="text-decoration-none text-dark">일일업무일지</a></li>
-					<li><a href="" class="text-decoration-none text-dark">주간업무일지</a></li>
+				<!-- c:forEach -->
+				<c:forEach var="todoBox" items="${requestTodo }">
+					<li><a href="todoBox?boxNo=${todoBox.boxNo }" class="text-decoration-none text-dark">${todoBox.boxName }</a></li>
+				</c:forEach>
 				</ul>
 			</li>
 			<li>
-				<span class="caret"><a href="" class="text-decoration-none text-dark">임시게시판</a></span>
+				<span class="caret caret-down"><a href="todoBox?boxNo=102" class="text-decoration-none text-dark">업무 보고보관함</a></span>
+				<ul class="nested active">
+				<!-- c:forEach -->
+				<c:forEach var="todoBox" items="${reportTodo }">
+					<li><a href="todoBox?boxNo=${todoBox.boxNo }" class="text-decoration-none text-dark">${todoBox.boxName }</a></li>
+				</c:forEach>
+				</ul>
+			</li>
+			<li>
+				<span class="caret caret-down"><a href="todoBox?boxNo=103" class="text-decoration-none text-dark">업무 일지</a></span>
+				<ul class="nested active">
+				<!-- c:forEach -->
+				<c:forEach var="todoBox" items="${dailyTodo }">
+					<li><a href="todoBox?boxNo=${todoBox.boxNo }" class="text-decoration-none text-dark">${todoBox.boxName }</a></li>
+				</c:forEach>
+				</ul>
 			</li>
 		</ul>
 	</div>

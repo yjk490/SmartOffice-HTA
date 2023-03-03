@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter
 public class AttachedFileTodo {
 
-	private int todoNo;
+	private int no;
 	private String filename;
 }

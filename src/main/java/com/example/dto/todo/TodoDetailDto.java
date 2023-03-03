@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.type.Alias;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.vo.todo.AttachedFileTodo;
 import com.example.vo.todo.ReceiveEmployees;
 import com.example.vo.todo.TodoComment;
 
@@ -36,6 +37,6 @@ public class TodoDetailDto {
 	private Date EndDate;
 	private List<ReceiveEmployees> receiveEmp;
 	private List<TodoComment> comments;
+	private List<AttachedFileTodo> attachedFiles;
 	// private List<String> fileName;
-	// private List<AttachedFile> attachedFiles;
 }

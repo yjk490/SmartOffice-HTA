@@ -1,12 +1,10 @@
 package com.example.web.request;
 
-import java.util.Date; 
+import java.util.Date;  
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.example.dto.todo.TodoReceiveSelect;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +23,6 @@ public class TodoRegisterForm {
 	private String content;
 	private String important;
 	private List<Integer> TodoRecieveSelect;
-	private List<String> filename;
-	private List<MultipartFile> upfile;
+	private String filename;
+	private MultipartFile upfile;
 }

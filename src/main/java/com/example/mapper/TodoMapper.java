@@ -11,19 +11,26 @@ import com.example.dto.todo.TodoDetailDto;
 import com.example.dto.todo.TodoListDto;
 import com.example.dto.todo.TodoProgressDto;
 import com.example.dto.todo.TodoReceiveSelect;
+import com.example.vo.todo.AttachedFileTodo;
 import com.example.vo.todo.Category;
 import com.example.vo.todo.ReceiveEmployees;
 import com.example.vo.todo.Todo;
 import com.example.vo.todo.TodoBox;
 import com.example.vo.todo.TodoComment;
 
-
-
 @Mapper
 public interface TodoMapper {
 
 	//업무등록하기
 	void insertTodo(Todo todo);
+	// 첨부파일 등록하기
+	void insertAttachedFile(AttachedFileTodo attachedFile);
+	// 해당 게시글 첨부파일조회
+	List<AttachedFileTodo> getAttachedFileByTodoNo(int no);
+	// 처리내역 첨부파일등록하기
+	void insertProgressAttachedFile(AttachedFileTodo attachedFile);
+	// 처리내역 첨부파일 조회하기
+	List<AttachedFileTodo> getProgressAttachedFileByTodoNo(int no);
 	// 등록창에서 수신자 목록조회
 	List<TodoReceiveSelect> getTodoReceiveSelect();
 	// 업무 List조회
@@ -74,13 +81,11 @@ public interface TodoMapper {
 	// 직원번호로 업무보관함 조회
 	List<TodoBox> getBoxByEmpNo(int empNo);
 	// 상위보관함번호로 하위보관함 찾기
-	List<TodoBox> getBoxByParentBoxNo(int parentBoxNo);
+	List<TodoBox> getBoxByParentBoxNo(int parentBoxNo, int empNo);
+	// 업무보관함 추가하기
+	void insertTodoBox(TodoBox todoBox);
 	
 	int getProgressNoByNums(int todoNo, int receiveEmpNo);
 	TodoProgressDto getProgressHistoryByNums(int todoNo, int receiveEmpNo);
-	
-	
-	// 사원번호로 TodoListDto 조회하기
-	List<TodoListDto> getTodoListDtoByNo(int empNo);
-	
+
 }

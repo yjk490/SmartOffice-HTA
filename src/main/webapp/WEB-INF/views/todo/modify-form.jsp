@@ -43,10 +43,17 @@
 				</div>
 				<div class="mb-2 fw-bold" id="todoBox">
 					<label class="form-label">업무보관함 지정</label>
-					<select class="form-select form-select-xs" name="todoBox">
-						<option value="업무보관함1" > 업무보관함1</option>
-						<option value="업무보관함2" > 업무보관함2</option>
-						<option value="업무보관함3" > 업무보관함3</option>
+					<select class="form-select form-select-xs" name="boxNo">
+					<c:forEach var="todoBox" items="${todoBoxes }">
+						<c:choose>
+							<c:when test="${empty todoBoxes }">
+								<option value=""> 보관함을 생성하세요</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${todoBox.boxNo }"> ${todoBox.boxName }</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
 					</select>
 				</div>
 				<div>
@@ -69,7 +76,7 @@
 					<input type="file" class="form-control" name="upfile" />
 				</div>
 				<div class="text-end">
-					<a href="detail?todoNo=${modifyTodo.todoNo }" class="btn btn-secondary btn-sm">취소</a>
+					<a href="detail?todoNo=${modifyTodo.todoNo }&category=${category}" class="btn btn-secondary btn-sm">취소</a>
 					<button type="submit" class="btn btn-primary btn-sm">수정</button>
 				</div>
 			</form>

@@ -1,6 +1,6 @@
 package com.example.service;
 
-import java.util.HashMap;     
+import java.util.HashMap;      
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +17,7 @@ import com.example.dto.todo.TodoReceiveSelect;
 import com.example.dto.todo.TodoSearchOpt;
 import com.example.mapper.TodoMapper;
 import com.example.utils.Pagination;
+import com.example.vo.todo.AttachedFileTodo;
 import com.example.vo.todo.Category;
 import com.example.vo.todo.ReceiveEmployees;
 import com.example.vo.todo.Todo;
@@ -42,6 +43,15 @@ public class TodoService {
 			todo.setEmployeeNo(empNo);
 			BeanUtils.copyProperties(form, todo);
 			todoMapper.insertTodo(todo);
+			
+			// 첨부파일 등록하기
+			if (form.getFilename() != null) {
+				AttachedFileTodo attachedFile = new AttachedFileTodo();
+				attachedFile.setNo(todo.getTodoNo());
+				attachedFile.setFilename(form.getFilename());
+				
+				todoMapper.insertAttachedFile(attachedFile);
+			}
 		}
 		// 수신자가 있을 경우
 		// 수신자 empNolist
@@ -52,6 +62,15 @@ public class TodoService {
 			todo.setReceiveEmployeeNo(receive.get(0));
 			BeanUtils.copyProperties(form, todo);
 			todoMapper.insertTodo(todo);
+			
+			// 첨부파일 등록하기
+			if (form.getFilename() != null) {
+				AttachedFileTodo attachedFile = new AttachedFileTodo();
+				attachedFile.setNo(todo.getTodoNo());
+				attachedFile.setFilename(form.getFilename());
+				
+				todoMapper.insertAttachedFile(attachedFile);
+			}
 			
 			// 수신 업무 등록
 			ReceiveEmployees receiveEmp = new ReceiveEmployees();
@@ -65,6 +84,7 @@ public class TodoService {
 				todoMapper.insertReceive(receiveEmp);
 			}
 		}
+		
 	}
 	
 	// 등록창에서 수신자 목록조회
@@ -118,10 +138,7 @@ public class TodoService {
 		
 		return result;
 	}
-	// 상세화면 조회
-	public TodoDetailDto detailDtos(int todoNo) {
-		return  todoMapper.detailDtos(todoNo);
-	}
+	
 	
 	// 업무유형 조회
 	public List<Category> getCategory() {
@@ -135,10 +152,22 @@ public class TodoService {
 		return category;
 	}
 	
+	// 상세화면 조회하기(수신자 있는경우)
+	public TodoDetailDto detailDtos(int todoNo) {
+		TodoDetailDto detailDto = todoMapper.detailDtos(todoNo);
+		List<AttachedFileTodo> attachedFiles = todoMapper.getAttachedFileByTodoNo(todoNo);
+		detailDto.setAttachedFiles(attachedFiles);
+		return detailDto;
+	}
+	
 	// 상세화면 조회하기
 	public TodoDetailDto getTodoDetail(int todoNo) {
 		TodoDetailDto todoDetailDto = todoMapper.getTodoDetailByTodoNo(todoNo);
-		
+		List<AttachedFileTodo> attachedFiles = todoMapper.getAttachedFileByTodoNo(todoNo);
+		for(AttachedFileTodo name : attachedFiles) {
+			System.out.println("name: " + name);
+		}
+		todoDetailDto.setAttachedFiles(attachedFiles);
 		return todoDetailDto;
 	}
 	// 해당업무에 몇명의 수신자가 있는지 조회하기
@@ -177,14 +206,15 @@ public class TodoService {
 		}
 	}
 
-	// 업무보관함 
-	public Map<String, Object> getTodoboxes(int page, int listNo) {
+	// 업무보관함 화면조회
+	public Map<String, Object> getTodoboxes(int page, int listNo, int empNo) {
 		int totalRows = todoMapper.getBoxTotalRows();
 		Pagination pagination = new Pagination(page, totalRows);
 		
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("begin", pagination.getBegin());
 		param.put("end", pagination.getEnd());
+		param.put("empNo", empNo);
 		param.put("boxNo", listNo);
 		// param.put("empNo",empNo); 들어가야함
 		List<TodoBoxListDto> list = todoMapper.getTodoByBoxNo(param);
@@ -196,16 +226,21 @@ public class TodoService {
 		return result;
 	}
 
+	// 업무보관함 추가하기
+	public void insertTodoBox(TodoBox todoBox) {
+		System.out.println(todoBox.getBoxName());
+		todoMapper.insertTodoBox(todoBox);
+	}
+	
 	// 상위보관함번호로 하위보관함 찾기
-	public List<TodoBox> getBoxByparentBoxNo(int parentBoxNo) {
-		List<TodoBox> todoBox = todoMapper.getBoxByParentBoxNo(parentBoxNo);
+	public List<TodoBox> getBoxByparentBoxNo(int parentBoxNo, int empNo) {
+		List<TodoBox> todoBox = todoMapper.getBoxByParentBoxNo(parentBoxNo, empNo);
 		
 		return todoBox;
 	}
 	// 유저별 업무보관함 조회하기
 	public List<TodoBox> getBoxByEmpNo(int empNo) {
 		List<TodoBox> todoBox = todoMapper.getBoxByEmpNo(empNo);
-		
 		return todoBox;
 	}
 
@@ -244,7 +279,16 @@ public class TodoService {
 	// 업무처리하기
 	public void todoProgress(TodoProgressDto dto) {
 		int progressNo = todoMapper.getProgressNoByNums(dto.getTodoNo(), dto.getReceiveEmpNo());
+		// 첨부파일 등록하기
+		if (dto.getFilename() != null) {
+			AttachedFileTodo attachedFile = new AttachedFileTodo();
+			attachedFile.setNo(progressNo);
+			attachedFile.setFilename(dto.getFilename());
+			todoMapper.insertProgressAttachedFile(attachedFile);
+		}
+		
 		System.out.println("progressNo: " + progressNo);
+		System.out.println(dto.getFilename());
 		dto.setProgressNo(progressNo);
 		todoMapper.updateProgress(dto);
 	}
@@ -260,5 +304,11 @@ public class TodoService {
 	public int getUnreadCount(int receiveEmpNo) {
 		int unread = todoMapper.getUnreadCount(receiveEmpNo);
 		return unread;
+	}
+
+	// 해당업무 업무보관함에 넣기
+	public void todoInTodoBox(Todo todo, int boxNo) {
+		todo.setBoxNo(boxNo);
+		todoMapper.updateTodo(todo);
 	}
 }

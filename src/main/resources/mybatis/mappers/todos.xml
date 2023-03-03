@@ -20,6 +20,22 @@
 		</choose>
    </insert>
    
+   <!-- 첨부파일 등록하기 -->
+   <insert id="insertAttachedFile" parameterType="AttachedFileTodo">
+		insert into todo_attached_files
+		(todo_no, todo_filename)
+		values
+		(#{no}, #{filename})
+   </insert>
+   
+   <!-- 나의 처리내역 첨부파일 등록하기 -->
+   <insert id="insertProgressAttachedFile" parameterType="AttachedFileTodo">
+		insert into todo_progress_attached_files
+		(todo_progress_no, todo_progress_filename)
+		values
+		(#{no}, #{filename})
+   </insert>
+   
    <!-- 수신자등록 -->
    <insert id="insertReceive" parameterType="ReceiveEmployees">
    		insert into todo_progress_histories
@@ -28,12 +44,36 @@
 		(todo_progress_histories_seq.nextval, #{todoNo}, #{empNo}, sysdate, #{receiveEmpNo})
    </insert>
    
+   <!-- 업무보관함 만들기 -->
    <insert id="insertTodoBox" parameterType="TodoBox">
    		insert into todo_boxes
    		(box_no, box_name, employee_no, parent_box_no)
    		values
    		(todo_boxes_seq.nextval, #{boxName}, #{empNo}, #{parentBoxNo})
    </insert>
+   
+   <!-- 해당게시글 첨부파일 조회하기 -->
+   <select id="getAttachedFileByTodoNo" parameterType="int" resultType="AttachedFileTodo">
+   		select
+   			todo_no as no,
+   			todo_filename as filename
+   		from
+   			todo_attached_files
+   		where
+   			todo_no = #{no}
+   </select>
+   <!-- 처리내역 첨부파일 조회하기 -->
+   <select id="getProgressAttachedFileByTodoNo" parameterType="int" resultType="AttachedFileTodo">
+   		select
+   			todo_progress_no as no,
+   			todo_filename as filename
+   		from
+   			todo_progress_attached_files
+   		where
+   			todo_no = #{no}
+   </select>
+   
+   <!-- 댓글 등록하기 -->
    <insert id="addComment" parameterType="TodoComment">
    		insert into todo_comments
    		(todo_comment_no, todo_no, todo_content, employee_no)
@@ -153,9 +193,10 @@
 			A.todo_updated_date		as updatedDate,
 			A.box_no				as boxNo,
 			A.employee_no			as employeeNo,
+			B.employee_name			as employeeName,
 			A.job_cat_no			as jobCatNo,
 			A.receive_employee_no	as receiveEmployeeNo,
-			B.employee_name			as receiveEmployeeName
+			C.employee_name			as receiveEmployeeName
 		from
 			todos A, employees B, employees C
 		where
@@ -180,14 +221,16 @@
    			A.todo_progress_status		as progressStatus,
    			B.employee_no				as empNo,
    			B.employee_name				as empName,
+   			E.position_name				as positionName,
    			A.receive_employee_no		as receiveEmpNo,
    			D.employee_name				as receiveEmpName
    		from
-   			todos A, employees B, todo_Boxes C, Employees D
+   			todos A, employees B, todo_Boxes C, Employees D, employee_positions E
    		where
    			A.employee_no = B.employee_no
    			and A.receive_employee_no = D.employee_no(+)
    			and A.box_no = C.box_no
+   			and B.position_no = E.position_no
    			and todo_no = #{todoNo}
 	</select>
 	
@@ -239,6 +282,7 @@
    			box_created_date		as createdDate,
    			todo_no					as todoNo,
    			todo_title				as title,
+   			job_cat_no				as jobCatNo,
    			employee_no				as empNo,	<!-- 등록자 -->
             employee_name			as empName,
 	   		todo_start_date			as startDate,
@@ -254,6 +298,7 @@
    				A.box_created_date		,
    				B.todo_no				,
    				B.todo_title			,
+   				B.job_cat_no			,
    				B.employee_no			,	<!-- 등록자 -->
                 C.employee_name			,
 	   			B.todo_start_date		,
@@ -269,6 +314,7 @@
    				and B.employee_no = C.employee_no
    				and B.receive_employee_no = D.employee_no(+)
    				and B.box_no = #{boxNo}
+   				and B.employee_no = #{empNo}
    			)
    		where
    			row_numbers between #{begin} and #{end}
@@ -285,7 +331,6 @@
    			todo_boxes
    		where
    			employee_no = #{empNo}
-   			or box_no in (100, 101, 102, 103)
    			and box_deleted = 'N'
    </select>
    
@@ -299,7 +344,8 @@
    		from
    			todo_boxes
    		where
-   			parent_box_no = #{parentBoxNo}
+   			employee_no = #{empNo}
+   			and parent_box_no = #{parentBoxNo}
    			and box_deleted = 'N'
    </select>
    
@@ -340,15 +386,14 @@
    			A.todo_updated_date,
    			A.todo_start_date,
    			A.todo_end_date,
-   			C.receive_employee_no,
+			D.employee_no as receive_employee_no,
 			D.employee_name as receive_employee_name,
    			G.position_name as receive_position_name,
 			C.todo_progress_updated_date,
 			C.todo_progress_rate,
 			C.todo_progress_content
-			
 		from
-			todos A, employees B, todo_progress_histories C, employees D, todo_Boxes E, employee_positions F, employee_positions G 
+			todos A, employees B, todo_progress_histories C, employees D, todo_Boxes E, employee_positions F, employee_positions G
 		where
 			C.employee_no = B.employee_no
 			and B.position_no = F.position_no
