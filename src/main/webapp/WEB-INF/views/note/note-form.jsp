@@ -250,6 +250,7 @@ $(function(){
 	$("#btn-draft").click(function(){
 		$("#note-form input[name=boxNo]").val("10003");
 		$("#note-form").submit();
+		
 	});
 	
 	// 보내기 버튼을 누르면 쪽지를 보낸저장함으로 저장하기

@@ -7,8 +7,10 @@
 				<li class="nav-item"><a class="nav-link ${top eq 'note' ? 'active' : '' }" href="/note/receive">쪽지</a></li>
 				<li class="nav-item"><a class="nav-link ${top eq 'schedule' ? 'active' : '' }" href="/schedule/schedule">일정</a></li>
 				<li class="nav-item"><a class="nav-link ${top eq 'contact' ? 'active' : '' }" href="/contact/list">주소록</a></li>
+				<!-- 
 				<li class="nav-item"><a class="nav-link" href="">메모(일단)</a></li>
 				<li class="nav-item"><a class="nav-link" href="">메신저</a></li>
+				 -->
 				<li class="nav-item"><a class="nav-link ${top eq 'post' ? 'active' : '' }" href="/post/list">게시판</a></li>
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle ${top eq 'todo' ? 'active' : '' }" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

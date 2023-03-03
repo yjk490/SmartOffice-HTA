@@ -35,7 +35,7 @@
 	</div>
 	<div class="row">
 		<div class="col-6">
-			<div class="border p-3 bg-light">
+			<div class="border p-3 bg-light" style="height: 100%">
 				<h4>오늘의 할일 <a href="/todo/list?category=100"><i class="far fa-plus-square w3-right-align"></i></a></h4>
 				<div>
 					<canvas id="myChart" width="200" height="200"></canvas>
