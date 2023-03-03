@@ -70,7 +70,6 @@
 				</table>
 				<div class="row">
 					<div class="text-end col-12">
-						<button class="w3-button w3-padding-small w3-round-large w3-light-gray"><a class="text-decoration-none" href="">파일다운</a></button>
 						<button class="w3-button w3-padding-small w3-round-large w3-black"><a class="text-decoration-none" href="/note/receive">목록</a></button>
 					</div>
 				</div>

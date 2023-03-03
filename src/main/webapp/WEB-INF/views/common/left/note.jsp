@@ -12,7 +12,7 @@
 				</div>
 			</div>
 			<div class="mt-3">
-					<a class="w3-bar-item w3-button ${left eq 'receive' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'receive' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/note/receive">받은 쪽지함<span class="w3-badge w3-right">6</span></a>
+					<a class="w3-bar-item w3-button ${left eq 'receive' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'receive' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/note/receive">받은 쪽지함<!--<span class="w3-badge w3-right">6</span> --></a>
 			       	<a class="w3-bar-item w3-button ${left eq 'send' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'send' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/note/sendnote">보낸 쪽지함</a>
 			        <a class="w3-bar-item w3-button ${left eq 'draft' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'draft' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/note/draftnote">임시 보관함</a>
 			        <a class="w3-bar-item w3-button ${left eq 'folder' ? 'w3-border w3-border-gray w3-round-large' : '' }" style="${left eq 'folder' ? 'text-shadow:0.6px 0.6px 0 #444' : ''}" href="/note/foldernote">쪽지 보관함</a>
