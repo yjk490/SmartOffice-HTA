@@ -87,5 +87,4 @@ public interface TodoMapper {
 	
 	int getProgressNoByNums(int todoNo, int receiveEmpNo);
 	TodoProgressDto getProgressHistoryByNums(int todoNo, int receiveEmpNo);
-
 }
