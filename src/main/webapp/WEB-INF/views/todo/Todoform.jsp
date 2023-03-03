@@ -72,11 +72,16 @@
 				<div class="mb-2" id="todoBox">
 					<label class="form-label fw-bold">업무보관함 지정</label>
 					<select class="form-select form-select-xs" name="boxNo">
-						<option value="999"> 지정하지 않음</option>
-						<option value="100" > 나의 할 일</option>
-						<option value="101" > 업무 요청</option>
-						<option value="102" > 업무 보고</option>
-						<option value="103" > 업무 일지</option>
+					<c:forEach var="todoBox" items="${todoBoxes }">
+						<c:choose>
+							<c:when test="${empty todoBoxes }">
+								<option value="" > 보관함을 등록해 주세요</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${todoBox.boxNo }"> ${todoBox.boxName }</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
 					</select>
 				</div>
 				<div class="mb-2">

@@ -29,6 +29,7 @@ public class Todo {
 	private Date updatedDate;
 	private int boxNo;
 	private int employeeNo;
+	private String positionName;
 	private int receiveEmployeeNo;
 	private String receiveEmployeeName;
 	private int jobCatNo;
