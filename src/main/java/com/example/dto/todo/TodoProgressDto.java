@@ -1,6 +1,7 @@
 package com.example.dto.todo;
 
 import org.apache.ibatis.type.Alias;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,8 @@ public class TodoProgressDto {
 	private int progressRate;
 	private String progressRead;
 	private String content;
-	private String fileName;
+	private String filename;
 	private String createdDate;
 	private String updatedDate;
+	private MultipartFile upfile;
 }

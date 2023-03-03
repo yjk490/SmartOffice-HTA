@@ -73,7 +73,17 @@ tr button {
 								<th>수신자</th>
 							</c:if>
 							<c:if test="${category.name ne '나의 할 일' }">
-								<td><i class="bi bi-person-circle me-2"></i>${receiveName } 외 ${count -1}명</td>
+								<c:choose>
+									<c:when test="${count >= 2}">
+										<td><i class="bi bi-person-circle me-2"></i>${receiveName } 외 ${count -1}명</td>
+									</c:when>
+									<c:when test="${count eq 1 }">
+										<td><i class="bi bi-person-circle me-2"></i>${receiveName }</td>
+									</c:when>
+									<c:otherwise>
+										<td>없음</td>
+									</c:otherwise>
+								</c:choose>
 							</c:if>
 						</tr>
 					</c:if>
@@ -88,9 +98,9 @@ tr button {
 					<c:if test="${category.name ne '나의 할 일' }">
 						<tr>
 							<th>등록일</th>
-							<td>2023-02-01</td>
+							<td><fmt:formatDate value="${dto.createdDate }"/></td>
 							<th>수정일</th>
-							<td>2023-03-01</td>
+							<td><fmt:formatDate value="${dto.updatedDate }"/></td>
 						<tr>
 					</c:if>
 					<tr>
@@ -107,7 +117,9 @@ tr button {
 					</tr>
 					<tr>
 						<th class="fw-bold">첨부파일</th>
-						<td><a href="download?filename=${file.filename } " class="btn btn-outline-dark btn-sm">Filename<i class="bi bi-download ms-2"></i></a></td>
+						<c:forEach var="file" items="${dto.attachedFiles }">
+							<td><a href="download?filename=${file.filename } " class="btn btn-outline-dark btn-sm">${file.filename }<i class="bi bi-download ms-2"></i></a></td>
+						</c:forEach>
 						<td></td>
 						<td></td>
 					</tr>
@@ -115,9 +127,9 @@ tr button {
 			</table>
 			
 			<c:if test="${category.name ne '나의 할 일' }">
-				<h3 class="fw-bold pt-4">처리내역</h3>
 				<c:forEach var="receiveEmp" items="${dto.receiveEmp }">
-				<form id="progress" class="mb-3" method="post" action="complete">
+				<h3 class="fw-bold pt-4">처리내역</h3>
+				<form id="progress" class="mb-3" method="post" action="complete" enctype="multipart/form-data">
 				<sec:csrfInput />
 				<input type="hidden" name="todoNo" value="${dto.todoNo }"/>
 				<input type="hidden" name="category" value="${category.no }"/>
@@ -154,18 +166,20 @@ tr button {
 							<c:otherwise>
 								<tr>
 									<th><label class="form-label fw-bold">진척율</label></th>
-									<td id="progressRate">
-									<c:if test="${receiveEmp.receiveEmpNo eq loginUserNo}">
-										<button data-process-value="0%" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;"  name="progressRate" value="0">0%</button>
-										<button data-process-value="20%" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="20">20%</button>
-										<button data-process-value="40%" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="40">40%</button>
-										<button data-process-value="60%" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="60">60%</button>
-										<button data-process-value="80%" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="80">80%</button>
-										<button data-process-value="100%" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;"name="progressRate" value="100">100%</button>
-									</c:if>
+									<td>
+										<c:if test="${receiveEmp.receiveEmpNo eq loginUserNo}">
+										<div>
+											<button data-process-value="0" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;"  name="progressRate" value="0">0%</button>
+											<button data-process-value="20" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="20">20%</button>
+											<button data-process-value="40" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="40">40%</button>
+											<button data-process-value="60" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="60">60%</button>
+											<button data-process-value="80" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;" name="progressRate" value="80">80%</button>
+											<button data-process-value="100" type="button" class="btn btn-light btn btn-outline-primary btn-sm ${receiveEmp.receiveEmpNo eq loginUserNo ? '' : 'disabled'}" style="width: 60px;"name="progressRate" value="100">100%</button>
+										</div>
+										</c:if>
 										<div class="w3-light-grey w3-small mt-1">
 											<input type="hidden" name="progressRate" value="${receiveEmp.progressRate}"/>
-			    							<div id="myBar" class="w3-container w3-green w3-round-xlarge" style="width:${receiveEmp.progressRate}%" name="progressRate" value="${receiveEmp.progressRate}">${receiveEmp.progressRate}%</div>
+			    							<div class="w3-container w3-green w3-round-xlarge" style="width:${receiveEmp.progressRate}%" value="${receiveEmp.progressRate}">${receiveEmp.progressRate}%</div>
 			  							</div>
 									</td>
 								</tr>
@@ -179,8 +193,23 @@ tr button {
 						</tr>
 						<tr>
 							<th>첨부파일</th>
-							<td><input type="file" class="form-control " name="upfile" /></td>
+							<td>
+							<c:choose>
+								<c:when test="${empty receiveEmp.filename }">
+									첨부된 파일이 없습니다.
+								</c:when>
+								<c:otherwise>
+									<a href="download?filename=${receiveEmp.filename } " class="btn btn-outline-dark btn-sm">${receiveEmp.filename }<i class="bi bi-download ms-2"></i></a>
+								</c:otherwise>
+							</c:choose>
+							</td>
 						</tr>
+						<c:if test="${receiveEmp.receiveEmpNo eq loginUserNo }">
+							<tr>
+								<th>파일 등록하기</th>
+								<td><input type="file" class="form-control " name="upfile" /></td>
+							</tr>
+						</c:if>
 						<c:if test="${receiveEmp.receiveEmpNo eq loginUserNo }">
 							<tr>
 								<th></th>
@@ -240,16 +269,11 @@ tr button {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script>
-$("#progressRate .btn").click(function() {
+$(".btn[data-process-value]").click(function() {
 	let value = $(this).attr("data-process-value");
-	$("#myBar").css('width', value).text(value);
-})
-
-$("#progress").submit(function() {
-	let value = $("#myBar").text();
-	value = value.substr(0, value.length - 1);
-	Number(value);
-	$("input[name=progressRate]").val(value);
+	$(this).closest("div").next().find(":input").val(value);
+	$(this).closest("div").next().find("div").css("width", value+"%");
+	$(this).closest("div").next().find("div").text(value + "%");
 })
 
 $(function() {

@@ -1,8 +1,9 @@
 package com.example.vo.todo;
 
-import java.util.Date;
+import java.util.Date; 
 
 import org.apache.ibatis.type.Alias;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,4 +22,6 @@ public class ReceiveEmployees {
 	private Date progressUpdatedDate;
 	private int progressRate;
 	private String progressContent; 
+	private MultipartFile upfile;
+	private String filename;
 }

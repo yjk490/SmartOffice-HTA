@@ -106,8 +106,15 @@ tr button {
 							<tr>
 								<td><input type="checkbox" name="" value=""/></td>
 								<td class="text-center">${list.todoNo }</td>
-								<td class="text-center"><a href="requestDetail?requestNo=101">${list.title }</a></td>
-								<td class="text-center">${list.receiveEmpName }</td>
+								<td class="text-center"><a href="detail?todoNo=${list.todoNo }&category=${list.jobCatNo}">${list.title }</a></td>
+								<c:choose>
+									<c:when test="${empty list.receiveEmpName }">
+										<td class="text-center">없음</td>
+									</c:when>
+									<c:otherwise>
+										<td class="text-center">${list.receiveEmpName }</td>
+									</c:otherwise>
+								</c:choose>
 								<td class="text-center"><fmt:formatDate value="${list.endDate }" /></td>
 								<c:choose>
 									<c:when test="${list.status eq 'W' }">
@@ -161,6 +168,7 @@ tr button {
 <div class="modal" tabindex="-1" id="modal-form-todoBox">
 	<div class="modal-dialog modal-lg">
 		<form id="form-add-todoBox" class="p-3" method="post" action="insert-todoBox">
+		<input type="hidden" name="boxNo" value="${boxNo }" />
 		<sec:csrfInput />
 		<div class="modal-content">
 			<div class="modal-header">
@@ -171,7 +179,7 @@ tr button {
 				<div class="row">
 					<div class="col-12 mb-2">
 						<label class="form-label fw-bold">보관함 이름</label>
-						<input type="text" class="form-control" name="boxname" />
+						<input type="text" class="form-control" name="boxName" />
 					</div>
 				</div>
 				<div class="row">
@@ -179,7 +187,7 @@ tr button {
 						<div class="mb-2">
 							<label class="form-label fw-bold">상위보관함 지정</label>
 							<div>
-								<select class="form-select form-select-xs" name="boxlist">
+								<select class="form-select form-select-xs" name="parentBoxNo">
 									<option value="100" > 나의 할 일</option>
 									<option value="101" > 업무 요청</option>
 									<option value="102" > 업무 보고</option>

@@ -193,7 +193,7 @@ tr button {
 							<tbody class="align-middle">
 								<c:choose>
 									<c:when test="${empty todos }">
-										<p>등록된 업무가 없습니다.</p>
+										<td colspan="12" class="text-center fw-bold">등록된 업무가 없습니다.</td>
 									</c:when>
 									<c:otherwise>
 										<c:forEach var="todo" items="${todos }">
@@ -289,7 +289,9 @@ tr button {
 					<c:if test="${category.name ne '수신 업무 요청' }">
 						<a id="boxSelect"class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modal-form-todoBox">보관함지정</a>
 					</c:if>
-					<a href="" class="btn btn-outline-dark btn-sm fw-bold">업무완료</a>
+					<%--
+						<a href="" class="btn btn-outline-dark btn-sm fw-bold">업무완료</a>
+					 --%>
 					<a id="delete" href="list?category=${category.no }" class="btn btn-outline-dark btn-sm">삭제</a>
 				</div>
 			</div>
@@ -300,7 +302,7 @@ tr button {
 <!-- 업무를 보관함에 넣기 -->
 <div class="modal" tabindex="-1" id="modal-form-todoBox">
 	<div class="modal-dialog">
-		<form id="form-add-todoBox" class="p-3" method="get" action="todo-In-TodoBox">
+		<form id="form-add-todoBox" class="p-3">
 		<input type="hidden" name="category" value="${category.no }"/>
 		<div class="modal-content">
 			<div class="modal-header">
@@ -325,7 +327,7 @@ tr button {
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-				<button type="submit" class="btn btn-primary">등록하기</button>
+				<button id="boxbtn" class="btn btn-primary">등록하기</button>
 			</div>
 		</div>
 		</form>
@@ -377,8 +379,8 @@ $(document).ready(function() {
 			return false;
 		}
 	})
-	
-	$('#form-add-todoBox').submit(function() {
+	// 업무보관함에 넣기
+	$('#boxbtn').click(function() {
 		if (confirm('등록하시겠습니까?')) {
 			
 			var noArray = [];
@@ -395,6 +397,8 @@ $(document).ready(function() {
 				var param = noArray.map(function(no) {
 					return "no=" + no;
 				}).join("&");
+				param += "&boxNo=" + $("select[name=boxNo]").val();
+				// param="no=1&no=3&no=8&box=1000"
 				
 				$.ajax({
 					url: 'todo-In-TodoBox',

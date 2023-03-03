@@ -1,9 +1,8 @@
 package com.example.web.controller;
 
-import java.io.File;       
+import java.io.File;        
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -135,13 +134,13 @@ public class TodoController {
 	@GetMapping("/detail")
 	public String todoDetail(@RequestParam("todoNo") int todoNo, @RequestParam("category") int categoryNo, 
 							@AuthenticatedUser LoginEmployee loginEmployee, Model model) {
-		
-		if(categoryNo == 100) {
+		Todo todo = todoService.getTodoByTodoNo(todoNo);
+		int receiveNo = todo.getReceiveEmployeeNo();
+		if(receiveNo == 0) {
 			TodoDetailDto todoDetailDto = todoService.getTodoDetail(todoNo);
 			model.addAttribute("dto", todoDetailDto);
 			
 		} else {
-			
 			TodoDetailDto dto = todoService.detailDtos(todoNo);
 			model.addAttribute("dto", dto);
 		}
@@ -167,8 +166,19 @@ public class TodoController {
 		return "todo/detail";
 	}
 	
+	// 처리내역
 	@PostMapping("/complete")
-	public String todoComplete(TodoProgressDto dto, @RequestParam("progressRate") String rate, int category) {
+	public String todoComplete(@AuthenticatedUser LoginEmployee loginEmployee, TodoProgressDto dto, 
+								@RequestParam("progressRate") String rate, int category) throws IOException {
+		
+		MultipartFile upfile = dto.getUpfile();
+		if (!upfile.isEmpty()) {
+			String filename = upfile.getOriginalFilename();
+			dto.setFilename(filename);
+			
+			FileCopyUtils.copy(upfile.getInputStream(), new FileOutputStream(new File(directory, filename)));
+		}
+		dto.setReceiveEmpNo(loginEmployee.getNo());
 		todoService.todoProgress(dto);
 		return "redirect:detail?todoNo=" + dto.getTodoNo() + "&category=" + category;
 	}
@@ -190,12 +200,15 @@ public class TodoController {
 	
 	// 수정화면 요청
 	@GetMapping("/modify")
-	public String modifyform(@RequestParam("todoNo") int todoNo, @RequestParam("category") int category, Model model) {
+	public String modifyform(@AuthenticatedUser LoginEmployee loginEmployee, 
+								@RequestParam("todoNo") int todoNo, @RequestParam("category") int category, Model model) {
 		TodoDetailDto todoDetailDto = todoService.getTodoDetail(todoNo);
 		
 		TodoModifyForm form = new TodoModifyForm();
 		BeanUtils.copyProperties(todoDetailDto, form);
 		
+		List<TodoBox> todoBoxes = todoService.getBoxByEmpNo(loginEmployee.getNo());
+		model.addAttribute("todoBoxes",todoBoxes);
 		model.addAttribute("category", category);
 		model.addAttribute("modifyTodo", form);
 		return "todo/modify-form";
@@ -210,8 +223,10 @@ public class TodoController {
 	
 	// 업무등록화면 요청
 	@GetMapping("/insert")
-	public String insertForm(@RequestParam("category") String category, Model model) {
+	public String insertForm(@AuthenticatedUser LoginEmployee loginEmployee, @RequestParam("category") String category, Model model) {
 		List<TodoReceiveSelect> receiveList =  todoService.getTodoReceiveSelect();
+		List<TodoBox> todoBoxes = todoService.getBoxByEmpNo(loginEmployee.getNo());
+		model.addAttribute("todoBoxes",todoBoxes);
 		model.addAttribute("receiveList", receiveList);
 		model.addAttribute("category", category);
 		
@@ -219,22 +234,19 @@ public class TodoController {
 	}
 	
 	// 업무 등록하기 구현
-	// userId들어가야함
 	@PostMapping("/insert")
 	public String insert(@AuthenticatedUser LoginEmployee loginEmployee, TodoRegisterForm form, 
 						@RequestParam("jobCatNo") int categoryNo,
 						@RequestParam("receiveEmpNo") List<Integer> receiveEmpNo) throws IOException {
 		
-		List<MultipartFile> upfiles = form.getUpfile();
-		List<String> filenames = new ArrayList<>();
-		for (MultipartFile upfile : upfiles) {
-			if (!upfile.isEmpty()) {
-				String filename = upfile.getOriginalFilename();
-				filenames.add(filename);
-				FileCopyUtils.copy(upfile.getInputStream(), new FileOutputStream(new File(directory, filename)));
-			}
+		MultipartFile upfile = form.getUpfile();
+		if (!upfile.isEmpty()) {
+			String filename = upfile.getOriginalFilename();
+			form.setFilename(filename);
+			
+			FileCopyUtils.copy(upfile.getInputStream(), new FileOutputStream(new File(directory, filename)));
 		}
-		form.setFilename(filenames);
+		
 		form.setTodoRecieveSelect(receiveEmpNo);
 		todoService.insertTodo(form, loginEmployee.getNo());
 		
@@ -280,33 +292,58 @@ public class TodoController {
 	
 	// 업무보관함 화면요청
 	@GetMapping("/todoBox")		// 로그인정보 필요함
-	public String todoBox(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @RequestParam(name = "boxNo", required = false, defaultValue = "100") int boxNo, Model model) {
+	public String todoBox(@AuthenticatedUser LoginEmployee loginEmployee, 
+							@RequestParam(name = "page", required = false, defaultValue = "1") int page,
+							@RequestParam(name = "boxNo", required = false, defaultValue = "100") int boxNo, Model model) {
 		
-		Map<String, Object> result = todoService.getTodoboxes(page, boxNo);
+		Map<String, Object> result = todoService.getTodoboxes(page, boxNo, loginEmployee.getNo());
 		model.addAttribute("list", result.get("list"));
 		model.addAttribute("pagination", result.get("pagination"));
 		
-		// 로그인정보 필요 TodoBox todoBox = todoService.getBoxByEmpNo(empNo);
-		//model.addAttribute("todoBox", todoBox);
+		// 사용자의 업무보관함List 조회
+		List<TodoBox> todoBoxes = todoService.getBoxByEmpNo(loginEmployee.getNo());
+		for(TodoBox todoBox : todoBoxes) {
+			if(todoBox.getParentBoxNo() == 100) {
+				List<TodoBox>myTodo = todoService.getBoxByparentBoxNo(100, loginEmployee.getNo());
+				model.addAttribute("myTodo",myTodo);
+			} else if(todoBox.getParentBoxNo() == 101) {
+				List<TodoBox>requestTodo = todoService.getBoxByparentBoxNo(101, loginEmployee.getNo());
+				model.addAttribute("requestTodo",requestTodo);
+			} else if(todoBox.getParentBoxNo() == 102) {
+				List<TodoBox>reportTodo = todoService.getBoxByparentBoxNo(102, loginEmployee.getNo());
+				model.addAttribute("reportTodo",reportTodo);
+			} else if(todoBox.getParentBoxNo() == 103) {
+				List<TodoBox>dailyTodo = todoService.getBoxByparentBoxNo(103, loginEmployee.getNo());
+				model.addAttribute("dailyTodo",dailyTodo);
+			}
+		}
+		model.addAttribute("todoBoxes", todoBoxes);
+		model.addAttribute("boxNo", boxNo);
+		
 		return "todo/todoBox";
 	}
 	
 	// 선택 업무 보관함에 설정하기
 	@GetMapping("/todo-In-TodoBox")
 	@ResponseBody
-	public String todoInTodoBox(@RequestParam("boxNo") int boxNo, @RequestParam("no") List<Integer> todoNo,
-								@RequestParam("category") int category) {
+	public String todoInTodoBox(@RequestParam("boxNo") int boxNo, @RequestParam("no") List<Integer> todoNo) {
 		for(int no : todoNo) {
 			System.out.println(no);
 			
 			Todo todo = todoService.getTodoByTodoNo(no);
-			todo.setBoxNo(boxNo);
+			todoService.todoInTodoBox(todo,boxNo);
 		}
-		return "";
+		return "success";
 	}
 	
-	@GetMapping("/sample")
-	public String sample() {
-		return "todo/sample";
+	// 업무보관함 추가하기
+	@PostMapping("insert-todoBox")
+	public String insertTodoBox(@AuthenticatedUser LoginEmployee loginEmployee, @RequestParam("boxNo") int boxNo, TodoBox todoBox, Model model) {
+		TodoBox box = new TodoBox();
+		BeanUtils.copyProperties(todoBox, box);
+		box.setEmpNo(loginEmployee.getNo());
+		todoService.insertTodoBox(box);
+		
+		return "redirect:todoBox?boxNo=" + boxNo;
 	}
 }
