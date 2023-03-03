@@ -21,7 +21,7 @@
 			<sec:authorize access="hasRole('ADMIN')">
 				<div class="row border m-1 mb-2 text-danger">
 					<p class="fs-1 my-2">자유 게시판</p>
-					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글을 삭제할 수 있습니다.</p>
+					<p class="fs-5 my-3">관리자 모드입니다. 부적절한 게시글과 댓글을 삭제할 수 있습니다.</p>
 				</div>
 			</sec:authorize>
 			<sec:authorize access="hasRole('EMPLOYEE')">
@@ -79,11 +79,7 @@
 						<div class="mb-3 p-2 border-bottom">
 							<div class="row mb-1">
 								<div class="col-6">
-									<a href="#" class="link-dark">${post.name }
-										<sec:authorize access="hasRole('ADMIN')">
-											<input class="form-check-input border-secondary mx-2" type="checkbox">
-										</sec:authorize>
-									</a>
+									<a href="#" class="link-dark">${post.name }</a>
 								</div>
 								<div class="col-6 text-end">
 									<span>${post.createdDateTimeToString }</span>
@@ -92,6 +88,9 @@
 							<div class="row">
 								<div class="col-6">
 									<a href="/post/detail?postNo=${post.no }" class="link-dark">${post.title }</a>
+									<c:if test="${post.hasAttachedFile == true}">
+										<span><i class="bi bi-file-earmark-arrow-down"></i></span>
+									</c:if>
 								</div>
 								<div class="col-6 text-end">
 									<i class="fa-regular fa-eye"></i><span> ${post.readCount }</span>
@@ -105,11 +104,6 @@
 			</c:choose>
 			<c:if test="${not empty posts }">
 				<div class="row">
-					<sec:authorize access="hasRole('ADMIN')">
-						<div class="col m-2">
-							<button type="button" class="btn btn-outline-danger">삭제</button>
-						</div>
-					</sec:authorize>
 					<nav id="pagenation">
 						<ul class="pagination pagination justify-content-center pt-5">
 							<li class="page-item">

@@ -15,8 +15,8 @@ public class ContactListDto {
 	
 	private int contactNo;
 	private String name;
-	private List<String> contactTel;
 	private String email;
+	private List<String> tel;
 	private Date createdDate;
 	private List<Integer> addressbookNo;
 	private List<String> addressbookName;

@@ -155,22 +155,24 @@
 				and A.contact_no = B.contact_no
 				and A.contact_no = D.contact_no
 				and C.addressbook_no = D.addressbook_no
-				<choose>
-					<when test="keyword != null">
+				<if test="keyword != null">
 					and (A.contact_name like '%' || #{keyword} || '%'
 						or A.contact_email like '%' || #{keyword} || '%'
 						or C.addressbook_name like '%' || #{keyword} || '%'
 						or B.contact_tel like '%' || #{keyword} || '%')
-					</when>
-				</choose>
+				</if>
+			<if test="initial != null">
+			
+			</if>
 		</where>
 		)
 		where
 			row_numbers between #{begin} and #{end}
+			and contact_tel is not null
 	</select>
 	
 	<!-- 
-		연락처 번호로 연락처 찾기
+		연락처 번호로 연락처 목록 찾기
 	 -->
 	<select id="getContactTelsByNo" parameterType="int" resultType="ContactTel">
 		select
@@ -185,13 +187,17 @@
 	<!-- 
 		연락처가 속한 주소록 태그 목록 찾기
 	 -->
-	<select id="getContactTagsByNo" parameterType="int" resultType="ContactTag">
+	<select id="getContactTagsByNo" parameterType="int" resultType="ContactTagDto">
 		select
-			addressbook_no as addressbookNo
+			A.addressbook_no as addressbookNo,
+			B.addressbook_name as addressbookName,
+			A.contact_no as contactNo
 		from
-			contact_tags
+			contact_tags A, addressbooks B
 		where
-			contact_no = #{value}
+			A.contact_no = #{value}
+			and A.addressbook_no = B.addressbook_no
+			
 	</select>
 	
 	<!-- 
@@ -263,6 +269,7 @@
 			and C.addressbook_no = D.addressbook_no
 			and A.contact_no = B.contact_no
 			and A.contact_no = #{value}
+			and contact_tel is not null
 	</select>	
 	
 </mapper>

@@ -41,6 +41,14 @@
 		(#{no}, #{startDate}, #{endDate}, #{startTime}, #{endTime}, #{allDay}, #{title}, #{location}, #{content}, #{categoryNo}, #{employeeNo})
 	</insert>
 	
+	<insert id="insertSchedules" parameterType="Schedule" >
+		insert into employee_schedules
+		(schedule_no, schedule_start_date, schedule_end_date, schedule_start_time, schedule_end_time, schedule_allday,
+		 schedule_title, schedule_location, schedule_content, schedule_category_no, employee_no)
+		values(next value for employee_schedules_seq, #{startDate}, #{endDate},#{startTime},#{endTime},#{allDay},
+			#{title},#{location},#{content},#{categoryNo},#{employeeNo})
+	</insert>
+	
 	<insert id="insertScheduleAttachedFile" parameterType="ScheduleAttachedFile">
 			insert into schedule_attached_files
 			(schedule_no, schedule_filename)
@@ -62,6 +70,27 @@
 			(#{roomNo}, #{scheduleNo}, #{reservationDate}, #{reservationTime})
 	</insert>
 	
+	<!-- 엑셀화면에 띄우는 스케쥴 -->
+	<select id="getAllScheduleOnly" parameterType="int" resultType="Schedule">
+		select
+			schedule_no as no,
+			schedule_start_date as startDate,
+			schedule_end_date as endDate,
+			schedule_start_time as startTime,
+			schedule_end_time as endTime,
+			schedule_allday as allDay,
+			schedule_title as title,
+			schedule_category_no as categoryNo,
+			schedule_content as content,
+			schedule_location as location,
+			employee_no as employeeNo
+		from
+			employee_schedules
+		where
+			employee_no = #{value}
+		order by
+			schedule_no desc
+	</select>
 	
 	<select id="getSchedules" parameterType="map" resultType="ScheduleEvent">
 		select
@@ -123,7 +152,29 @@
 		from
 			employee_schedules S
 		where
-			S.schedule_no = ${value}
+			S.schedule_no = #{value}
+	</select>
+	
+	<!-- 엑셀다운로드시 필요 -->
+	<select id="getAllSchedulesForMap" parameterType="int" resultType="hashmap">
+		select
+			schedule_no as no,
+			schedule_start_date as startDate,
+			schedule_end_date as endDate,
+			schedule_start_time as startTime,
+			schedule_end_time as endTime,
+			schedule_allday as allDay,
+			schedule_title as title,
+			schedule_category_no as categoryNo,
+			schedule_content as content,
+			schedule_location as location,
+			employee_no as employeeNo
+		from
+			employee_schedules
+		where
+			employee_no = #{value}
+		order by
+			schedule_no desc
 	</select>
 	
 	<!--  -->

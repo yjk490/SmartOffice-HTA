@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.dto.post.CommentDto;
 import com.example.dto.post.PostDetailDto;
+import com.example.exception.ApplicationException;
 import com.example.security.AuthenticatedUser;
 import com.example.security.LoginEmployee;
 import com.example.service.PostService;
@@ -47,6 +48,10 @@ public class PostController {
 	FileDownloadView fileDownloadView;
 	@Value("${file.directory}")
 	private String directory;
+	@Value("${spring.servlet.multipart.max-file-size}")
+	private int maxFileSize;
+	@Value("${spring.servlet.multipart.max-request-size}")
+	private int maxTotalFileSize;
 	
 	@GetMapping("/list")
 	public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page, PostSearchOption opt, Model model) {
@@ -65,7 +70,7 @@ public class PostController {
 	}
 	
 	@PostMapping("/register-post")
-	public String registerPost(@AuthenticatedUser LoginEmployee loginEmployee, List<MultipartFile> uploadFiles, PostRegisterForm form) throws IOException { // 매개변수로 loginUser객체 추가되어야 함. 추후 수정 계획 
+	public String registerPost(@AuthenticatedUser LoginEmployee loginEmployee, List<MultipartFile> uploadFiles, PostRegisterForm form) throws IOException {
 		// 브라우저에서 파일 업로드
 		Map<String, String> fileNamesMap = new HashMap<String, String>();
 		for (MultipartFile file : uploadFiles) {
@@ -85,9 +90,24 @@ public class PostController {
 		return "redirect:list";
 	}
 	
+	// 조회수 중복 방지 쿠키 vs 세션
+	// 쿠키 장점
+	/*
+	 	조회수 중복 방지 로직
+	 	쿠키 
+	 		- 쿠키는 브라우저에 존재하기 때문에 서버 부하를 줄일 수 있다. 그러나 사용자가 조작하기 쉽다.
+	 		- 브라우저마다 만들 수 있는 쿠키의 개수가 정해져 있기 때문에 그 개수보다 클릭한 게시글 종류가 많으면 조회수 중복을 막을 수 없다.
+	 	세션 
+	 		- 서버에 저장되기 때문에 보안에 유리하다. 세션양이 많아지면 서버의 부하가 증가한다.
+	 		
+	 */
 	@GetMapping("/detail")
 	public String detail(@RequestParam("postNo") int postNo, @AuthenticatedUser LoginEmployee loginEmployee, Model model) {
 		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, loginEmployee.getNo());
+		
+	//	if (postDetailDto == null || "Y".equals(postDetailDto.getDeleted())) {
+	//		throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
+	//	}
 		
 		model.addAttribute("post", postDetailDto);
 		
@@ -97,9 +117,11 @@ public class PostController {
 	@GetMapping("/download")
 	public ModelAndView fileDownload(@RequestParam("filename") String filename) {
 		File file = new File(directory, filename);
-//		if (!file.exists()) {
-//			throw new ApplicationException("["+filename+"] 파일이 존재하지 않습니다.");
-//		}
+		
+		if (!file.exists()) {
+			String originalFilename = filename.substring(36);
+			throw new ApplicationException("["+originalFilename+"] 파일이 존재하지 않습니다.");
+		}
 		
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("file", file);
@@ -126,6 +148,20 @@ public class PostController {
 		postService.registerComment(postNo, content, loginEmployee.getNo());
 	}
 	
+	@PreAuthorize("#employeeNo == principal.no")
+	@PostMapping("/modify-comment")
+	@ResponseBody
+	public void modifyComment(@RequestParam("commentNo") int commentNo, @RequestParam("employeeNo") int employeeNo, @RequestParam("modifiedContent") String modifiedContent) {
+		postService.modifyComment(commentNo, modifiedContent);
+	}
+	
+	@PreAuthorize("#employeeNo == principal.no or hasRole('ROLE_ADMIN')")
+	@GetMapping("/delete-comment")
+	@ResponseBody
+	public void deleteComment(@RequestParam("postNo") int postNo, @RequestParam("commentNo") int commentNo, @RequestParam("employeeNo") int employeeNo) {
+		postService.deleteComment(postNo, commentNo);
+	}
+	
 	@GetMapping("/comment-list")
 	@ResponseBody
 	public List<CommentDto> commentList(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {
@@ -144,10 +180,15 @@ public class PostController {
 	public String modifyForm(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo, Model model) {
 		PostDetailDto postDetailDto = postService.getPostDetailDto(postNo, employeeNo);
 		
+		if (postDetailDto == null || "Y".equals(postDetailDto.getDeleted())) {
+			throw new ApplicationException("["+postNo+"] 번 게시글이 존재하지 않습니다.");
+		}		
+		
 		model.addAttribute("modifyPost", postDetailDto);
 		
 		return "post/modify-form";
 	}
+	
 	@PreAuthorize("#form.employeeNo == principal.no")
 	@PostMapping("/modify-post")
 	public String modifyPost(List<MultipartFile> uploadFiles, PostModifyForm form) throws FileNotFoundException, IOException {
@@ -170,49 +211,105 @@ public class PostController {
 		return "redirect:detail?postNo=" + form.getNo();
 	}
 	
+	
+	
 	// 관리자에 의한 삭제, 임시보관함에 저장되어 DB에서 삭제되지는 않는다.
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@GetMapping("/remove-post")
+	@GetMapping("/remove-post-by-admin")
 	public String removePost(@RequestParam("postNo") int postNo) {
 		postService.removePost(postNo);
 		
 		return "redirect:list";
 	}
 	
-	// 사용자 또는 관리자에 의한 영구삭제, 사용자가 직접 게시글을 삭제하거나 관리자가 임시보관함에 있는 게시글을 삭제할 때 이 요청핸들러가 실행된다.
-	// 게시글과 관련된 모든 정보가 DB에서 삭제된다.
-	// 요청핸들러가 실행되기 전에 현재 로그인된 사용자번호와 게시글 작성자 번호를 체크하므로  @AuthenticatedUser를 통한 유효성 검사를 할 필요가 없는거 맞는지??
-	@PreAuthorize("#employeeNo == principal.no or hasRole('ROLE_ADMIN')")
-	@GetMapping("/delete-post")
-	public String deletePost(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {
-		postService.deletePost(postNo);
+	// 사용자에 의한 삭제, 임시보관함에 저장되어 DB에서 삭제되지는 않는다.
+	@PreAuthorize("#employeeNo == principal.no")
+	@GetMapping("/remove-post-by-user")
+	public String removePost(@RequestParam("postNo") int postNo, @RequestParam("employeeNo") int employeeNo) {
+		postService.removePost(postNo);
 		
 		return "redirect:list";
 	}
 	
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping("/recover-post")
+	public String recoverPost(@RequestParam("postNo") List<Integer> postNoList) {
+		postService.recoverPost(postNoList);
+		
+		return "redirect:removed-post-list";
+	}
+	
+	// 관리자에 의한 영구삭제
+	// 게시글과 관련된 모든 정보가 DB에서 삭제된다.
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping("/delete-post")
+	public String deletePost(@RequestParam("postNo") List<Integer> postNoList) {
+		postService.deletePost(postNoList);
+		
+		return "redirect:removed-post-list";
+	}
+	
 	@GetMapping("/notice")
-	public String notice() {
+	public String notice(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPostsWtihNotice(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("notice", result.getPosts());
+		model.addAttribute("opt", opt);	
+		
 		return "post/notice";
 	}
 	
+	// mypost 최초 진입 시 쿼리스트링이나 input태그의 hidden속성으로 employeeNo를 넘겨줄 수도 있지만
+	// 서버 내부에서 employeeNo를 전달하는 것이 보안상 더 적절하다.
 	@GetMapping("/mypost")
-	public String mypost() {
+	public String mypost(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPosts(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);		
+		
 		return "post/mypost";
 	}
 	
 	@GetMapping("/mycomment")
-	public String mycomment() {
+	public String mycomment(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPostsWithMyComment(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);			
+		
 		return "post/mycomment";
 	}
 	
 	@GetMapping("/myscrap")
-	public String myscrap() {
+	public String myscrap(@RequestParam(name = "page", required = false, defaultValue = "1") int page, @AuthenticatedUser LoginEmployee loginEmployee, PostSearchOption opt, Model model) {
+		opt.setEmployeeNo(loginEmployee.getNo());
+		PostSearchResult result = postService.getPostsWithMyScrap(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);				
+		
 		return "post/myscrap";
 	}
 	
-	@GetMapping("/myfile")
-	public String myflie() {
-		return "post/myfile";
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping("/removed-post-list")
+	public String removedPost(@RequestParam(name = "page", required = false, defaultValue = "1") int page, PostSearchOption opt, Model model) {
+		opt.setDeleted("Y");
+		PostSearchResult result = postService.getPosts(page, opt);
+		
+		model.addAttribute("pagination", result.getPagination());
+		model.addAttribute("posts", result.getPosts());
+		model.addAttribute("opt", opt);				
+		
+		return "post/removed-post";
 	}
 	
 	@GetMapping("/role")

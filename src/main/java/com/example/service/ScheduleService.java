@@ -1,9 +1,14 @@
 package com.example.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +36,8 @@ public class ScheduleService {
 		
 		if(form.getAllDay() == null) {				
 			form.setAllDay("N");
+		}else {
+			form.setAllDay("Y");
 		}
 		
 		schedule.setEmployeeNo(employeeNo);
@@ -136,29 +143,67 @@ public class ScheduleService {
 			}
 			
 		}
-		
-		//해당 일정에 회의실예약이 있는지 먼저 체크하기.
-		
-		
-		//참석자 넣기.
-		
-		//있는지 세기.
-		/*
-		 * int countAttendants = scheduleMapper.countAttendantsByNo(schedule.getNo());
-		if(countAttendants >= 1) {
-			
-		}
-		
-		if(form.getAttendants() != null) {
-			List<Integer> attendantTags = form.getAttendants();
-			
-			for(int attendantEmployeeNo : attendantTags) {
-				scheduleMapper.insertAttendant(schedule.getNo(),attendantEmployeeNo);
-			}
-		}
-		*/
-		
-		
+
 	}
+	
+	//엑셀로 여러개 넣기
+	//map해체해서 하나씩 넣기.
+	public void insertSchedules(List<Map<String, Object>> datas) throws ParseException {
+		 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		for(Map<String, Object> map : datas) {
+			Schedule schedule = new Schedule();
+			
+			// 45017.0 이런 숫자로 바뀜.
+			Object originStart = map.get("startDate");
+			Object originEnd = map.get("endDate");
+			if (originStart == null) {
+				break;
+			}
+			
+			Date startDate = DateUtil.getJavaDate((double)originStart);
+			System.out.println("겟자바데이트: "+startDate);
+			
+			String startStr = sdf.format(startDate);
+			Date parsedStart = sdf.parse(startStr);
+			
+			Date endDate = DateUtil.getJavaDate((double)originEnd);
+			String endStr = sdf.format(endDate);
+			Date parsedEnd = sdf.parse(endStr);
+			
+			//Date startDate = sdf.parse(String.valueOf(map.get("startDate")));
+			//System.out.println("sdf" + startDate);
+			
+			//Date endDate = sdf.parse(String.valueOf(map.get("endDate")));
+			
+			schedule.setStartDate(parsedStart);
+			schedule.setEndDate(parsedEnd);
+			schedule.setStartTime((String)map.get("startTime"));
+			schedule.setEndTime((String)map.get("endTime"));
+			schedule.setAllDay((String)map.get("allDay"));
+			schedule.setTitle((String)map.get("title"));
+			//이것도 바꿔줘야됨 double에서 int로
+			schedule.setCategoryNo((int)Double.parseDouble(String.valueOf(map.get("categoryNo"))));
+			schedule.setContent((String)map.get("content"));
+			schedule.setLocation((String)map.get("location"));
+			schedule.setEmployeeNo((int)Double.parseDouble(String.valueOf(map.get("employeeNo"))));
+			
+			scheduleMapper.insertSchedule(schedule);
+			
+			
+		}
+	}
+
+	//엑셀로 빼기위해 가져오기.
+	public List<Map<String, Object>> getSchedules(int empNo) {
+		
+		return scheduleMapper.getAllSchedulesForMap(empNo);
+	}
+
+	public List<Schedule> getAllScheduleOnly(int empNo) {
+		
+		return scheduleMapper.getAllScheduleOnly(empNo);
+	}
+
+	
 	
 }

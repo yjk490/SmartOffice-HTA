@@ -10,6 +10,7 @@
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css' rel='stylesheet' />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/locales-all.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <title>SMART OFFICE</title>
 </head>
 <body>
@@ -27,7 +28,7 @@
 		</div>
 		<div class="col-9">
 			<div class="border p-3 bg-light">
-				<h4>주간 일정 <a href=""><i class="far fa-plus-square w3-right-align"></i></a></h4>
+				<h4>주간 일정 <a href="/schedule/schedule"><i class="far fa-plus-square w3-right-align"></i></a></h4>
 				<div id="calendar"></div>
 			</div>
 		</div>
@@ -35,15 +36,15 @@
 	<div class="row">
 		<div class="col-6">
 			<div class="border p-3 bg-light">
-				<h4>오늘의 할일 <a href=""><i class="far fa-plus-square w3-right-align"></i></a></h4>
+				<h4>오늘의 할일 <a href="/todo/list?category=100"><i class="far fa-plus-square w3-right-align"></i></a></h4>
 				<div>
 					<canvas id="myChart" width="200" height="200"></canvas>
 				</div>
 			</div>
 		</div>
 		<div class="col-6">
-			<div class="border p-3 bg-light">
-				<h4>받은쪽지 알림 <a href=""><i class="far fa-plus-square w3-right-align"></i></a></h4>
+			<div class="border p-3 bg-light" style="height: 100%">
+				<h4>받은쪽지 알림 <a href="/note/receive"><i class="far fa-plus-square w3-right-align"></i></a></h4>
 					<div class="w3-container p-3">
 					  <table class="w3-table-all w3-small">
 					  	<colgroup>
@@ -84,40 +85,95 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script src="https://momentjs.com/downloads/moment.min.js" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
 <script type="text/javascript">
+$(function(){
 
-// chart.js를 이용한 도넛 차트
-var ctx = $('#myChart');
-var myChart = new Chart(ctx, {
-	  type: 'doughnut',
-	    data: {
-	      datasets: [{
-	        data: [40, 60],  
-	        backgroundColor: [
-	          '#9DCEFF',
-	          '#F2F3F6'
-	        ],
-	        borderWidth: 0,
-	        scaleBeginAtZero: true
-	      }
-	    ]
-	  },
-	  options: {
-		  responsive: false,
-	  }
-	});
+	// chart.js를 이용한 도넛 차트
+	var donutChart = document.getElementById('myChart');
 	
+	$.ajax({
+	  url: '/home/chart',
+	  method: 'GET',
+	  success: function(data) {
+	    var w = data.w;
+	    var c = data.c;
+	    var total = data.total;
+	
+	    var donutData = {
+	      datasets: [{
+	        data: [c, w],
+	        backgroundColor: ['#9DCEFF', '#F2F3F6'],
+	      }],
+	
+	      labels: ['완료' + Math.round((c/total)*1000)/10 + '%', '미완료' + Math.round((w/total)*1000)/10 + '%'],
+	    };
+	
+	    var donutOptions = {
+	      cutoutPercentage: 80,
+	      tooltips: {
+	        enabled: false,
+	      },
+	      responsive: false,
+	      legend: {
+	        display: false,
+	      },
+	      animation: {
+	        animateRotate: false,
+	      },
+	    };
+	
+	    // Create the donut chart using the data and options
+	    var chart = new Chart(donutChart, {
+	      type: 'doughnut',
+	      data: donutData,
+	      options: donutOptions,
+	    });
+	  },
+	  error: function() {
+	    console.log('Error getting donut chart data');
+	  },
+	});
 
-// fullcalendar를 이용한 캘린더
-var calendar = new FullCalendar.Calendar(document.getElementById("calendar"), {
-	initialView: 'dayGridWeek',
-	locale: 'ko',
-	height: 240
+	
+	// fullcalendar를 이용한 캘린더
+	var calendar = new FullCalendar.Calendar(document.getElementById("calendar"), {
+		initialView: 'dayGridWeek',
+		locale: 'ko',
+		height: 240,
+		events: function(info, successCallback, failureCallback) {
+			let startDate = moment(info.start).format("YYYY-MM-DD");
+			let endDate = moment(info.end).format("YYYY-MM-DD");
+			
+			$.ajax({
+				 url: "/home/schedule",
+				 dataType: "json",
+				 data: {
+					 startDate: startDate,
+					 endDate: endDate
+				 },
+				 success: function(response) {
+					 var events = [];
+					 for (var i = 0; i < response.length; i++) {
+						 var event = {
+								 title: response[i].title,
+								 start: response[i].start,
+								 end: response[i].end
+						 };
+						 events.push(event);
+					 }
+					 successCallback(events);
+				 },
+				 error: function(xhr) {
+					 console.log("Request failed", xhr);
+					 failureCallback();
+				 }
+			});
+		}
+	});
+	calendar.render();
+
 });
-
-calendar.render();
 </script>
 </body>
 </html>

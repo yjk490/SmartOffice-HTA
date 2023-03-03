@@ -604,4 +604,52 @@
 		from todo_comments
 		where todo_comment_no = #{commentNo}
 	</delete>
+	
+	
+	<!-- 사원 번호로 TodoListDto 조회하기 -->
+	<select id="getTodoListDtoByNo" parameterType="int" resultType="TodoListDto">
+   		select
+   			todo_no					as todoNo,
+   			todo_important			as important,
+   			box_no				    as boxNo,
+   			box_name			    as boxName,
+   			todo_title				as title,
+   			todo_created_date		as createdDate,
+   			todo_start_date			as startDate,
+   			todo_end_date			as endDate,
+   			todo_progress_status	as progressStatus,
+   			todo_read				as read,
+   			job_cat_no				as jobCatNo,
+   			employee_no				as empNo,
+   			employee_name			as empName,
+   			receive_employee_no		as receiveEmpNo,
+   			receiveEmpName
+   		from
+   			(select
+   				row_number() over (order by A.todo_no desc) row_numbers,
+   				A.todo_no,
+   				A.todo_important,
+   				A.job_cat_no,
+   				C.box_no,
+   				C.box_name,
+   				A.todo_title,
+   				A.employee_no,
+                B.employee_name,
+   				A.receive_employee_no,
+	   			A.todo_created_date,
+	   			A.todo_start_date,
+   				A.todo_end_date,
+   				A.todo_progress_status,
+   				A.todo_read,
+   				D.employee_name			as receiveEmpName		
+   			from
+   				todos A, Employees B, todo_Boxes C, Employees D
+   			where
+   				A.employee_no = #{empNo}
+   				and A.todo_deleted = 'N'
+	   			and A.employee_no = B.employee_no
+	   			and A.receive_employee_no = D.employee_no(+)
+	   			and A.box_no = C.box_no
+	   			and A.job_cat_no = 100)
+   </select>
 </mapper>

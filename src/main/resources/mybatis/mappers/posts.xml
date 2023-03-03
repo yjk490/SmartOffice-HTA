@@ -76,28 +76,26 @@
 			posts
 		<where>
 			<choose>
-				<when test="type == 'title'">
-					post_title like '%' || #{keyword} || '%'
+				<when test="opt.type == 'title'">
+					post_title like '%' || #{opt.keyword} || '%'
 				</when>
-				<when test="type == 'content'">
-					(post_content like '%' || #{keyword} || '%'
-					 or post_title like '%' || #{keyword} || '%')
+				<when test="opt.type == 'content'">
+					(post_content like '%' || #{opt.keyword} || '%'
+					 or post_title like '%' || #{opt.keyword} || '%')
 				</when>
-				<when test="type == 'name'">
+				<when test="opt.type == 'name'">
 					employee_no in (select
 										employee_no
 									from
 										employees
 									where
-										employee_name = #{keyword})	
+										employee_name = #{opt.keyword})	
 				</when>
 			</choose>
-			<!-- 
-			<if test="employeeNo != null">
-				and employee_no = #{employeeNo}
+			<if test="opt.employeeNo != 0">
+				and employee_no = #{opt.employeeNo}
 			</if>
-			 -->
-			and post_deleted = 'N'
+			and post_deleted = #{opt.deleted}
 		</where>
 	</select>
 	
@@ -106,65 +104,238 @@
 		    post_no 				as no,
 		    employee_name 			as name,
 		    post_title 				as title,
+		    post_content			as content,
 		    post_read_count 		as readCount,
 		    post_comment_count		as commentCount,
 		    post_recommend_count 	as recommendCount,
-		    post_created_date 		as createdDateTime
+		    post_created_date 		as createdDateTime,
+		    post_has_file 			as hasAttachedFile
 		from (
 		     select
 		     	 <choose>
-		     	 	<when test="sort == 'date'">
+		     	 	<when test="opt.sort == 'date'">
 						 row_number() over (order by A.post_created_date desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'recommend'">
+		     	 	<when test="opt.sort == 'recommend'">
 						 row_number() over (order by A.post_recommend_count desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'read'">
+		     	 	<when test="opt.sort == 'read'">
 						 row_number() over (order by A.post_read_count desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'comment'">
+		     	 	<when test="opt.sort == 'comment'">
 						 row_number() over (order by A.post_comment_count desc) row_numbers,
 		     	 	</when>
-		     	 	<when test="sort == 'scrap'">
+		     	 	<when test="opt.sort == 'scrap'">
 						 row_number() over (order by A.post_scrap_count desc) row_numbers,
 		     	 	</when>
 		     	 </choose>
 		         A.post_no,
 		         B.employee_name,
 		         A.post_title,
+		         A.post_content,
 		         A.post_recommend_count,
 		         A.post_read_count,
 		         A.post_comment_count,
 		         A.post_scrap_count,
-		         A.post_created_date
+		         A.post_created_date,
+		         nvl((select distinct 'true' from post_attached_files where post_no = A.post_no), 'false') as post_has_file
 		     from
 		         posts A, employees B
 		     <where>
 		     	<choose>
-		     		<when test="type == 'title'">
-		     			A.post_title like '%' || #{keyword} || '%'
+		     		<when test="opt.type == 'title'">
+		     			A.post_title like '%' || #{opt.keyword} || '%'
 		     		</when>
-		     		<when test="type == 'content'">
-		     			(A.post_content like '%' || #{keyword} || '%'
-		     			 or A.post_title like '%' || #{keyword} || '%')
+		     		<when test="opt.type == 'content'">
+		     			(A.post_content like '%' || #{opt.keyword} || '%'
+		     			 or A.post_title like '%' || #{opt.keyword} || '%')
 		     		</when>
-		     		<when test="type == 'name'">
-		     			B.employee_name like '%' || #{keyword} || '%'
+		     		<when test="opt.type == 'name'">
+		     			B.employee_name like '%' || #{opt.keyword} || '%'
 		     		</when>
 		     	</choose>
-		     	<!-- 
-		     	<if test="employeeNo != null">
-		     		and A.employee_no = #{employeeNo}
+		     	<if test="opt.employeeNo != 0">
+		     		and A.employee_no = #{opt.employeeNo}
 		     	</if>
-		     	 -->
-		         and A.post_deleted = 'N'
+		         and A.post_deleted = #{opt.deleted}
 		         and A.employee_no = B.employee_no
 		     </where>
 		     )
 		where
 		    row_numbers between #{begin} and #{end}
 	</select>
+	
+	<select id="getTotalRowsWithMyComment" resultType="int">
+		select
+			count(*)
+		from
+			posts A, post_comments B
+		where
+		    A.post_no = B.post_no 
+		    and B.comment_content like '%' || #{opt.keyword} || '%'
+		    and B.employee_no = #{opt.employeeNo}
+		    and A.post_deleted = #{opt.deleted}
+	</select>
+	
+	<select id="getPostListDtoWithMyComment" resultType="com.example.dto.post.PostListDtoWithMyComment">
+		select
+			post_no					as no,
+		    post_title 				as title,
+		    comment_content 		as commentContent,
+		    comment_created_date 	as commentCreatedDateTime
+		from (
+              	select
+                    row_number() over (order by B.comment_created_date desc) row_numbers,
+                    A.post_no,
+                    A.post_title,
+                    B.comment_content,
+                    B.comment_created_date
+                from
+                    posts A, post_comments B
+                where
+                    A.post_no = B.post_no 
+		    		and B.comment_content like '%' || #{opt.keyword} || '%'
+		    		and B.employee_no = #{opt.employeeNo}
+		    		and A.post_deleted = #{opt.deleted}
+             )
+        where
+            row_numbers between #{begin} and #{end}
+	</select>	
+	
+	<select id="getTotalRowsWithMyScrap" resultType="int">
+		select
+			count(*)
+		from
+			posts A, post_scraps B
+		where
+		    A.post_no = B.post_no 
+		    and A.post_content like '%' || #{opt.keyword} || '%'
+		    and B.employee_no = #{opt.employeeNo}
+		    and A.post_deleted = #{opt.deleted}
+	</select>
+	
+	<select id="getPostListDtoWithMyScrap" resultType="com.example.dto.post.PostListDtoWithMyScrap">
+		select
+			post_no					as no,
+		    post_title 				as title,
+		    post_content 			as content,
+		    scrap_created_date 		as scrapCreatedDateTime
+		from (
+              	select
+                    row_number() over (order by B.scrap_created_date desc) row_numbers,
+                    A.post_no,
+                    A.post_title,
+                    A.post_content,
+                    B.scrap_created_date
+                from
+                    posts A, post_scraps B
+                where
+                    A.post_no = B.post_no
+                    and A.post_content like '%' || #{opt.keyword} || '%'
+                    and B.employee_no = #{opt.employeeNo}
+                    and A.post_deleted = #{opt.deleted}
+             )
+        where
+            row_numbers between #{begin} and #{end}	
+	</select>
+	
+	<select id="getTotalRowsWithNotice" resultType="int">
+		select 
+    		count(*)
+		from 
+    		(select C.employee_name, A.post_title as content, 'postRecommend' as type, A.post_no, B.RECOMMEND_CREATED_DATE as notice_created_date
+			from posts A, post_recommends B, employees C
+			where A.employee_no = #{opt.employeeNo}
+			and A.post_no = B.post_no
+			and B.employee_no = C.employee_no
+			and B.employee_no not in (#{opt.employeeNo})
+			and A.post_deleted = 'N'
+			union
 
+			select C.employee_name, A.post_title as content, 'postScrap' as type, A.post_no, B.SCRAP_CREATED_DATE as notice_created_date
+			from posts A, post_scraps B, employees C
+			where A.employee_no = #{opt.employeeNo}
+			and A.post_no = B.post_no
+			and B.employee_no = C.employee_no
+			and B.employee_no not in (#{opt.employeeNo})
+			and A.post_deleted = 'N'
+			union
+			
+			select C.employee_name, B.comment_content as content, 'comment' as type, A.post_no, B.COMMENT_CREATED_DATE as notice_created_date
+			from posts A, post_comments B, employees C
+			where A.employee_no = #{opt.employeeNo}
+			and A.post_no = B.post_no
+			and B.employee_no = C.employee_no
+			and  B.employee_no not in (#{opt.employeeNo})
+			and A.post_deleted = 'N'
+			union
+			
+			select C.employee_name, A.comment_content as content,  'commentRecommend' as type, D.post_no, B.COMMENT_RECOMMEND_CREATED_DATE as notice_created_date
+			from post_comments A, post_comment_recommends B, employees C, posts D
+			where A.employee_no = #{opt.employeeNo}
+			and A.comment_no = B.comment_no
+			and B.employee_no = C.employee_no
+			and D.post_no = A.post_no
+			and B.employee_no not in (#{opt.employeeNo})
+			and D.post_deleted = 'N')
+	</select>
+	
+	<select id="getPostListDtoWithNotice" resultType="com.example.dto.post.PostListDtoWithNotice">
+		select
+		    employee_name 		as employeeName,
+		    content 			as content,
+		    type 				as type,
+		    post_no 			as postNo,
+		    notice_created_date as noticeCreatedDateTime
+		from
+			(select 
+			    row_number() over (order by notice_created_date desc) as row_numbers,
+			    employee_name,
+			    content,
+			    type,
+			    post_no,
+			    notice_created_date
+			from 
+		    	(select C.employee_name, A.post_title as content, 'postRecommend' as type, A.post_no, B.RECOMMEND_CREATED_DATE as notice_created_date
+				from posts A, post_recommends B, employees C
+				where A.employee_no = #{opt.employeeNo}
+				and A.post_no = B.post_no
+				and B.employee_no = C.employee_no
+				and B.employee_no not in (#{opt.employeeNo})
+				and A.post_deleted = 'N'
+				union
+		
+				select C.employee_name, A.post_title as content, 'postScrap' as type, A.post_no, B.SCRAP_CREATED_DATE as notice_created_date
+				from posts A, post_scraps B, employees C
+				where A.employee_no = #{opt.employeeNo}
+				and A.post_no = B.post_no
+				and B.employee_no = C.employee_no
+				and B.employee_no not in (#{opt.employeeNo})
+				and A.post_deleted = 'N'
+				union
+		
+				select C.employee_name, B.comment_content as content, 'comment' as type, A.post_no, B.COMMENT_CREATED_DATE as notice_created_date
+				from posts A, post_comments B, employees C
+				where A.employee_no = #{opt.employeeNo}
+				and A.post_no = B.post_no
+				and B.employee_no = C.employee_no
+				and  B.employee_no not in (#{opt.employeeNo})
+				and A.post_deleted = 'N'
+				union
+		
+				select C.employee_name, A.comment_content as content,  'commentRecommend' as type, D.post_no, B.COMMENT_RECOMMEND_CREATED_DATE as notice_created_date
+				from post_comments A, post_comment_recommends B, employees C, posts D
+				where A.employee_no = #{opt.employeeNo}
+				and A.comment_no = B.comment_no
+				and B.employee_no = C.employee_no
+				and D.post_no = A.post_no
+				and B.employee_no not in (#{opt.employeeNo})
+				and D.post_deleted = 'N')
+			)
+			where
+		    	row_numbers between #{begin} and #{end}
+	</select>
+	
 	<select id="getPostDetailDto" resultType="com.example.dto.post.PostDetailDto">
 		select
 			A.post_no				as no,
@@ -176,6 +347,7 @@
 			A.post_recommend_count 	as recommendCount,
 			A.post_scrap_count 		as scrapCount,
 			A.post_created_date 	as createdDateTime,
+			A.post_deleted			as deleted,
 			nvl((select 'true' from post_scraps where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as scrapped ,
 			nvl((select 'true' from post_recommends where employee_no = #{employeeNo} and  post_no = #{postNo} ), 'false') as recommended
 		from
@@ -245,6 +417,20 @@
 			post_no = #{value}
 	</select>
 	
+	<select id="getAttachedFilesListByPostNoList" parameterType="java.util.List" resultType="com.example.vo.post.AttachedFile">
+		select
+			POST_NO					as postNo,
+			POST_SAVED_FILENAME 	as savedName,
+			POST_ORIGINAL_FILENAME	as originalName
+		from
+			POST_ATTACHED_FILES
+		where
+			post_no in
+		<foreach collection="list" item="no" open="(" separator="," close=")">
+			#{no}
+		</foreach>
+	</select>
+	
 	<select id="getTagsByPostNo" parameterType="int" resultType="com.example.vo.post.Tag">
 		select
 			post_no		as postNo,
@@ -273,6 +459,27 @@
 		where
 			post_no = #{value}
 	</select>
+	
+	<select id="getPostsByNoList" parameterType="java.util.List" resultType="com.example.vo.post.Post">
+		select
+			post_no 				as no,
+			employee_no 			as employeeNo,
+			post_title 				as title,
+			post_content 			as content,
+			post_read_count 		as readCount,
+			post_recommend_count 	as recommendCount,
+			post_comment_count 	as commentCount,
+			post_scrap_count 		as scrapCount,
+			post_deleted 			as deleted,
+			post_created_date 		as createdDate,
+			post_updated_date 		as updatedDate		
+		from
+			posts
+		where post_no in
+		<foreach item="postNo" collection="list" open="(" separator="," close=")">
+			#{postNo}
+		</foreach>
+	</select>
 
 	<select id="getEmpRolesByEmployeeNo" parameterType="int" resultType="String">
 		select
@@ -299,6 +506,24 @@
 			post_no = #{no}
 	</update>
 	
+	<update id="updatePosts" parameterType="java.util.List">
+		<foreach collection="list" item="post" separator=";" open="DECLARE BEGIN" close="; END;">
+			update
+				posts
+			set
+				post_title 				= #{post.title},
+				post_content 			= #{post.content},
+				post_read_count 		= #{post.readCount},
+				post_recommend_count 	= #{post.recommendCount},
+				post_comment_count 		= #{post.commentCount},
+				post_scrap_count 		= #{post.scrapCount},
+				post_deleted 			= #{post.deleted},
+				post_updated_date 		= sysdate
+			where 
+				post_no = #{post.no}
+		</foreach>
+	</update>
+	
 	<update id="updateComment" parameterType="com.example.vo.post.Comment">
 		update
 			post_comments
@@ -311,11 +536,14 @@
 			comment_no = #{no}
 	</update>
 	
-	<delete id="deletePost" parameterType="int">
+	<delete id="deletePosts" parameterType="java.util.List">
 		delete from
 			posts
 		where
-			post_no = #{value}
+			post_no in
+		<foreach collection="list" item="no" open="(" separator="," close=")">
+			#{no}
+		</foreach>
 	</delete>
 	
 	<delete id="deletePostScrap">
@@ -346,8 +574,8 @@
 		delete from
 			post_attached_files
 		where
-	    	<foreach item="item" collection="list" separator="or">
-			post_saved_filename = #{item}
+	    	<foreach item="name" collection="list" separator="or">
+			post_saved_filename = #{name}
 			</foreach>
 	</delete>
 	
@@ -359,5 +587,12 @@
 		    tag_content = #{item}
 	    	</foreach>
   	</delete>
+	
+	<delete id="deleteComment" parameterType="int">
+		delete from
+			post_comments
+		where
+			comment_no = #{value}
+	</delete>
 	
 </mapper>

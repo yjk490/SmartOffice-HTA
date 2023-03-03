@@ -186,4 +186,12 @@
 			row_numbers between #{begin} and #{end}
 	</select>
 	
+	<!-- 일정등록시 사용하는 것 -->
+	<select id="getAllEmployeesNameNo" resultType="Employee">
+		select 
+			employee_no			as no,
+			employee_name		as name
+		from
+			employees
+	</select>
 </mapper>

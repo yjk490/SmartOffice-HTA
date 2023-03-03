@@ -26,7 +26,7 @@ import com.example.service.EmployeeService;
 @RequestMapping("/employee")
 public class EmployeeController {
 	
-	private final String directory = "C:\\app\\eGovFrameDev-4.0.0-64bit\\workspace\\smartoffice-team2\\src\\main\\webapp\\resources\\images\\profiles";
+	private final String directory = "C:\\app\\eGovFrameDev-4.0.0-64bit\\workspace\\smartoffice-team2\\src\\main\\webapp\\resources\\images\\profiles\\";
 	
 	@Autowired
 	EmployeeService employeeService;

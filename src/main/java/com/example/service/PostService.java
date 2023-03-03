@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.dto.post.CommentDto;
+import com.example.dto.post.PostListDtoWithMyComment;
+import com.example.dto.post.PostListDtoWithMyScrap;
+import com.example.dto.post.PostListDtoWithNotice;
 import com.example.dto.post.PostDetailDto;
 import com.example.dto.post.PostListDto;
 import com.example.mapper.PostMapper;
@@ -33,12 +36,10 @@ public class PostService {
 	private String directory;
 	
 	public PostSearchResult getPosts(int page, PostSearchOption opt) {
-		int totalRows = postMapper.getTotalRows(opt.getType(), opt.getKeyword());
+		int totalRows = postMapper.getTotalRows(opt);
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
-		List<PostListDto> posts = postMapper.getPostListDto(pagination.getBegin(), pagination.getEnd(),
-															opt.getSort(),
-															opt.getType(), opt.getKeyword());
+		List<PostListDto> posts = postMapper.getPostListDto(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		
@@ -74,16 +75,13 @@ public class PostService {
 		int postNo = postMapper.getPostSequence();
 		
 		// POST 테이블에 게시글 정보 저장
-		// 빌더패턴으로 객체를 생성할 때, 입력값을 누락했을 경우 어떻게 예외처리 할 수 있는지?
 		Post post = Post.builder()
 					.no(postNo)
 					.employeeNo(employeeNo)
 					.title(form.getTitle())
 					.content(form.getContent())
 					.build();
-		
 		postMapper.insertPost(post);
-		
 		
 		// POST_TAGS 테이블에 태그 정보 저장
 		if (form.getTagContents() != null) {
@@ -156,6 +154,20 @@ public class PostService {
 		postMapper.updatePost(post);
 	}
 	
+	public void modifyComment(int commentNo, String modifiedContent) {
+		Comment comment = postMapper.getCommentByNo(commentNo);
+		comment.modifyContent(modifiedContent);
+		postMapper.updateComment(comment);
+	}
+	
+	public void deleteComment(int postNo, int commentNo) {
+		postMapper.deleteComment(commentNo);
+		
+		Post post = postMapper.getPostByNo(postNo);
+		post.decreaseCommentCount();
+		postMapper.updatePost(post);
+	}
+	
 	public List<CommentDto> getComments(int postNo, int employeeNo) {
 		List<CommentDto> comments = postMapper.getCommentsByPostNo(postNo, employeeNo);
 		return comments;
@@ -176,9 +188,17 @@ public class PostService {
 		}
 	}
 
+	public void recoverPost(List<Integer> postNoList) {
+		List<Post> posts = postMapper.getPostsByNoList(postNoList);
+		for (Post post : posts) {
+			post.recoverPost();
+		}
+		postMapper.updatePosts(posts);
+	}
+	
 	public void removePost(int postNo) {
 		Post post = postMapper.getPostByNo(postNo);
-		post.deletePost();
+		post.removePost();
 		postMapper.updatePost(post);
 	}
 	
@@ -236,18 +256,65 @@ public class PostService {
 		
 	}
 	
-	public void deletePost(int postNo) {
-		// Post의 deleted가 Y인지 확인하고 그렇지 않을 경우 예외처리!
-		List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
-		for (AttachedFile uploadfile : attachedFiles) {
-			String filename = uploadfile.getSavedName();
-			File file = new File(directory, filename);
-			if (file.exists()) {
-				file.delete();
+	public void deletePost(List<Integer> postNoList) {
+		/*
+		List<List<AttachedFile>> attachedFilesList = postMapper.getAttachedFilesListByPostNoList(postNoList);
+		for (List<AttachedFile> attachedFiles : attachedFilesList) {
+			for (AttachedFile attachedfile : attachedFiles) {
+				String fileName = attachedfile.getSavedName();
+				File file = new File(directory, fileName);
+				if (!file.exists()) {
+					file.delete();
+				}
+			}
+		}
+		 */
+		for (int postNo : postNoList) {
+			List<AttachedFile> files = postMapper.getAttachedFilesByPostNo(postNo);
+			for (AttachedFile attachedFile : files) {
+				String fileName = attachedFile.getSavedName();
+				File file = new File(directory, fileName);
+				if (file.exists()) {
+					file.delete();
+				}
+				
 			}
 		}
 		
-		postMapper.deletePost(postNo);
+		postMapper.deletePosts(postNoList);
+	}
+	
+	public PostSearchResult getPostsWithMyComment(int page, PostSearchOption opt) {
+		int totalRows = postMapper.getTotalRowsWithMyComment(opt);
+		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
+		
+		List<PostListDtoWithMyComment> posts = postMapper.getPostListDtoWithMyComment(pagination.getBegin(), pagination.getEnd(), opt);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
+	}
+	
+	public PostSearchResult getPostsWithMyScrap(int page, PostSearchOption opt) {
+		int totalRows = postMapper.getTotalRowsWithMyScrap(opt);
+		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
+		
+		List<PostListDtoWithMyScrap> posts = postMapper.getPostListDtoWithMyScrap(pagination.getBegin(), pagination.getEnd(), opt);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
+	}
+	
+	public PostSearchResult getPostsWtihNotice(int page, PostSearchOption opt) {
+		int totalRows = postMapper.getTotalRowsWithNotice(opt);
+		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
+		
+		List<PostListDtoWithNotice> posts = postMapper.getPostListDtoWithNotice(pagination.getBegin(), pagination.getEnd(), opt);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
 	}
 	
 	public List<String> getEmployeeRoles(int employeeNo) {

@@ -29,4 +29,6 @@ public interface EmployeeMapper {
 	// 전체 사원의 수
 	int getAllEmployeeTotalRows(Map<String, Object> param);
 
+	//전체 사원 번호와 이름만 가져옴.
+		List<Employee> getAllEmployeesNameNo();
 }
