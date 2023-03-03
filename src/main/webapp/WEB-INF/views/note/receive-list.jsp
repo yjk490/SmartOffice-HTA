@@ -112,7 +112,9 @@
 								</td>
 								<td class="text-center"><i class="${note.important eq 'Y' ? 'fas fa-star w3-text-amber' : 'far fa-star w3-text-amber' }"></i></td>
 								<td class="text-center">${note.senderName }</td>
-								<td class="text-center"><a href="read?noteNo=${note.noteNo }" class="text-decoration-none" target='_blank'>${note.title }</a></td>
+								<td class="text-center">
+									<a href="read?noteNo=${note.noteNo }" class="text-decoration-none" target="_blank" onclick="window.setTimeout(function(){location.reload()},100);">${note.title}</a>
+								</td>
 								<td class="text-center"><fmt:formatDate value="${note.sendDate }"/></td>
 								<td class="text-center">${note.status eq 'Y' ? '읽음' : '안읽음' }</td>
 							</tr>
@@ -225,6 +227,7 @@ $(function(){
 			$buttonDelete.prop("disabled",false);
 		}
 	}
+	
 	
 	// 삭제버튼을 누르면 휴지통으로 쪽지 보내기
 	$("#btn-delete").click(function(){

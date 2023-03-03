@@ -1,8 +1,10 @@
 package com.example.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.*;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,9 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dto.contact.ContactDetailDto;
 import com.example.dto.contact.ContactListDto;
+import com.example.dto.contact.ContactTagDto;
 import com.example.mapper.AddressbookMapper;
 import com.example.mapper.ContactMapper;
 import com.example.utils.Pagination;
@@ -21,6 +25,7 @@ import com.example.vo.contact.ContactTel;
 import com.example.web.request.AddressbookModifyForm;
 import com.example.web.request.ContactRegisterForm;
 import com.example.web.request.ContactSearchOption;
+import com.example.web.response.ContactListResult;
 
 @Service
 @Transactional
@@ -112,7 +117,7 @@ public class ContactService {
 	// initial값에 따라 변화하는 SQL문을 작성했다. 이걸 어떻게 Mapper에 넣을 수 있을까?
 	public String getinitial(String initial) {
 		Map<Integer, String> index_map = new HashMap<>();
-
+		
 		index_map.put(0, "가");  index_map.put(1, "나");  index_map.put(2, "다");  
 		index_map.put(3, "라");  index_map.put(4, "마");  index_map.put(5, "바");
 		index_map.put(6, "사");  index_map.put(7, "아");  index_map.put(8, "자");  
@@ -137,39 +142,87 @@ public class ContactService {
 	}
 
 	// 검색 결과를 적용한 연락처 목록 조회
-	public Map<String, Object> getContacts(int page, ContactSearchOption opt) {
+	public ContactListResult getContacts(int page, ContactSearchOption opt) {
 		
 		if(opt.getType() == "public") {
 			int rows = contactMapper.getPublicRows(opt.getKeyword(), opt.getInitial(), opt.getTag());
-			Pagination pagination = new Pagination(page, rows);
+			Pagination pagination = new Pagination(page, opt.getRows());
 					
 			Map<String, Object> Param = new HashMap<String, Object>();
 			Param.put("begin", pagination.getBegin());
 			Param.put("end", pagination.getEnd());
 			
-			List<ContactListDto> contacts = contactMapper.getContacts(pagination.getBegin(), pagination.getEnd(), opt.getSort(), opt.getType(), opt.getKeyword());
+			List<ContactListDto> contacts = contactMapper.getContacts(pagination.getBegin(), pagination.getEnd(), opt.getSort(), 
+																		opt.getKeyword(), opt.getInitial());
 			
-			Map<String, Object> result = new HashMap<>();
-			result.put("Contacts", contacts);
-			result.put("Pagination", pagination);
+			for(ContactListDto contactListDto : contacts) {
+				List<String> tagContents = new ArrayList<String>();
+				List<ContactTagDto> tags = contactMapper.getContactTagsByNo(contactListDto.getContactNo());
+				for (ContactTagDto tagDto : tags) {
+					tagContents.add(tagDto.getAddressbookName());
+				}
+				contactListDto.setAddressbookName(tagContents);
+			}
+			
+			ContactListResult result = new ContactListResult(pagination, contacts);
 			
 			return result;
 		} else {
 			int rows = contactMapper.getPrivateRows(opt.getKeyword(), opt.getInitial(), opt.getTag());
-			Pagination pagination = new Pagination(page, rows);
+			Pagination pagination = new Pagination(page, opt.getRows());
 			
 			Map<String, Object> Param = new HashMap<String, Object>();
 			Param.put("begin", pagination.getBegin());
 			Param.put("end", pagination.getEnd());
 			
-			List<ContactListDto> contacts = contactMapper.getContacts(pagination.getBegin(), pagination.getEnd(), opt.getSort(), opt.getType(), opt.getKeyword());
+			List<ContactListDto> contacts = contactMapper.getContacts(pagination.getBegin(), pagination.getEnd(), opt.getSort(), opt.getKeyword(), 
+																		opt.getInitial());
 			
-			Map<String, Object> result = new HashMap<>();
-			result.put("Contacts", contacts);
-			result.put("Pagination", pagination);
+			for(ContactListDto contactListDto : contacts) {
+				List<String> telcontents = new ArrayList<String>();
+				List<ContactTel> tels = contactMapper.getContactTelsByNo(contactListDto.getContactNo());
+				for(ContactTel tel : tels) {
+					telcontents.add(tel.getContactTel());
+				}
+				contactListDto.setTel(telcontents);
+			}
+			
+			for(ContactListDto contactListDto : contacts) {
+				List<String> tagContents = new ArrayList<String>();
+				List<ContactTagDto> tags = contactMapper.getContactTagsByNo(contactListDto.getContactNo());
+				for (ContactTagDto tagDto : tags) {
+					tagContents.add(tagDto.getAddressbookName());
+				}
+				contactListDto.setAddressbookName(tagContents);
+			}
+			
+			ContactListResult result = new ContactListResult(pagination, contacts);
 			
 			return result;
 		}
+	}
+
+	public ContactDetailDto getContactDetailDto(int contactNo) {
+		ContactDetailDto contactDetailDto = contactMapper.getContactDetailDtoByNo(contactNo);
+		List<ContactTagDto> tags = contactMapper.getContactTagsByNo(contactNo);
+		List<ContactTel> tels = contactMapper.getContactTelsByNo(contactNo);	
+		
+		if(!tags.isEmpty()) {
+			List<String> tagContents = new ArrayList<String>();
+			for (ContactTagDto tagDto : tags) {
+				tagContents.add(tagDto.getAddressbookName());
+			}
+			contactDetailDto.setContactTags(tagContents);
+		}
+		
+		if(!tels.isEmpty()) {
+			List<String> telcontents = new ArrayList<String>();
+			for(ContactTel tel : tels) {
+				telcontents.add(tel.getContactTel());
+			}
+			contactDetailDto.setContactTels(telcontents);
+		}
+		return contactDetailDto;
 	}
 
 }

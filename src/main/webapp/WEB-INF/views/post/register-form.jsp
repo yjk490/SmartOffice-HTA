@@ -130,10 +130,11 @@ $(function() {
 	// 새로 업로드한 첨부파일 목록을 표현하는 핸들러 함수
 	$('input[type=file]').change(function() {
 		$('#div-new-file-box a').remove()
-		let files = $('input[type=file]')[0].files
+		let fileList = $('input[type=file]')[0].files
 		let result = ``
+		let totalFileSize = 0
 		
-		$.each(files, function(index, file) {
+		$.each(fileList, function(index, file) {
 			let fileName = file.name
 			let fileSizeKB = (file.size / 1024).toFixed(2)
 			

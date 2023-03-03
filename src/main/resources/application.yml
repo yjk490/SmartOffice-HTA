@@ -1,6 +1,9 @@
 # \uc6f9\uc11c\ubc84 \ud3ec\ud2b8 \uc9c0\uc815
 server:
   port: 80
+
+
+      
   
 # mybatis\uc758 SQL \uc2e4\ud589 \ub85c\uadf8 \ucd9c\ub825\uc744 \uc704\ud55c \uc124\uc815
 logging:
@@ -20,9 +23,9 @@ spring:
       suffix: .jsp
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 100MB
-          
+      max-file-size: 10485760
+      max-request-size: 104857600
+           
     
 # mybatis \ud658\uacbd\uc124\uc815
 mybatis:

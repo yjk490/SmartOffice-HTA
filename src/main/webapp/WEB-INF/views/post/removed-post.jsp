@@ -9,7 +9,6 @@
 </head>
 <body>
 <c:set var="top" value="post" />
-<sec:authentication property="principal" var="loginUser" />
 <%@ include file="../common/navbar.jsp" %>
 <div class="container">
 	<div class="row">
@@ -17,9 +16,9 @@
 			<%@ include file="../common/left/post.jsp" %>
 		</div> <!-- 사이드 바 끝 -->	
 		<div class="col-9">
-			<div class="row border m-1 mb-2">
-				<p class="fs-1 my-2">게시판 활동내역</p>
-				<p class="fs-5 my-3">${loginUser.name }님이 스크랩한 게시글</p>
+			<div class="row border m-1 mb-2 text-danger">
+				<p class="fs-1 my-2">삭제한 게시글</p>
+				<p class="fs-5 my-3">삭제한 게시글을 복구하거나 영구삭제할 수 있습니다.</p>
 			</div>
 			<form id="form-search" method="GET" action="myscrap">
 				<input type="hidden" name="page" value="${pagination.page }" />
@@ -44,13 +43,14 @@
 			<c:choose>
 				<c:when test="${empty posts }">
 					<div class="row mb-1 text-center">
-						<span>게시글이 존재하지 않습니다.</span>
+						<span>삭제한 게시글이 존재하지 않습니다.</span>
 					</div>
 				</c:when>
 				<c:otherwise>
+				<form id="form-recover-or-delete-post" method="GET">
 					<c:forEach var="post" items="${posts }">
 						<div class="mb-3 p-1 border-bottom">
-							<div class="row">
+							<div class="row mb-2">
 								<div class="col-6">
 									<div class="row mb-2">
 										<a href="/post/detail?postNo=${post.no }" class="link-dark">${post.title }</a>
@@ -60,13 +60,24 @@
 									</div>
 								</div>
 								<div class="col-6 text-end">
-									<div class="row">
-										<span>${post.scrapCreatedDateTimeToString }</span>
+									<div class="row mb-2">
+										<span>${post.createdDateTimeToString }</span>
+									</div>
+									<div class="d-inline">
+										<input class="form-check-input mx-2" type="checkbox" name="postNo" value="${post.no }">
+										<a href="/post/recover-post?postNo=${post.no }" class="btn btn-outline-success btn-sm">복구</a>
+										<a href="/post/delete-post?postNo=${post.no }" class="btn btn-outline-danger btn-sm">영구삭제</a>
 									</div>
 								</div>
 							</div>
 						</div>	
 					</c:forEach>
+					<div class="mb-3 p-1 text-end">
+						<button id="btn-check-all" type="button" class="btn btn-outline-secondary btn-sm">전체선택</button>
+						<input type="submit" class="btn btn-success btn-sm" value="복구" formaction="recover-post">
+						<input type="submit" class="btn btn-danger btn-sm" value="영구삭제" formaction="delete-post">
+					</div>
+				</form>	
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${not empty posts }">
@@ -97,5 +108,20 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	$("#btn-check-all").click(function() {
+		let total = $("#form-recover-or-delete-post :checkbox").length
+		let checked = $("#form-recover-or-delete-post :checked").length
+		
+		if (total != checked) {
+			$("#form-recover-or-delete-post :checkbox").prop("checked", true)
+		} else {
+			$("#form-recover-or-delete-post :checkbox").prop("checked", false)
+		}
+	})
+		
+})
+</script>
 </body>
 </html>

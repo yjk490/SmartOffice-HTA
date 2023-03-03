@@ -207,14 +207,22 @@
 							</tr>
 						</c:when>
 						<c:otherwise>
-							<c:forEach var="contact" items="contacts">
+							<c:forEach var="contact" items="${contacts}">
 								<tr>
 									<td class="w3-center tdcenter"><input type="checkbox"></td>
 									<td class="w3-center tdcenter"><i class="starfill bi bi-star"></i></td>
-									<td class="text-left tdcenter"><a href="../contact/detail" class="text-decoration-none">${contact.name }</a></td>
-									<td class="text-left tdcenter">${contact.tel }</td>
+									<td class="text-left tdcenter"><a href="../contact/detail?type=${opt.type }&contactNo=${contact.contactNo}" class="text-decoration-none">${contact.name }</a></td>
+									<td class="text-left tdcenter">
+									<c:forEach var="tel" items="${contact.tel }">
+										${tel }
+									</c:forEach>
+									</td>
 									<td class="text-left tdcenter">${contact.email }</td>
-									<td class="text-left tdcenter"><button class="tagbtn"></button><button class="tagbtn">SNS 광고</button><button class="tagbtn">그린스페이스</button></td>
+									<td class="text-left tdcenter">
+										<c:forEach var="tag" items="${contact.addressbookName }">
+				      						<a href="/contact/list?tag=${tag }" class="tagbtn">${tag }</a>
+				      					</c:forEach>
+			      					</td>
 								</tr>
 							</c:forEach>
 						</c:otherwise>
@@ -228,7 +236,7 @@
 			<div class="w3-center">
 				<div class="w3-bar">
 					<a href="${pagination.prevPage }" class="w3-button w3-hover-light-grey ${pagination.first ? 'disabled' : '' }">«</a>
-					<c:forEach var="number" begin="${pagination.beginPage }" end="${pagination.endPage }">
+					<c:forEach var="num" begin="${pagination.beginPage }" end="${pagination.endPage }">
 						<a href="list?page=${num }" class="w3-button w3-hover-light-grey ${pagination.page eq num ? 'active' : '' }">${num }</a>
 					</c:forEach>
 					<a href="${pagination.nextPage }" class="w3-button w3-hover-light-grey ${pagination.last ? 'disabled' : '' }">»</a>
@@ -273,7 +281,7 @@
 <script type="text/javascript">
 	// 제이쿼리 매개변수가 여러 개일 때 제대로 들어가는지 확인 필요 > 현재 안 들어감
 	// page, form값 제출
-	function ContactSearchForm(type, tag, page) {
+	function ContactSearchForm(page) {
 		$(":input[name=type]").val(type);
 		$(":input[name=tag]").val(tag);
 		$(":input[name=page]").val(page);
@@ -287,7 +295,7 @@
 		$(":input[name=type]").val(type);
 		$(":input[name=tag]").val(tag);
 		$(":input[name=page]").val(page);
-		ContactSearchForm(type, tag, page)
+		ContactSearchForm(page)
 	});
 	
 	// rows값 제출(한 페이지에 들어가는 데이터갯수가 변동되니, page값 1로 초기화)
@@ -295,7 +303,7 @@
 	$("#opt-rows").change(function() {
 		$(":input[name=type]").val(type);
 		$(":input[name=tag]").val(tag);
-		ContactSearchForm(type, tag, 1);
+		ContactSearchForm(1);
 	})
 	
 	// initial값 제출 (데이터갯수가 변동되니, page값 1로 초기화)
@@ -304,13 +312,20 @@
 		$(":input[name=initial]").attr("value", initial);
 		$(":input[name=type]").val(type);
 		$(":input[name=tag]").val(tag);
-		ContactSearchForm(type, tag, page);
+		ContactSearchForm(page);
 	})
 	
 	// keyword값 제출
 	$("#keyword").click(function() {
 		$(":input[name=type]").val(type);
 		$(":input[name=tag]").val(tag);
-		ContactSearchForm(type, tag, 1);
+		ContactSearchForm(1);
+	})
+	
+		// keyword값 제출
+	$("#tagbtn").click(function() {
+		$(":input[name=type]").val(type);
+		$(":input[name=tag]").attr("value", tag);
+		ContactSearchForm(1);
 	})
 </script>
