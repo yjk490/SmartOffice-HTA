@@ -20,6 +20,7 @@ public class TodoListDto {
 	private String title;
 	private int empNo;
 	private String empName;
+	private int receiveEmpNo;
 	private String receiveEmpName;
 	private int jobCatNo;
 	private String jobCatName;

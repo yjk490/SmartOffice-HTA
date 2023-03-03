@@ -42,6 +42,7 @@ public interface TodoMapper {
 	List<TodoListDto> getReceiveTodos(int begin, int end, String status, 
 										int category, String opt, String important, 
 										Date startDate, Date endDate, String keyword, int receiveEmpNo);
+	List<TodoListDto> getTodoListDtoByNo(int empNo);
 	// detail페이지 조회하기
 	TodoDetailDto getTodoDetailByTodoNo(int todoNo);
 	// 업무번호로 업무찾기
