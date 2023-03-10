@@ -19,6 +19,20 @@ Java와 Spring을 학습한 후, 실습을 위해 기획한 팀 프로젝트입�
 개발 인원 : 4명
 
 ## 개발 환경
+### OS   
++ window 10
+### IDE   
++ Eclipse
+### Collaboration Tool   
++ Github
++ Notion
+
+## 사용 기술
+### FrontEnd   
+### BackEnd   
+### DataBase   
+
+
 
 
 
