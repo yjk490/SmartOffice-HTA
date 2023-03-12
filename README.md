@@ -23,14 +23,27 @@ Java와 Spring을 학습한 후, 실습을 위해 기획한 팀 프로젝트입�
 + window 10
 ### IDE   
 + Eclipse
-### Collaboration Tool   
-+ Github
+### Version Control  
++ Git
+### Communication
 + Notion
 
 ## 사용 기술
 ### FrontEnd   
-### BackEnd   
-### DataBase   
++ HTNL5/CSS3
++ BootStrap 5.3
++ JSP
++ JavaScript
++ jQuery
+### BackEnd  
++ Java 11
++ Spring Boot 2.6.7
++ Spring Security 5.6.3
++ Mybatis 3.5.11
+### DataBase
++ Oracle 21c
+### Build Tool
++ Maven 4.0.0
 
 
 
