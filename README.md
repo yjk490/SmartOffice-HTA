@@ -93,7 +93,7 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 + **해결방법**   
   + 두 개의 파일명을 저장하기 위한 Map객체를 [PostRegisterForm](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostRegisterForm.java#L16)클래스의 멤버변수로 정의
   + 중복 불가능한 savedFileName을 Key에 저장하고 originalFileName을 Value에 저장한다.
-  + [entrySet()을 이용하여](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/service/PostService.java#L103) Key, Value 둘 다 조회해서 업로드 파일을 표현하는 VO클래스인 AttachedFile에 저장한다.   
+  + [entrySet()을 ](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/service/PostService.java#L103) Key, Value 둘 다 조회해서 업로드 파일을 표현하는 VO클래스인 AttachedFile에 저장한다.   
   
 + **DTO를 사용하지 않은 이유**   
   + PostRegisterForm클래스 내에 두 종류의 파일명을 멤버변수로 갖는 또 다른 DTO를 정의할 수도 있다. 그러나 DTO 내부에 또 DTO를 담는 것은 가독성과 유지보수 측면에서 부적절한다고 판단했기 때문이다.
