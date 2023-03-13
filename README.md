@@ -67,11 +67,9 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 | 게시판 활동내역(내가 쓴 글) | 게시판 활동내역(내가 쓴 댓글) | 게시판 활동내역(스크랩) |
 
 ### 게시판(관리자)
-| ![게시글 복원 및 삭제(관리자모드)](https://user-images.githubusercontent.com/119988634/224617297-78181bd1-cb0d-45ec-b70a-f86f58ef3303.png) | ![게시글 복원 및 삭제(관리자모드)](https://user-images.githubusercontent.com/119988634/224617290-3449124b-9a1d-4839-9ef1-ce7c220fe5cf.png) |
+| ![게시글 상세보기(관리자모드)](https://user-images.githubusercontent.com/119988634/224618629-6659bddf-2de6-4a56-99ad-341f2122ac33.png) | ![게시글 복원 및 삭제(관리자모드)](https://user-images.githubusercontent.com/119988634/224617290-3449124b-9a1d-4839-9ef1-ce7c220fe5cf.png) |
 |:-:|:-:|
 | 게시글 상세보기 | 게시글 복원 및 영구삭제 |
-
-## 주요 기능
 
 ## 이슈
 
