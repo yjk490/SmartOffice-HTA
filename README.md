@@ -108,7 +108,7 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
   
 + **구현 방법**  
   + 업로드 된 파일의 인덱스를 html 태그의 data 속성에 저장
-  + `<input type=file>` 요소의 files 속성으로 fileList객체를 조회하고 그 객체를 자바스크립트의 배열로 변환
+  + `<input type=file>` 요소의 files 속성으로 fileList객체를 조회하고 그 객체를 JavaScript의 배열로 변환
   + 삭제할 파일을 클릭하면 해당 태그의 data 속성에서 파일 인덱스 값을 가져오고 해당 파일을 배열에서 삭제
   + dataTransfer객체를 생성하고, 삭제 처리가 완료된 배열을 dataTransferItemList에 저장
   + dataTransferItemList를 다시 <input type=file>요소의 files 속성에 저장  
