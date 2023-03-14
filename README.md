@@ -74,15 +74,15 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 ## 이슈
 ### 1. 업로드된 파일의 중복 방지
 + **배경**   
-  + 사용자가 업로드한 파일명이 서버에 이미 존재하는 파일명과 같다면, 새로 업로드한 파일이 기존 파일에 덮어씌워지는 문제가 있음   
+  + 사용자가 업로드한 파일명이 서버에 이미 존재하는 파일명과 같다면, 새로 업로드한 파일이 기존 파일에 덮어씌워지는 문제가 있음.   
   
-+ **해결방법**   
++ **해결 방법**   
   + 업로드 파일에 대한 컬럼을 사용자가 업로드한 파일명과 서버에 저장되는 파일명으로 구분 (POST_ORIGINAL_FILENAME, POST_SAVED_FILENAME)
   + Java의 UUID를 통해 파일명에 임의의 32자리 문자열을 추가해서 [서버에 업로드](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/controller/PostController.java#L73)되도록 구현하고, DB에는 원래 파일명과 서버에 저장된 파일명 둘 다 저장
   + [파일을 다운로드](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/view/FileDownloadView.java#L19)할 때는 UUID를 통해 생성한 문자열을 제거한 원래 파일명을 전달   
   
 + **아쉬운 점**
-  + 업로드 파일 테이블의 기본키가 임의의 32자리 문자열을 포함한 파일명이기 때문에 서버에 저장된 파일이 증가하면 파일명 검색성능이 저하될 것으로 예상   
+  + 업로드 파일 테이블의 기본키가 임의의 32자리 문자열을 포함한 파일명이기 때문에 서버에 저장된 파일이 증가하면 파일명 검색성능이 저하될 것으로 예상한다.     
 
 ### 2. 업로드된 파일 정보를 어떻게 DB까지 전달할 것인가?
 + **배경**  
@@ -90,17 +90,35 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
   + 이를 위해 브라우저로부터 작성된 게시글 정보를 받는 PostRegisterForm 클래스의 멤버 변수에 원래 파일명(originalFileName)과 저장될 파일명(savedFileName)을 저장하는 List 두 개를 정의했다.
   + 그러나 두 개의 파일명은 같은 파일을 표현하기 때문에 반드시 쌍으로 저장되어야 한다. 따라서 List를 사용하는 것은 프로그램의 안정성 측면에서 부적절하다고 판단했다.   
   
-+ **해결방법**   
++ **해결 방법**   
   + 두 개의 파일명을 저장하기 위한 Map객체를 [PostRegisterForm](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostRegisterForm.java#L16)클래스의 멤버변수로 정의
-  + 중복 불가능한 savedFileName을 Key에 저장하고 originalFileName을 Value에 저장한다.
-  + [entrySet()을 통해](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/service/PostService.java#L103) Key, Value 둘 다 조회해서 업로드 파일을 표현하는 VO클래스인 AttachedFile에 저장한다.   
+  + 중복 불가능한 savedFileName을 Key에 저장하고 originalFileName을 Value에 저장
+  + [entrySet()을 통해](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/service/PostService.java#L103) Key, Value 둘 다 조회해서 업로드 파일을 표현하는 VO클래스인 AttachedFile에 저장   
   
 + **DTO를 사용하지 않은 이유**   
   + PostRegisterForm클래스 내에 두 종류의 파일명을 멤버변수로 갖는 또 다른 DTO를 정의할 수도 있다. 그러나 DTO 내부에 또 DTO를 담는 것은 가독성과 유지보수 측면에서 부적절한다고 판단했기 때문이다.
   
-+ **느낀 점**
++ **배운 점**
   + 그 동안 Map을 Key를 통해 Value를 조회하는 데에만 사용했으나, 이번 계기로 Map의 새로운 활용에 대해 깨달았다.
 
+### 3. 브라우저에서 선택한 파일을 부분적으로 취소할 수 있도록 구현
++ **배경 및 문제점**   
+  + input태그의 file타입으로 업로드할 파일을 선택하는 경우, 기본적으로는 파일의 개별 취소가 불가능하다. 이러한 점은 사용자 경험에 좋지 않다고 생각하여 선택한 파일을 부분적으로 취소가 가능하도록 구현할 필요성을 느꼈다.   
+  + 그러나 업로드 순서의 역순으로 취소할 때만 정상 동작하고, 순서가 뒤바뀌면 파일이 두 개 남았을 때부터 취소가 안 되었다.
+  
++ **구현 방법**  
+  + 업로드 된 파일의 인덱스를 html 태그의 data 속성에 저장
+  + <input type=file> 요소의 files 속성으로 fileList객체를 조회하고 그 객체를 자바스크립트의 배열로 변환
+  + 삭제할 파일을 클릭하면 해당 태그의 data 속성에서 파일 인덱스 값을 가져오고 해당 파일을 배열에서 삭제
+  + dataTransfer객체를 생성하고, 삭제 처리가 완료된 배열을 dataTransferItemList에 저장
+  + dataTransferItemList를 다시 <input type=file>요소의 files 속성에 저장  
+  
++ **원인**  
+  + 삭제하려는 파일의 인덱스를 기반으로 새로운 파일 리스트를 생성하기 때문이다. 즉, 업로드 시점의 인덱스와 삭제 후 재생성된 파일 리스트의 인덱스가 다르기 때문이다.  
+  + 예를 들어, [파일1, 파일2, 파일3] 을 차례로 업로드한 후, 파일2를 삭제한다고 가정하자. 그러면 파일2의 인덱스는 1이므로 파일 리스트가 재생성되면 파일1은 인덱스가 그대로 0이겠지만 파일3은 인덱스1을 부여받는다. 인덱스가 2에서 1로 바뀐 것이다.  그러나 파일을 삭제할 때 기준이되는 인덱스는 파일 최초 생성시 부여받은 인덱스를 html 태그의 data 속성에 저장해서 사용하므로 파일3을 삭제하려고 클릭하면 인덱스2가 전달된다. 그래서 파일3을 클릭해도 새로운 파일리스트에는 인덱스2가 없으므로 파일3이 삭제가 되지 않는 것이다.   
+  
++ **해결 방법**   
+  + html 태그의 data속성에 파일 리스트의 인덱스가 아니라 파일 이름을 저장한다.
 
 ## 회고
 
