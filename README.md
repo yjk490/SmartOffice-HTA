@@ -4,14 +4,29 @@
   - [프로젝트 소개](#소개)
   - [개발환경](#개발-환경)
   - [사용기술](#사용-기술)
-  - [E-R 다이어그램](#E-R-다이어그램)
+  - [ER 다이어그램](#ER-다이어그램)
   - [실행 화면](#실행-화면)
   - [이슈](#이슈)
   - [리팩토링 및 업데이트 계획](#리팩토링-및-업데이트-계획)
 
 ## 소개
 쪽지, 연락처 관리, 업무 관리, 자유 게시판 기능이 있는 그룹웨어입니다.   
-Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 프로젝트입니다.   
+Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 프로젝트입니다.  
+
+제가 구현한 부분은 자유 게시판이며, 작성한 코드는 아래와 같습니다.   
++ [Controller](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/controller/PostController.java)
++ [Service](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/service/PostService.java)
++ [Mapper Interface](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/mapper/PostMapper.java)
++ [SQL](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/resources/mybatis/mappers/posts.xml)
++ [DTO](https://github.com/yjk490/SmartOffice-HTA/tree/main/src/main/java/com/example/dto/post)   
++ [VO](https://github.com/yjk490/SmartOffice-HTA/tree/main/src/main/java/com/example/vo/post)
++ [DateTimeToString Util](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/utils/DateTimeToString.java)
++ 기타   
+  + [PostRegisterForm](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostRegisterForm.java)
+  + [PostModifyForm](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostModifyForm.java)
+  + [PostSearchOption](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostSearchOption.java)
+  + [PostSearchResult](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/response/PostSearchResult.java)
+
       
 개발 기간 : 2023. 01. 30 ~ 2023. 03. 03   
 개발 인원 : 4명
@@ -43,7 +58,7 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 ### Build Tool
 + Maven 4.0.0   
 
-## E-R 다이어그램
+## ER 다이어그램
 ![SmartOffice ERD](https://user-images.githubusercontent.com/119988634/225229142-ab338cb1-ae5c-4138-82c7-7a4675209220.png)
 
 ## 주요 기능
