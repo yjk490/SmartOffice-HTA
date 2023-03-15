@@ -11,9 +11,12 @@
 
 ## 소개
 쪽지, 연락처 관리, 업무 관리, 자유 게시판 기능이 있는 그룹웨어입니다.   
-Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 프로젝트입니다.  
+Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 프로젝트입니다.   
 
-제가 구현한 부분은 자유 게시판이며, 작성한 코드는 아래와 같습니다.   
+개발 기간 : 2023. 01. 30 ~ 2023. 03. 03   
+개발 인원 : 4명   
+
+**제가 구현한 부분은 자유 게시판이며, 작성한 코드는 아래와 같습니다.**      
 + [Controller](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/controller/PostController.java)
 + [Service](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/service/PostService.java)
 + [Mapper Interface](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/mapper/PostMapper.java)
@@ -25,11 +28,7 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
   + [PostRegisterForm](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostRegisterForm.java)
   + [PostModifyForm](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostModifyForm.java)
   + [PostSearchOption](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/request/PostSearchOption.java)
-  + [PostSearchResult](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/response/PostSearchResult.java)
-
-      
-개발 기간 : 2023. 01. 30 ~ 2023. 03. 03   
-개발 인원 : 4명
+  + [PostSearchResult](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/response/PostSearchResult.java)   
 
 ## 개발 환경
 ### OS   
