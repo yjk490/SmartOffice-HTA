@@ -4,7 +4,7 @@
   - [프로젝트 소개](#소개)
   - [개발환경](#개발-환경)
   - [사용기술](#사용-기술)
-  - [프로젝트 구조](#프로젝트-구조)
+  - [E-R 다이어그램](#E-R-다이어그램)
   - [실행 화면](#실행-화면)
   - [이슈](#이슈)
   - [리팩토링 및 업데이트 계획](#리팩토링-및-업데이트-계획)
@@ -43,12 +43,8 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 ### Build Tool
 + Maven 4.0.0   
 
-## 프로젝트 구조
-### E-R Diagram
+## E-R 다이어그램
 ![SmartOffice ERD](https://user-images.githubusercontent.com/119988634/225229142-ab338cb1-ae5c-4138-82c7-7a4675209220.png)
-
-### Usecase Diagram
-### Package Structure
 
 ## 주요 기능
 ### 게시판   
