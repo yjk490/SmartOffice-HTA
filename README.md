@@ -45,7 +45,7 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 
 ## 프로젝트 구조
 ### E-R Diagram
-![SmartOffice ERD](https://user-images.githubusercontent.com/119988634/225228606-253652bc-d5e2-4e9d-989a-bb1e1b39c21c.png)
+![SmartOffice ERD](https://user-images.githubusercontent.com/119988634/225229142-ab338cb1-ae5c-4138-82c7-7a4675209220.png)
 
 ### Usecase Diagram
 ### Package Structure
