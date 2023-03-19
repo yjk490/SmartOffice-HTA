@@ -14,7 +14,7 @@
 Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 프로젝트입니다.   
 
 개발 기간 : 2023. 01. 30 ~ 2023. 03. 03   
-개발 인원 : 4명   
+개발 인원 : 5명   
 
 **제가 구현한 부분은 자유 게시판이며, 작성한 코드는 아래와 같습니다.**      
 + [Controller](https://github.com/yjk490/SmartOffice-HTA/blob/main/src/main/java/com/example/web/controller/PostController.java)
