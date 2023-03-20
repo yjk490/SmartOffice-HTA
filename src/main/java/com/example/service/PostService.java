@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.dto.post.CommentDto;
+import com.example.dto.post.CommentListDto;
 import com.example.dto.post.PostListDtoWithMyComment;
 import com.example.dto.post.PostListDtoWithMyScrap;
 import com.example.dto.post.PostListDtoWithNotice;
@@ -22,6 +22,7 @@ import com.example.vo.post.AttachedFile;
 import com.example.vo.post.Comment;
 import com.example.vo.post.Post;
 import com.example.vo.post.Tag;
+import com.example.web.request.CommentSearchOption;
 import com.example.web.request.PostModifyForm;
 import com.example.web.request.PostRegisterForm;
 import com.example.web.request.PostSearchOption;
@@ -36,10 +37,10 @@ public class PostService {
 	private String directory;
 	
 	public PostSearchResult getPosts(int page, PostSearchOption opt) {
-		int totalRows = postMapper.getTotalRows(opt);
+		int totalRows = postMapper.selectTotalRows(opt);
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
-		List<PostListDto> posts = postMapper.getPostListDto(pagination.getBegin(), pagination.getEnd(), opt);
+		List<PostListDto> posts = postMapper.selectPostListDtos(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		
@@ -47,9 +48,9 @@ public class PostService {
 	}
 	
 	public PostDetailDto getPostDetailDto(int postNo, int employeeNo) {
-		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo, employeeNo);
-		List<AttachedFile> attachedFiles = postMapper.getAttachedFilesByPostNo(postNo);
-		List<Tag> tags = postMapper.getTagsByPostNo(postNo);
+		PostDetailDto postDetailDto = postMapper.selectPostDetailDto(postNo, employeeNo);
+		List<AttachedFile> attachedFiles = postMapper.selectAttachedFiles(postNo);
+		List<Tag> tags = postMapper.selectTags(postNo);
 		
 		if (!attachedFiles.isEmpty()) {
 			Map<String, String> fileNamesMap = new HashMap<String, String>();
@@ -72,7 +73,7 @@ public class PostService {
 	
 	
 	public void registerPost(int employeeNo, PostRegisterForm form) { 
-		int postNo = postMapper.getPostSequence();
+		int postNo = postMapper.selectPostSequence();
 		
 		// POST 테이블에 게시글 정보 저장
 		Post post = Post.builder()
@@ -84,6 +85,7 @@ public class PostService {
 		postMapper.insertPost(post);
 		
 		// POST_TAGS 테이블에 태그 정보 저장
+		// for문 안에서 Mapper 인터페이스를 반복호출하기 보다는, 파라미터를 List형태로 전달하고 동적쿼리로 한번에 처리한다. DB액세느는 고비용의 작업이기 때문이다.
 		if (form.getTagContents() != null) {
 			List<String> tagContents = form.getTagContents();
 			List<Tag> tags = new ArrayList<Tag>();
@@ -109,8 +111,8 @@ public class PostService {
 	}
 
 	public void scrapPost(int postNo, int employeeNo) {
-		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo, employeeNo);
-		Post post = postMapper.getPostByNo(postNo);
+		PostDetailDto postDetailDto = postMapper.selectPostDetailDto(postNo, employeeNo);
+		Post post = postMapper.selectPost(postNo);
 		
 		if (!postDetailDto.isScrapped()) {
 			postMapper.insertPostScrap(postNo, employeeNo);
@@ -125,8 +127,8 @@ public class PostService {
 	}
 	
 	public void recommendPost(int postNo, int employeeNo) {
-		PostDetailDto postDetailDto = postMapper.getPostDetailDto(postNo, employeeNo);
-		Post post = postMapper.getPostByNo(postNo);
+		PostDetailDto postDetailDto = postMapper.selectPostDetailDto(postNo, employeeNo);
+		Post post = postMapper.selectPost(postNo);
 		
 		if (!postDetailDto.isRecommended()) {
 			postMapper.insertPostRecommend(postNo, employeeNo);
@@ -140,7 +142,7 @@ public class PostService {
 	}
 	
 	public void registerComment(int postNo, String content, int employeeNo) {
-		int commentNo = postMapper.getCommentSequence();
+		int commentNo = postMapper.selectCommentSequence();
 		Comment comment = Comment.builder()
 						  .no(commentNo)
 						  .employeeNo(employeeNo)
@@ -149,13 +151,18 @@ public class PostService {
 						  .build();
 		postMapper.insertComment(comment);
 		
-		Post post = postMapper.getPostByNo(postNo);
+		Post post = postMapper.selectPost(postNo);
 		post.increaseCommentCount();
 		postMapper.updatePost(post);
 	}
 	
+	public List<CommentListDto> getComments(int postNo, int employeeNo) {
+		List<CommentListDto> comments = postMapper.selectCommentListDtos(postNo, employeeNo);
+		return comments;
+	}
+	
 	public void modifyComment(int commentNo, String modifiedContent) {
-		Comment comment = postMapper.getCommentByNo(commentNo);
+		Comment comment = postMapper.selectComment(commentNo);
 		comment.modifyContent(modifiedContent);
 		postMapper.updateComment(comment);
 	}
@@ -163,19 +170,14 @@ public class PostService {
 	public void deleteComment(int postNo, int commentNo) {
 		postMapper.deleteComment(commentNo);
 		
-		Post post = postMapper.getPostByNo(postNo);
+		Post post = postMapper.selectPost(postNo);
 		post.decreaseCommentCount();
 		postMapper.updatePost(post);
 	}
 	
-	public List<CommentDto> getComments(int postNo, int employeeNo) {
-		List<CommentDto> comments = postMapper.getCommentsByPostNo(postNo, employeeNo);
-		return comments;
-	}
-	
 	public void recommendComment(int commentNo, int employeeNo) {
-		CommentDto commentDto = postMapper.getCommentDtoByCommentNo(commentNo, employeeNo);
-		Comment comment = postMapper.getCommentByNo(commentNo);
+		CommentListDto commentDto = postMapper.selectCommentListDto(commentNo, employeeNo);
+		Comment comment = postMapper.selectComment(commentNo);
 		
 		if(!commentDto.isRecommended()) {
 			postMapper.insertCommentRecommend(commentNo, employeeNo);
@@ -189,7 +191,7 @@ public class PostService {
 	}
 
 	public void recoverPost(List<Integer> postNoList) {
-		List<Post> posts = postMapper.getPostsByNoList(postNoList);
+		List<Post> posts = postMapper.selectPosts(postNoList);
 		for (Post post : posts) {
 			post.recoverPost();
 		}
@@ -197,13 +199,13 @@ public class PostService {
 	}
 	
 	public void removePost(int postNo) {
-		Post post = postMapper.getPostByNo(postNo);
+		Post post = postMapper.selectPost(postNo);
 		post.removePost();
 		postMapper.updatePost(post);
 	}
 	
 	public void modifyPost(PostModifyForm form) {
-		Post modifyPost = postMapper.getPostByNo(form.getNo());
+		Post modifyPost = postMapper.selectPost(form.getNo());
 		
 		// 글 제목, 내용 수정
 		modifyPost.modifyTitle(form.getTitle());
@@ -270,7 +272,7 @@ public class PostService {
 		}
 		 */
 		for (int postNo : postNoList) {
-			List<AttachedFile> files = postMapper.getAttachedFilesByPostNo(postNo);
+			List<AttachedFile> files = postMapper.selectAttachedFiles(postNo);
 			for (AttachedFile attachedFile : files) {
 				String fileName = attachedFile.getSavedName();
 				File file = new File(directory, fileName);
@@ -284,11 +286,22 @@ public class PostService {
 		postMapper.deletePosts(postNoList);
 	}
 	
-	public PostSearchResult getPostsWithMyComment(int page, PostSearchOption opt) {
-		int totalRows = postMapper.getTotalRowsWithMyComment(opt);
+	public PostSearchResult getPostsWtihNotice(int page, int rows, int employeeNo) {
+		int totalRows = postMapper.selectTotalRowsWithNotice(employeeNo);
+		Pagination pagination = new Pagination(page, totalRows, rows);
+		
+		List<PostListDtoWithNotice> posts = postMapper.selectPostListDtosWithNotice(pagination.getBegin(), pagination.getEnd(), employeeNo);
+		
+		PostSearchResult result = new PostSearchResult(pagination, posts);
+		
+		return result;
+	}	
+	
+	public PostSearchResult getPostsWithMyComment(int page, CommentSearchOption opt) {
+		int totalRows = postMapper.selectTotalRowsWithMyComment(opt);
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
-		List<PostListDtoWithMyComment> posts = postMapper.getPostListDtoWithMyComment(pagination.getBegin(), pagination.getEnd(), opt);
+		List<PostListDtoWithMyComment> posts = postMapper.selectPostListDtosWithMyComment(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		
@@ -296,21 +309,10 @@ public class PostService {
 	}
 	
 	public PostSearchResult getPostsWithMyScrap(int page, PostSearchOption opt) {
-		int totalRows = postMapper.getTotalRowsWithMyScrap(opt);
+		int totalRows = postMapper.selectTotalRowsWithMyScrap(opt);
 		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
 		
-		List<PostListDtoWithMyScrap> posts = postMapper.getPostListDtoWithMyScrap(pagination.getBegin(), pagination.getEnd(), opt);
-		
-		PostSearchResult result = new PostSearchResult(pagination, posts);
-		
-		return result;
-	}
-	
-	public PostSearchResult getPostsWtihNotice(int page, PostSearchOption opt) {
-		int totalRows = postMapper.getTotalRowsWithNotice(opt);
-		Pagination pagination = new Pagination(page, totalRows, opt.getRows());
-		
-		List<PostListDtoWithNotice> posts = postMapper.getPostListDtoWithNotice(pagination.getBegin(), pagination.getEnd(), opt);
+		List<PostListDtoWithMyScrap> posts = postMapper.selectPostListDtosWithMyScrap(pagination.getBegin(), pagination.getEnd(), opt);
 		
 		PostSearchResult result = new PostSearchResult(pagination, posts);
 		

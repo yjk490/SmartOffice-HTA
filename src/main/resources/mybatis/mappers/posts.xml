@@ -59,17 +59,12 @@
 			(#{commentNo}, #{employeeNo})
 	</insert>
 	
-	<select id="getPostSequence" resultType="int">
+	<select id="selectPostSequence" resultType="int">
 		select posts_seq.nextval
 		from dual
 	</select>
 	
-	<select id="getCommentSequence" resultType="int">
-		select post_comments_seq.nextval
-		from dual
-	</select>
-
-	<select id="getTotalRows" resultType="int">
+	<select id="selectTotalRows" resultType="int">
 		select
 			count(*)
 		from
@@ -99,7 +94,7 @@
 		</where>
 	</select>
 	
-	<select id="getPostListDto" resultType="com.example.dto.post.PostListDto">
+	<select id="selectPostListDtos" resultType="com.example.dto.post.PostListDto">
 		select
 		    post_no 				as no,
 		    employee_name 			as name,
@@ -165,7 +160,7 @@
 		    row_numbers between #{begin} and #{end}
 	</select>
 	
-	<select id="getTotalRowsWithMyComment" resultType="int">
+	<select id="selectTotalRowsWithMyComment" resultType="int">
 		select
 			count(*)
 		from
@@ -174,10 +169,10 @@
 		    A.post_no = B.post_no 
 		    and B.comment_content like '%' || #{opt.keyword} || '%'
 		    and B.employee_no = #{opt.employeeNo}
-		    and A.post_deleted = #{opt.deleted}
+		    and A.post_deleted = 'N'
 	</select>
 	
-	<select id="getPostListDtoWithMyComment" resultType="com.example.dto.post.PostListDtoWithMyComment">
+	<select id="selectPostListDtosWithMyComment" resultType="com.example.dto.post.PostListDtoWithMyComment">
 		select
 			post_no					as no,
 		    post_title 				as title,
@@ -196,13 +191,13 @@
                     A.post_no = B.post_no 
 		    		and B.comment_content like '%' || #{opt.keyword} || '%'
 		    		and B.employee_no = #{opt.employeeNo}
-		    		and A.post_deleted = #{opt.deleted}
+		    		and A.post_deleted = 'N'
              )
         where
             row_numbers between #{begin} and #{end}
 	</select>	
 	
-	<select id="getTotalRowsWithMyScrap" resultType="int">
+	<select id="selectTotalRowsWithMyScrap" resultType="int">
 		select
 			count(*)
 		from
@@ -211,10 +206,10 @@
 		    A.post_no = B.post_no 
 		    and A.post_content like '%' || #{opt.keyword} || '%'
 		    and B.employee_no = #{opt.employeeNo}
-		    and A.post_deleted = #{opt.deleted}
+		    and A.post_deleted = 'N'
 	</select>
 	
-	<select id="getPostListDtoWithMyScrap" resultType="com.example.dto.post.PostListDtoWithMyScrap">
+	<select id="selectPostListDtosWithMyScrap" resultType="com.example.dto.post.PostListDtoWithMyScrap">
 		select
 			post_no					as no,
 		    post_title 				as title,
@@ -233,13 +228,13 @@
                     A.post_no = B.post_no
                     and A.post_content like '%' || #{opt.keyword} || '%'
                     and B.employee_no = #{opt.employeeNo}
-                    and A.post_deleted = #{opt.deleted}
+                    and A.post_deleted = 'N'
              )
         where
             row_numbers between #{begin} and #{end}	
 	</select>
 	
-	<select id="getTotalRowsWithNotice" resultType="int">
+	<select id="selectTotalRowsWithNotice" parameterType="int" resultType="int">
 		select 
     		count(*)
 		from 
@@ -280,7 +275,7 @@
 			and D.post_deleted = 'N')
 	</select>
 	
-	<select id="getPostListDtoWithNotice" resultType="com.example.dto.post.PostListDtoWithNotice">
+	<select id="selectPostListDtosWithNotice" resultType="com.example.dto.post.PostListDtoWithNotice">
 		select
 		    employee_name 		as employeeName,
 		    content 			as content,
@@ -298,45 +293,45 @@
 			from 
 		    	(select C.employee_name, A.post_title as content, 'postRecommend' as type, A.post_no, B.RECOMMEND_CREATED_DATE as notice_created_date
 				from posts A, post_recommends B, employees C
-				where A.employee_no = #{opt.employeeNo}
+				where A.employee_no = #{employeeNo}
 				and A.post_no = B.post_no
 				and B.employee_no = C.employee_no
-				and B.employee_no not in (#{opt.employeeNo})
+				and B.employee_no not in (#{employeeNo})
 				and A.post_deleted = 'N'
 				union
 		
 				select C.employee_name, A.post_title as content, 'postScrap' as type, A.post_no, B.SCRAP_CREATED_DATE as notice_created_date
 				from posts A, post_scraps B, employees C
-				where A.employee_no = #{opt.employeeNo}
+				where A.employee_no = #{employeeNo}
 				and A.post_no = B.post_no
 				and B.employee_no = C.employee_no
-				and B.employee_no not in (#{opt.employeeNo})
+				and B.employee_no not in (#{employeeNo})
 				and A.post_deleted = 'N'
 				union
 		
 				select C.employee_name, B.comment_content as content, 'comment' as type, A.post_no, B.COMMENT_CREATED_DATE as notice_created_date
 				from posts A, post_comments B, employees C
-				where A.employee_no = #{opt.employeeNo}
+				where A.employee_no = #{employeeNo}
 				and A.post_no = B.post_no
 				and B.employee_no = C.employee_no
-				and  B.employee_no not in (#{opt.employeeNo})
+				and  B.employee_no not in (#{employeeNo})
 				and A.post_deleted = 'N'
 				union
 		
 				select C.employee_name, A.comment_content as content,  'commentRecommend' as type, D.post_no, B.COMMENT_RECOMMEND_CREATED_DATE as notice_created_date
 				from post_comments A, post_comment_recommends B, employees C, posts D
-				where A.employee_no = #{opt.employeeNo}
+				where A.employee_no = #{employeeNo}
 				and A.comment_no = B.comment_no
 				and B.employee_no = C.employee_no
 				and D.post_no = A.post_no
-				and B.employee_no not in (#{opt.employeeNo})
+				and B.employee_no not in (#{employeeNo})
 				and D.post_deleted = 'N')
 			)
 			where
 		    	row_numbers between #{begin} and #{end}
 	</select>
 	
-	<select id="getPostDetailDto" resultType="com.example.dto.post.PostDetailDto">
+	<select id="selectPostDetailDto" resultType="com.example.dto.post.PostDetailDto">
 		select
 			A.post_no				as no,
 			A.employee_no			as employeeNo,
@@ -357,7 +352,7 @@
 			and A.post_no	= #{postNo}
 	</select>
 	
-	<select id="getCommentsByPostNo" resultType="com.example.dto.post.CommentDto">
+	<select id="selectCommentListDtos" resultType="com.example.dto.post.CommentListDto">
 		select
 			A.comment_no				as no,
 			A.employee_no				as employeeNo,
@@ -374,7 +369,27 @@
 		order by A.comment_created_date desc	
 	</select>
 	
-	<select id="getCommentDtoByCommentNo" resultType="com.example.dto.post.CommentDto">
+	<select id="selectComment" parameterType="int" resultType="com.example.vo.post.Comment">
+		select
+			COMMENT_NO 					as no,
+			EMPLOYEE_NO 				as employeeNo,
+			POST_NO						as postNo,
+			COMMENT_CONTENT 			as content,
+			COMMENT_RECOMMEND_COUNT 	as recommendCount,
+			COMMENT_CREATED_DATE 		as createdDate,
+			COMMENT_UPDATED_DATE 		as updatedDate
+		from
+			post_comments
+		where
+			comment_no = #{value}
+	</select>
+	
+	<select id="selectCommentSequence" resultType="int">
+		select post_comments_seq.nextval
+		from dual
+	</select>		
+	
+	<select id="selectCommentListDto" resultType="com.example.dto.post.CommentListDto">
 		select
 			A.comment_no				as no,
 			A.employee_no				as employeeNo,
@@ -390,23 +405,7 @@
 			and A.comment_no = #{commentNo}
 	</select>
 	
-	<select id="getCommentByNo" parameterType="int" resultType="com.example.vo.post.Comment">
-		select
-			COMMENT_NO 					as no,
-			EMPLOYEE_NO 				as employeeNo,
-			POST_NO						as postNo,
-			COMMENT_CONTENT 			as content,
-			COMMENT_RECOMMEND_COUNT 	as recommendCount,
-			COMMENT_DELETED 			as deleted,
-			COMMENT_CREATED_DATE 		as createdDate,
-			COMMENT_UPDATED_DATE 		as updatedDate
-		from
-			post_comments
-		where
-			comment_no = #{value}
-	</select>
-	
-	<select id="getAttachedFilesByPostNo" parameterType="int" resultType="com.example.vo.post.AttachedFile">
+	<select id="selectAttachedFiles" parameterType="int" resultType="com.example.vo.post.AttachedFile">
 		select
 			POST_NO					as postNo,
 			POST_SAVED_FILENAME 	as savedName,
@@ -417,21 +416,7 @@
 			post_no = #{value}
 	</select>
 	
-	<select id="getAttachedFilesListByPostNoList" parameterType="java.util.List" resultType="com.example.vo.post.AttachedFile">
-		select
-			POST_NO					as postNo,
-			POST_SAVED_FILENAME 	as savedName,
-			POST_ORIGINAL_FILENAME	as originalName
-		from
-			POST_ATTACHED_FILES
-		where
-			post_no in
-		<foreach collection="list" item="no" open="(" separator="," close=")">
-			#{no}
-		</foreach>
-	</select>
-	
-	<select id="getTagsByPostNo" parameterType="int" resultType="com.example.vo.post.Tag">
+	<select id="selectTags" parameterType="int" resultType="com.example.vo.post.Tag">
 		select
 			post_no		as postNo,
 			tag_content	as content
@@ -441,7 +426,7 @@
 			post_no = #{value}	
 	</select>
 	
-	<select id="getPostByNo" parameterType="int" resultType="com.example.vo.post.Post">
+	<select id="selectPost" parameterType="int" resultType="com.example.vo.post.Post">
 		select
 			 post_no 				as no,
 			 employee_no 			as employeeNo,
@@ -460,7 +445,7 @@
 			post_no = #{value}
 	</select>
 	
-	<select id="getPostsByNoList" parameterType="java.util.List" resultType="com.example.vo.post.Post">
+	<select id="selectPosts" parameterType="java.util.List" resultType="com.example.vo.post.Post">
 		select
 			post_no 				as no,
 			employee_no 			as employeeNo,
@@ -530,7 +515,6 @@
 		set
 			comment_content = #{content},
 			comment_recommend_count = #{recommendCount},
-			comment_deleted = #{deleted},
 			comment_updated_date = sysdate
 		where
 			comment_no = #{no}
