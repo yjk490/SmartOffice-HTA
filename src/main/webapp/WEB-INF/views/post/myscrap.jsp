@@ -42,13 +42,13 @@
 				</div>
 			</form>
 			<c:choose>
-				<c:when test="${empty posts }">
+				<c:when test="${empty myscraps }">
 					<div class="row mb-1 text-center">
 						<span>게시글이 존재하지 않습니다.</span>
 					</div>
 				</c:when>
 				<c:otherwise>
-					<c:forEach var="post" items="${posts }">
+					<c:forEach var="post" items="${myscraps }">
 						<div class="mb-3 p-1 border-bottom">
 							<div class="row">
 								<div class="col-6">
@@ -69,9 +69,9 @@
 					</c:forEach>
 				</c:otherwise>
 			</c:choose>
-			<c:if test="${not empty posts }">
+			<c:if test="${not empty myscraps }">
 				<div class="row">
-					<nav id="pagenation">
+					<nav id="pagination">
 						<ul class="pagination pagination justify-content-center pt-5">
 							<li class="page-item">
 								<a class="page-link link-dark ${pagination.first ? 'disabled' : '' }" href="${pagination.prevPage }" aria-label="Previous">
@@ -97,5 +97,29 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function () { 
+	function submitForm(page) {
+		$(":input[name=page]").val(page)
+		$("#form-search").submit()
+	}
+	
+	$("#dropdown-rows").change(function() {
+		submitForm(1)
+	})
+	
+	$("#btn-keyword").click(function() {
+		submitForm(1)
+	})
+	
+	$("#pagination a").click(function(event) {
+		event.preventDefault();
+		
+		let page = $(this).attr("href")
+		submitForm(page)
+	})
+	
+})
+</script>
 </body>
 </html>

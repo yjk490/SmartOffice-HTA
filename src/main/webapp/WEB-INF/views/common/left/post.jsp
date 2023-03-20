@@ -37,7 +37,9 @@ a:link { text-decoration:none; }
 			</div>
 			<div class="list-group p-3">
 			  <a href="/post/notice" class="list-group-item list-group-item-action">알림
+			  <!-- 
 			   <span class="badge bg-primary rounded-pill float-end">3</span>
+			   -->
 			  </a>
 			  <a href="/post/mypost" class="list-group-item list-group-item-action">내가 쓴 글</a>
 			  <a href="/post/mycomment" class="list-group-item list-group-item-action">내가 쓴 댓글</a>

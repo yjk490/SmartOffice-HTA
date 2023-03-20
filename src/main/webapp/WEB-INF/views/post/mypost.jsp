@@ -23,13 +23,31 @@
 			</div>
 			<form id="form-search" method="GET" action="mypost">
 				<input type="hidden" name="page" value="${pagination.page }" />
-				<div class="m-1 mb-3 py-4 d-flex justify-content-end border-bottom">
-					<div>
+				<div class="m-1 mb-3 py-4 d-flex justify-content-between border-bottom">
+					<div class="col-6 text-start">
 						<div class="d-inline-block">
 							<select id="dropdown-rows" class="form-select form-select-xs border-secondary" name="rows">
 								<option value="10" ${opt.rows eq 10 ? 'selected' : ''}>10개씩</option>
 								<option value="15" ${opt.rows eq 15 ? 'selected' : ''}>15개씩</option>
 								<option value="20" ${opt.rows eq 20 ? 'selected' : ''}>20개씩</option>
+							</select>
+						</div>
+						<div class="d-inline-block">
+							<select id="dropdown-sort" class="form-select form-select-xs border-secondary" name="sort">
+								<option value="date" ${opt.sort eq 'date' ? 'selected' : ''}>최신순</option>
+								<option value="recommend" ${opt.sort eq 'recommend' ? 'selected' : ''}>추천순</option>
+								<option value="read" ${opt.sort eq 'read' ? 'selected' : ''}>조회순</option>
+								<option value="comment" ${opt.sort eq 'comment' ? 'selected' : ''}>댓글순</option>
+								<option value="scrap" ${opt.sort eq 'scrap' ? 'selected' : ''}>스크랩순</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-6 text-end">
+						<div class="d-inline-block">
+							<select class="form-select form-select-xs border-secondary" name="type">
+								<option value="title" ${opt.type eq 'title' ? 'selected' : '' }>제목</option>
+								<option value="content" ${opt.type eq 'content' ? 'selected' : '' }>제목+내용</option>
+								<option value="name" ${opt.type eq 'name' ? 'selected' : '' }>이름</option>
 							</select>
 						</div>
 						<div class="d-inline-block">
@@ -42,13 +60,13 @@
 				</div>
 			</form>
 			<c:choose>
-				<c:when test="${empty posts }">
+				<c:when test="${empty myposts }">
 					<div class="row mb-1 text-center">
 						<span>게시글이 존재하지 않습니다.</span>
 					</div>
 				</c:when>
 				<c:otherwise>
-					<c:forEach var="post" items="${posts }">
+					<c:forEach var="post" items="${myposts }">
 						<div class="mb-3 p-2 border-bottom">
 							<div class="row mb-1">
 								<div class="col-6">
@@ -69,7 +87,7 @@
 			</c:choose>
 			<c:if test="${not empty posts }">
 				<div class="row">
-					<nav id="pagenation">
+					<nav id="pagination">
 						<ul class="pagination pagination justify-content-center pt-5">
 							<li class="page-item">
 								<a class="page-link link-dark ${pagination.first ? 'disabled' : '' }" href="${pagination.prevPage }" aria-label="Previous">
@@ -95,5 +113,33 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function () { 
+	function submitForm(page) {
+		$(":input[name=page]").val(page)
+		$("#form-search").submit()
+	}
+	
+	$("#dropdown-rows").change(function() {
+		submitForm(1)
+	})
+	
+	$("#dropdown-sort").change(function() {
+		let page = $(":input[name=page]").val()
+		submitForm(page)
+	})
+	
+	$("#btn-keyword").click(function() {
+		submitForm(1)
+	})
+	
+	$("#pagination a").click(function(event) {
+		event.preventDefault();
+		
+		let page = $(this).attr("href")
+		submitForm(page)
+	})
+})
+</script>
 </body>
 </html>
