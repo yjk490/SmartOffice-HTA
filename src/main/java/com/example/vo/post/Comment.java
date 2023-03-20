@@ -13,7 +13,6 @@ public class Comment {
 	private int postNo;
 	private String content;
 	private int recommendCount;
-	private String deleted;
 	private Date createdDate;
 	private Date updatedDate;
 	
@@ -35,14 +34,6 @@ public class Comment {
 	
 	public void decreaseRecommendCount() {
 		this.recommendCount -= 1;
-	}
-	
-	public void deleteComment() {
-		this.deleted = "Y";
-	}
-	
-	public void recoverComment() {
-		this.deleted = "N";
 	}
 	
 }

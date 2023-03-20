@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class CommentDto {
+public class CommentListDto {
 
 	private int no;
 	private int employeeNo;
@@ -20,7 +20,7 @@ public class CommentDto {
 	private String createdDateTimeToString;
 	private boolean recommended;
 	
-	public CommentDto(int no, int employeeNo, String name, String content, int recommendCount, LocalDateTime createdDateTime,
+	public CommentListDto(int no, int employeeNo, String name, String content, int recommendCount, LocalDateTime createdDateTime,
 			boolean recommended) {
 		this.no = no;
 		this.employeeNo = employeeNo;
