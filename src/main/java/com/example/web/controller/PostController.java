@@ -52,7 +52,7 @@ public class PostController {
 	@Value("${spring.servlet.multipart.max-request-size}")
 	private int maxTotalFileSize;
 	
-	// 모든 게시글 리스트 조회
+	// 모든 게시글 리스트 조회 
 	@GetMapping("/list")
 	public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page, PostSearchOption opt, Model model) {
 		PostSearchResult result = postService.getPosts(page, opt);
