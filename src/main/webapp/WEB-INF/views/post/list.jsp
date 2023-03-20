@@ -104,7 +104,7 @@
 			</c:choose>
 			<c:if test="${not empty posts }">
 				<div class="row">
-					<nav id="pagenation">
+					<nav id="pagination">
 						<ul class="pagination pagination justify-content-center pt-5">
 							<li class="page-item">
 								<a class="page-link link-dark ${pagination.first ? 'disabled' : '' }" href="${pagination.prevPage }" aria-label="Previous">
@@ -146,15 +146,14 @@ $(function () {
 	
 	// 정렬 기준을 바뀌면 페이지는 그대로 유지하고 전송
 	$("#dropdown-sort").change(function() {
-		var page = $(":input[name=page]").val()
+		let page = $(":input[name=page]").val()
 		submitForm(page)
 	})
 	
 	// 페이지 번호를 클릭하면 해당 페이지번호를 입력해서 전송
-	$("#pagenation a").click(function(event) {
+	$("#pagination a").click(function(event) {
 		event.preventDefault();
-		var page = $(this).attr("href")
-		console.log(page)
+		let page = $(this).attr("href")
 		submitForm(page)
 	})
 	

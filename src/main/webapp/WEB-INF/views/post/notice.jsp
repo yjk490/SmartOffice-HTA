@@ -26,9 +26,9 @@
 					<div>
 						<div class="d-inline-block">
 							<select id="dropdown-rows" class="form-select form-select-xs border-secondary" name="rows">
-								<option value="10" ${opt.rows eq 10 ? 'selected' : ''}>10개씩</option>
-								<option value="15" ${opt.rows eq 15 ? 'selected' : ''}>15개씩</option>
-								<option value="20" ${opt.rows eq 20 ? 'selected' : ''}>20개씩</option>
+								<option value="10" ${rows eq 10 ? 'selected' : ''}>10개씩</option>
+								<option value="15" ${rows eq 15 ? 'selected' : ''}>15개씩</option>
+								<option value="20" ${rows eq 20 ? 'selected' : ''}>20개씩</option>
 							</select>
 						</div>
 					</div>
@@ -73,9 +73,9 @@
 					</c:forEach>
 				</c:otherwise>
 			</c:choose>								
-			<c:if test="${not empty posts }">
+			<c:if test="${not empty notice }">
 				<div class="row">
-					<nav id="pagenation">
+					<nav id="pagination">
 						<ul class="pagination pagination justify-content-center pt-5">
 							<li class="page-item">
 								<a class="page-link link-dark ${pagination.first ? 'disabled' : '' }" href="${pagination.prevPage }" aria-label="Previous">
@@ -101,5 +101,25 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function () {
+	
+	function submitForm(page) {
+		$(":input[name=page]").val(page)
+		$("#form-search").submit()
+	}	
+	
+	$("#dropdown-rows").change(function() {
+		submitForm(1)
+	})
+	
+	$("#pagination a").click(function(event) {
+		event.preventDefault();
+		
+		let page = $(this).attr("href")
+		submitForm(page)
+	})
+})
+</script>
 </body>
 </html>
