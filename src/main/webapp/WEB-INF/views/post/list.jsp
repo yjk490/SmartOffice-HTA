@@ -132,34 +132,28 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
 $(function () {
-	
-	// 검색 옵션, 정렬 기준, 페이지번호가 쿼리스트링으로 있는 Form태그를 전송하는 함수
 	function submitForm(page) {
 		$(":input[name=page]").val(page)
 		$("#form-search").submit()
 	}
 	
-	// 한 페이지에 출력할 행 개수를 바꾸면 페이지 번호를 1로 초기화하고 전송
 	$("#dropdown-rows").change(function() {
 		submitForm(1)
 	})
 	
-	// 정렬 기준을 바뀌면 페이지는 그대로 유지하고 전송
 	$("#dropdown-sort").change(function() {
 		let page = $(":input[name=page]").val()
 		submitForm(page)
 	})
 	
-	// 페이지 번호를 클릭하면 해당 페이지번호를 입력해서 전송
+	$("#btn-keyword").click(function() {
+		submitForm(1)
+	})
+	
 	$("#pagination a").click(function(event) {
 		event.preventDefault();
 		let page = $(this).attr("href")
 		submitForm(page)
-	})
-	
-	// 검색어를 입력하고 검색 버튼을 누르면 페이지 번호를 1로 초기화하고 전송
-	$("#btn-keyword").click(function() {
-		submitForm(1)
 	})
 })
 </script>
