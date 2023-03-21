@@ -3,8 +3,8 @@
 > ![Windows 10](https://img.shields.io/badge/Windows%2010-%230079d5.svg?style=flat&logo=Windows%2010&logoColor=white)
 > ![Eclipse](https://img.shields.io/badge/Eclipse-2C2255.svg?style=flat&logo=Eclipse&logoColor=white)
 > ![GitHub](https://img.shields.io/badge/GitHub-606060?style=fat&logo=github)
-> ![Notion](https://img.shields.io/badge/Notion-606060.svg?style=flat&logo=notion&logoColor=white)
-> ![java](https://img.shields.io/badge/Java-11-DEB887?style=flat) 
+> ![Notion](https://img.shields.io/badge/Notion-606060.svg?style=flat&logo=notion&logoColor=white)   
+> ![java](https://img.shields.io/badge/Java-11-DEB887?style=flat)
 > <img src="https://img.shields.io/badge/Spring-6DB33F?style=flat&logo=Spring&logoColor=white"/>
 > <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=flat&logo=SpringBoot&logoColor=white"/>
 > <img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=flat&logo=SpringSecurity&logoColor=white"/>
