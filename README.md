@@ -1,5 +1,20 @@
 # SmartOffice-HTA
 
+> ![Windows 10](https://img.shields.io/badge/Windows%2010-%230079d5.svg?style=flat&logo=Windows%2010&logoColor=white)
+> ![Eclipse](https://img.shields.io/badge/Eclipse-2C2255.svg?style=flat&logo=Eclipse&logoColor=white)
+> ![GitHub](https://img.shields.io/badge/GitHub-606060?style=fat&logo=github)
+> ![Notion](https://img.shields.io/badge/Notion-606060.svg?style=flat&logo=notion&logoColor=white)
+> ![Oracle](https://img.shields.io/badge/Oracle-F80000?style=flat&logo=oracle&logoColor=white)  
+> ![java](https://img.shields.io/badge/Java-11-DEB887?style=flat) 
+> <img src="https://img.shields.io/badge/Spring-6DB33F?style=flat&logo=Spring&logoColor=white"/>
+> <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=flat&logo=SpringBoot&logoColor=white"/>
+> <img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=flat&logo=SpringSecurity&logoColor=white"/>   
+> <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=JavaScript&logoColor=black"/>
+> ![jQuery](https://img.shields.io/badge/jquery-%230769AD.svg?style=flat&logo=jquery&logoColor=white)
+> <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=HTML5&logoColor=white" />
+> <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=CSS3&logoColor=white" />
+> ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=flat&logo=bootstrap&logoColor=white)
+
 # 목차
   - [프로젝트 소개](#소개)
   - [개발환경](#개발-환경)
