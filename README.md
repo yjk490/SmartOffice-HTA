@@ -42,7 +42,7 @@ Java와 Spring 프레임워크를 학습한 후, 실습을 위해 기획한 팀 
 
 ## 사용 기술
 ### FrontEnd   
-+ HTNL5/CSS3
++ HTML5/CSS3
 + BootStrap 5.3
 + JSP
 + JavaScript
